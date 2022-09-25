@@ -1,0 +1,31 @@
+# Output base chain.
+#  - Specific configuration to be done via defining out_outbound chain.
+
+table inet filter {
+	chain output {
+		type filter hook output priority filter; policy drop;
+
+		ct state established,related accept
+		ct state invalid drop
+
+		oif lo accept
+
+		ip protocol icmp accept
+		ip6 nexthdr ipv6-icmp accept
+		ip protocol igmp accept
+
+		jump out_outbound
+
+		limit rate 60/minute \
+			log prefix "[nftables] Outbound denied: " flags all \
+			counter \
+			reject with icmpx type admin-prohibited
+		limit rate 60/second \
+			counter \
+			reject with icmpx type admin-prohibited
+	}
+
+	chain out_outbound {
+		# To be extended elsewhere.
+	}
+}

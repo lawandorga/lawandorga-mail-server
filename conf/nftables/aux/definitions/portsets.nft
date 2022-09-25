@@ -1,0 +1,13 @@
+# Sets of ports to use elsewhere.
+
+# Note: The standard DNS port is not included.  Use DNS-over-TLS.
+
+define out_ports_allow_basic = \
+	{ tcp . $port_tcp_dns_over_tls
+	, tcp . $port_both_http
+	, udp . $port_both_http
+	, tcp . $port_both_https
+	, udp . $port_both_https
+	, tcp . $port_tcp_whois
+	, udp . $port_udp_ntp
+	}

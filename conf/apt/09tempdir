@@ -1,0 +1,5 @@
+# APT-specific temporary filesystem with `exec` rights.
+#  - See also `/conf/fstab`.
+#  - https://serverfault.com/questions/72356/how-useful-is-mounting-tmp-noexec
+#  - https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=129289#20
+APT::ExtractTemplates::TempDir "/tmps/apt";

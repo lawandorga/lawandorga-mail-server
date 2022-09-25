@@ -1,0 +1,254 @@
+# OpenSSH server configuration.
+#  * Written with options and default values of version 1:8.4p1-5
+#    (Debian:2021-09-01) in mind.
+#    - Originally written for version 1:7.9p1-10+deb10u2 (Debian:2021-03-05)).
+#    - Revised 2022-09-21 (version 1:8.4p1-5+deb11u1).
+#    - See sshd_config(5) and [changelog].
+#  * Most security-relevant values are explicitly set.  That is, as long as no
+#    new options are added or modified and none of the used crypto breaks, the
+#    below settings should be fine.
+#  * All options considered, see sshd_config(5).
+
+
+# General notes:
+#  * Prefer positive settings, whenever possible.
+#    * I.e., prefer "allow" over "deny".
+#  * Prefer very restrictive settings.
+#    * We do not expect many different people to connect.
+#    * Can always be changed per host/user / in Match blocks.
+
+
+##################################
+## Crypto & host authentication
+
+# General notes on crypto selection:
+#  * OpenSSH uses OpenSSL for many but not all of its crypto.  The following
+#    settings should rely exclusively on OpenSSH's own crypto and work for
+#    OpenSSH compiled with `make OPENSSL=no`.
+#    - <https://it.slashdot.org/story/14/04/30/1822209/openssh-no-longer-has-to-depend-on-openssl>
+#    - <https://marc.info/?l=openbsd-cvs&m=139879453001957&w=2>
+#    - <https://cvsweb.openbsd.org/cgi-bin/cvsweb/~checkout~/src/usr.bin/ssh/Makefile.inc?content-type=text/plain>
+#  * Others' recommendations:
+#    - [stribika]
+#    - [Bettercrypto]
+#    - [CERT NZ:sshd]
+
+# Notes on public key algorithms:
+#  * ECDSA is questionable.  Hence, do not use it.
+#    * <https://wiki.archlinux.org/title/SSH_keys#ECDSA> + referenced links
+#    * <https://tools.ietf.org/html/draft-ietf-ipsecme-safecurves-03#section-4>
+#    * <https://safecurves.cr.yp.to/>
+#  * Both Ed25519 and RSA are fine.
+#    * One is sufficient.
+#    * RSA requires OpenSSL, Ed25519 does not.
+#    * Choose Ed25519.
+#  * Note on RSA:
+#    * Do not use the `ssh-rsa*' algorithm.  It uses SHA-1, which is broken.
+#      * Instead, use `rsa-sha2-512*' (or `rsa-sha2-256*').
+#      - <https://eprint.iacr.org/2020/014.pdf>
+
+HostKey /etc/ssh/ssh_host_ed25519_key
+HostKeyAlgorithms ssh-ed25519
+
+PubkeyAcceptedKeyTypes ssh-ed25519
+
+# This is not actually relevant, we do not use certificates.
+CASignatureAlgorithms ssh-ed25519
+
+# Notes:
+#  * Without OpenSSL, we are basically limited to Curve25519.
+#  * If allowing Diffie-Hellman KexAlgorithms, modify `/etc/ssh/moduli'.
+#    - moduli(5)
+#    - [Mozilla]
+#    - [stribika]
+KexAlgorithms curve25519-sha256@libssh.org
+
+# Notes:
+#  * Without OpenSSL, we are limited to ChaCha20-Poly1305 and AES-CTR.
+#    - The former is an AEAD cipher, which is preferred.
+#  * For a comparison of ciphers, see also
+#    <https://soatok.blog/2020/07/12/comparison-of-symmetric-encryption-methods/>.
+Ciphers chacha20-poly1305@openssh.com
+
+# We use an AEAD cipher, so this is not actually relevant.
+MACs hmac-sha2-512-etm@openssh.com
+
+GSSAPIKeyExchange no
+
+FingerprintHash sha256
+
+
+###########################################
+## Client Authentication & authorization
+
+PermitRootLogin prohibit-password
+
+# See also the later section "Privileged users & groups".
+AllowGroups ssh-users-nopty
+
+# Only allow public key authentication.
+PubkeyAuthentication yes
+PasswordAuthentication no
+HostbasedAuthentication no
+ChallengeResponseAuthentication no
+KerberosAuthentication no
+GSSAPIAuthentication no
+
+# Positively set the authentication method(s).
+#  * Note: This setting allows to require multiple [combined] authentication
+#    methods.
+AuthenticationMethods publickey
+
+# Enable PAM.
+#  * The main function of this setting is to "enable PAM authentication using
+#    ChallengeResponseAuthentication and PasswordAuthentication"
+#    (sshd_config(5).
+#    - These are both disabled, however.
+#  * This allows "disabled" accounts to connect.
+#     - Accounts created with useradd and w/o explicitly set password are
+#       "disabled" (more precisely: /etc/shadow: "!").
+#     - To circumvent that, this value can be changed e.g. to '*', which is a
+#       a common value for system users.  (useradd -p '*')
+#       - <https://arlimus.github.io/articles/usepam/>
+#       - /etc/shadow
+#       - shadow(5)
+#  * This initializes the environment [stosb], in particular sets LANG.
+#    - This could otherwise be done via /etc/profile.d, for example.
+#  * Other arguments: <https://serverfault.com/questions/669458/whats-the-downside-of-disabling-pam-in-openssh-if-only-public-key-login-is-allo/669464#669464>
+UsePAM yes
+
+# Put authorized_keys in `/etc', only give write-access to root.
+AuthorizedKeysFile /etc/ssh/authorized_keys/%u
+
+# Don't trust the DNS on anything.
+UseDNS no
+
+# Note:
+#  * This denies access if $HOME is owned by root (and $USER != root).
+#    * This could be a reason to disable this.
+#    * SFTP is unaffected.
+StrictModes yes
+
+# Less time for attacks.
+#  * Value as suggested by [CERT NZ:sshd].
+#    * I did not find any suggestion anywhere of a lower value.
+#  * This should probably make more difficult, e.g., the attack described here:
+#    - <https://eprint.iacr.org/2020/014.pdf>
+#    - <https://www.openssh.com/txt/release-8.2>
+#    * Note that this attack does not affect us.
+LoginGraceTime 10
+
+# Suggested by [CERT NZ:sshd].
+MaxAuthTries 1
+
+# "Disable connection multiplexing which can be used to bypass authentication"
+#  - [CERT NZ:sshd]
+MaxSessions 1
+
+# Note:
+#  * The default MaxStartups should be fine.  I simply do not know a good
+#    value; hence, I left it as is.
+#MaxStartups
+
+
+###################
+## Misc/Security
+
+# Compression may lessen the quality of encryption.
+#  - <https://lists.mindrot.org/pipermail/openssh-unix-dev/2014-November/033177.html>
+Compression no
+
+# Forwarding
+#  * Prefer catchalls, but also explicitly disable any single forwarding kind,
+#    in order to allow for selective enabling in Match blocks.
+DisableForwarding yes
+
+# Specific forwarding settings.  Irrelevant if `DisableForwarding yes'.
+AllowAgentForwarding no
+AllowTcpForwarding no
+X11Forwarding no
+AllowStreamLocalForwarding no
+
+# TCP forwarding settings.  Irrelevant if `AllowTcpForwarding no'.
+GatewayPorts no
+PermitListen none
+PermitOpen none
+
+# Did you know one can easily create a VPN with SSH?
+PermitTunnel no
+
+PermitTTY no
+
+# There's probably no harm in permitting this; however, I do not see no benefit
+# either.
+PermitUserRC no
+
+# sshd_config(5) says enabling this may pose a risk.
+PermitUserEnvironment no
+
+# Socket file creation mode mask.  This is the default.
+StreamLocalBindMask 0177
+
+# Check connection survival via SSH, not bare TCP.
+#  * See also ServerAlive* in ssh_config.
+#  * Note: Doing this both on the server and the client is probably not
+#    helpful.
+TCPKeepAlive no
+ClientAliveInterval 15
+ClientAliveCountMax 3
+
+# This stuff is shown pre-authentication.  Be boring.
+#  * Note: The OpenSSH version is shown in any case.
+Banner none
+#Banner /etc/issue.net
+DebianBanner no
+VersionAddendum none
+
+# Restrict access to potentially sensible log messages (default: AUTH).
+SyslogFacility AUTHPRIV
+
+# INFO should be enough.  VERBOSE does not harm though.
+#  - Also, VERBOSE is suggested by [CERT NZ:sshd].
+#  - Note: In some older OpenSSH version, the log-level VERBOSE was required to
+#    log key fingerprints.  [Mozilla]
+LogLevel VERBOSE
+
+
+##########
+## Misc
+
+# This stuff is shown post-authentication.  Be boring anyways.
+PrintMotd no
+PrintLastLog yes
+
+
+###############################
+## Privileged users & groups
+
+# See also the global AllowGroups setting.
+#  - The idea is that
+#    - there, a single group is allowed access which gets all the above
+#      "default" permissions.
+#      - That group is to use for users that should have classic SSH access
+#        but nothing fancy.
+#    - here, distinct groups are given more or less permissions than the
+#      "default" group.
+#    - any group suffices to give SSH access of some kind.
+#      - I.e., membership in several groups is usually not required
+#      - In particular, SSH users need not be in the "default" group.
+
+# For interactive shell access, one wants a pty.
+Match Group ssh-users-pty
+	AllowGroups ssh-users-pty
+	PermitTTY yes
+
+
+# References (the more important/general ones)
+#  * sshd_config(5)
+#  * [Bettercrypto] https://bettercrypto.org/#_openssh
+#  * [Mozilla] https://infosec.mozilla.org/guidelines/openssh
+#  * [stribika] https://stribika.github.io/2015/01/04/secure-secure-shell.html
+#  * [CERT NZ] https://github.com/certnz/ssh_hardening/
+#  * [CERT NZ:sshd] https://github.com/certnz/ssh_hardening/blob/master/config/ssh/sshd_config
+#  * [stosb] https://stosb.com/blog/explaining-my-configs-sshd_config/
+#  * [changelog] https://www.openssh.com/releasenotes.html

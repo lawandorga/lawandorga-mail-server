@@ -1,0 +1,20 @@
+# (destination) ports.
+
+# Note: There are also some aliases built-in (e.g., `http', `whois').
+
+define port_both_dns = 53
+define port_tcp_dns_over_tls = 853
+
+define port_udp_ntp = 123
+
+define port_tcp_whois = 43
+
+define port_tcp_ssh = 22
+
+# Yes, HTTP/3 also uses UDP.
+define port_both_http = 80
+define port_both_https = 443
+
+define port_tcp_smtp = 25
+define port_tcp_smtp_submission = 587
+define port_tcp_imaps = 993

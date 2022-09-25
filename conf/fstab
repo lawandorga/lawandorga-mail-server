@@ -1,0 +1,35 @@
+# fstab(5)
+
+# File systems should generally have as restricted permissions as possible.
+# Notably,
+#  - / is mounted read-only,
+#  - all other regular partitions (incl. tmpfs) are mounted `nosuid`, `nodev`,
+#    `noexec` (`/var` being an exception w.r.t. `noexec`).
+
+/dev/main/root       /           ext4  ro,relatime                      0 1
+/dev/main/var        /var        ext4  rw,relatime,nosuid,nodev         0 2
+/dev/main/var-log    /var/log    ext4  rw,relatime,nosuid,nodev,noexec  0 2
+/dev/main/var-tmp    /var/tmp    ext4  rw,relatime,nosuid,nodev,noexec  0 2
+/dev/data/mail-data  /var/mail   ext4  rw,relatime,nosuid,nodev,noexec  0 2
+
+# These should be /dev/vda1 and /dev/vda2, but we do not want to rely on that.
+LABEL=ESP            /boot/efi   vfat  rw,relatime,nosuid,nodev,noexec  0 2
+LABEL=nolvm          /var/nolvm  ext4  rw,relatime,nosuid,nodev,noexec  0 2
+
+# tmpfs
+#  - By default, each tmpfs gets 50% of RAM as size.
+#  - We could combine /tmp with /var/tmp, but the latter must be persistent,
+#    see hier(7).
+#  - `/dev/shm` is effectively another `/tmp`.  In particular, it is
+#    world-writable.
+#  - APT requires a temporary directory with `exec` rights.
+#    - See `/conf/apt/09tempdir`.
+#    - Restrict access to root.
+tmpfs  /tmp       tmpfs  rw,size=20%,nosuid,nodev,noexec     0 0
+tmpfs  /dev/shm   tmpfs  rw,size=20%,nosuid,nodev,noexec     0 0
+tmpfs  /tmps/apt  tmpfs  rw,size=20%,nosuid,nodev,mode=0700  0 0
+
+# Hide /proc/[pid] from other users (except root)--see proc(5).
+#  - The default options are the same except `hidepid`
+#    (Debian 11; 2022-09-20).
+proc  /proc  proc  rw,relatime,nosuid,nodev,noexec,hidepid=2  0 0

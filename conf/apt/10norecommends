@@ -1,0 +1,6 @@
+APT {
+	Install-Recommends "0";
+	Install-Suggests "0";
+	AutoRemove::RecommendsImportant "0";
+	AutoRemove::SuggestsImportant "0";
+};

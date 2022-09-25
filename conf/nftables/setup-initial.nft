@@ -1,0 +1,28 @@
+#!/usr/bin/nft -f
+
+# Simple firewall for a minimally configured system.
+#  - Inbound SSH allowed.
+#  - Outbound DNS allowed (usually only DNS-over-TLS).
+
+flush ruleset
+
+include "/etc/nftables/definitions/ports.nft"
+include "/etc/nftables/definitions/portsets.nft"
+
+include "/etc/nftables/input/base.nft"
+include "/etc/nftables/forward/none.nft"
+include "/etc/nftables/output/base.nft"
+
+table inet filter {
+	chain in_inbound {
+		tcp dport $port_tcp_ssh accept
+	}
+
+	chain out_outbound {
+		meta l4proto . th dport \
+			{ $out_ports_allow_basic
+			, tcp . $port_both_dns
+			, udp . $port_both_dns
+			} accept
+	}
+}
