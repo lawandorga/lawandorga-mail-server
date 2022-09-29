@@ -72,11 +72,12 @@ visible as `/dev/sda` on the machine.
     * `mkfs.fat -F 32 -n ESP /dev/vdXN`
 * LVM
     * Let `/dev/vdXN` be a partition to install LVM on.
+    * Let *VGNAME* be the name of the volume group.
     * `pvcreate /dev/vdXN`
     * `vgcreate main /dev/vdXN`
     * For each LV *NAME* of size *SIZE*:
-        - `lvcreate -n NAME -L SIZE main`
-        - `mkfs.ext4 -L NAME /dev/main/NAME`
+        - `lvcreate -n NAME -L SIZE VGNAME`
+        - `mkfs.ext4 -L NAME /dev/VGNAME/NAME`
 * For each partition `/dev/vdXN` to format directly (as ext4; name *NAME*):
     - `mkfs.ext4 -L NAME /dev/vdXN`
 * Mount all new file systems under `/mnt`, in the correct order (e.g., "var"
