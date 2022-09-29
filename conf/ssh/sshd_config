@@ -79,7 +79,7 @@ FingerprintHash sha256
 
 
 ###########################################
-## Client Authentication & authorization
+## Client authentication & authorization
 
 PermitRootLogin prohibit-password
 
@@ -220,6 +220,18 @@ LogLevel VERBOSE
 # This stuff is shown post-authentication.  Be boring anyways.
 PrintMotd no
 PrintLastLog yes
+
+
+##########
+## SFTP
+
+# Notes:
+# * Reason to enable: Ansible wants to copy files via SFTP.
+# * See also sftp-server(8).
+# * There is a difference between `internal-sftp` and `sftp-server`.
+#   See sshd_config(5).
+
+Subsystem sftp internal-sftp
 
 
 ###############################
