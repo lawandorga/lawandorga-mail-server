@@ -1,0 +1,11 @@
+# Accept certain udp and tcp ports via named set.
+
+table inet filter {
+	set out_ports_allow {
+		type inet_proto . inet_service
+	}
+
+	chain out_outbound {
+		meta l4proto . th dport @out_ports_allow accept
+	}
+}
