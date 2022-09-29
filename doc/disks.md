@@ -38,10 +38,11 @@ We assume an EFI setup.
     2. "nolvm" - 128M        - ext4 - /var/nolvm
         - This is for LVM metadata backups.
     3. "main"  - *remainder* - LVM
-        * "root"    - 2G - ext4 - /
-        * "var"     - 1G - ext4 - /var
-        * "var-log" - 1G - ext4 - /var/log
-        * "var-tmp" - 1G - ext4 - /var/tmp
+        * "root"    - 2G   - ext4 - /
+        * "var"     - 1G   - ext4 - /var
+        * "var-log" - 1G   - ext4 - /var/log
+        * "var-tmp" - 1G   - ext4 - /var/tmp
+        * "home"    - 128M - ext4 - /home
 
 
 ### data disk

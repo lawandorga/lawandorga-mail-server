@@ -10,6 +10,7 @@
 /dev/main/var        /var        ext4  rw,relatime,nosuid,nodev         0 2
 /dev/main/var-log    /var/log    ext4  rw,relatime,nosuid,nodev,noexec  0 2
 /dev/main/var-tmp    /var/tmp    ext4  rw,relatime,nosuid,nodev,noexec  0 2
+/dev/main/home       /home       ext4  rw,relatime,nosuid,nodev,noexec  0 2
 /dev/data/mail-data  /var/mail   ext4  rw,relatime,nosuid,nodev,noexec  0 2
 
 # These should be /dev/vda1 and /dev/vda2, but we do not want to rely on that.
