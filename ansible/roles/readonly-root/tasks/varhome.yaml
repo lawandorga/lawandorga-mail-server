@@ -1,0 +1,58 @@
+---
+# Configure the root user to use a writable directory for common files.
+
+
+- name: Create writable directory ($VARHOME) for the root user
+  ansible.builtin.file:
+    path: '{{ varhome_root }}'
+    owner: root
+    group: root
+    mode: '0700'
+    state: directory
+
+
+- name: "Create auxiliary directories in root's home"
+  ansible.builtin.file:
+    path: '/root/{{ item }}'
+    owner: root
+    group: root
+    mode: '0755'
+    state: directory
+  with_items:
+    - .vim
+    - .vim/plugin
+    - .profile.d
+
+
+# Note: This also configures `less`, which is not installed in this role.
+- name: Configure $VARHOME for root
+  ansible.builtin.template:
+    src: varhome.sh.j2
+    dest: /root/.profile.d/varhome.sh
+    owner: root
+    group: root
+    mode: '0644'
+
+
+# Note: `vim` is not installed in this role.
+- name: Configure vim for readonly root filesystem
+  ansible.builtin.copy:
+    content: "let &viminfofile=$VARHOME.'/.viminfo'\n"
+    dest: /root/.vim/plugin/varhome.vim
+    owner: root
+    group: root
+    mode: '0644'
+
+
+# Note: The below list is obviously inconclusive.
+#  - On a bare installation, these are the ones I deem reasonably likely to
+#    exist.
+- name: Remove old variable state files from /root
+  ansible.builtin.file:
+    path: '/root/{{ item }}'
+    state: absent
+  with_items:
+    - .bash_history
+    - .viminfo
+    - .lesshst
+...

@@ -1,0 +1,129 @@
+---
+# DNSSEC validating resolver (Unbound).
+
+
+- name: Gather the package facts
+  ansible.builtin.package_facts:
+    manager: apt
+
+
+# Notes:
+#  - Unbound should not start with the default configuration.
+#  - The below is the same as `systemctl mask unbound.service`.
+#  - By default, unbound is automatically started after installation.
+#  - See <https://lists.debian.org/debian-devel/2020/03/msg00051.html>.
+#    - Masking the unit is one suggested workaround.
+#  - We later install a custom unbound.service, so there is no need for
+#    explicit unmasking.
+- name: Prevent Unbound from starting on installation
+  ansible.builtin.file:
+    src: /dev/null
+    dest: /etc/systemd/system/unbound.service
+    owner: root
+    group: root
+    state: link
+    force: yes
+  when: "'unbound' not in ansible_facts.packages"
+
+
+- name: Install Unbound
+  ansible.builtin.apt:
+    name: unbound
+    state: present
+
+
+- name: Set up auxiliary configuration directory
+  ansible.builtin.file:
+    path: /etc/unbound/conf
+    owner: root
+    group: root
+    mode: '0755'
+    state: directory
+
+
+- name: Configure private addresses
+  ansible.builtin.copy:
+    src: private-addresses.conf
+    dest: /etc/unbound/conf/private-addresses.conf
+    owner: root
+    group: root
+    mode: '0644'
+  notify:
+    - 'dnssec-resolver : Reload Unbound'
+
+
+- name: Configure forward servers
+  ansible.builtin.copy:
+    src: forward-quad9.conf
+    dest: /etc/unbound/conf/forward.conf
+    owner: root
+    group: root
+    mode: '0644'
+  notify:
+    - 'dnssec-resolver : Reload Unbound'
+
+
+- name: Configure Unbound
+  ansible.builtin.copy:
+    src: unbound.conf
+    dest: /etc/unbound/unbound.conf
+    owner: root
+    group: root
+    mode: '0644'
+
+    # This does not work before Unbound's first run.
+    #validate: "unbound-checkconf '%s'"
+  notify:
+    - 'dnssec-resolver : Reload Unbound'
+
+
+# This is only needed for the next task.
+#  - This directory would normally created on the first start of Unbound.
+- name: Create chroot directory
+  ansible.builtin.file:
+    path: /var/lib/unbound
+    owner: root
+    group: root
+    mode: '0755'
+    state: directory
+
+
+- name: Create root key directory
+  ansible.builtin.file:
+    path: /var/lib/unbound/root_key
+    owner: unbound
+    group: unbound
+    mode: '0755'
+    state: directory
+
+
+- name: Install script updating the root trust anchor
+  ansible.builtin.copy:
+    src: update-root-trust-anchor.bash
+    dest: /etc/unbound/update-root-trust-anchor.bash
+    owner: root
+    group: root
+    mode: '0755'
+
+
+- name: Configure systemd service
+  ansible.builtin.copy:
+    src: unbound.service
+    dest: /etc/systemd/system/unbound.service
+    owner: root
+    group: root
+    mode: '0644'
+
+    # This fails due to the temporary file not ending in `.service`.
+    #validate: "systemd-analyze verify '%s'"
+  notify:
+    - 'systemd : daemon-reload'
+    - 'dnssec-resolver : Restart Unbound'
+
+
+- name: Start and enable Unbound
+  ansible.builtin.service:
+    name: unbound
+    enabled: yes
+    state: started
+...

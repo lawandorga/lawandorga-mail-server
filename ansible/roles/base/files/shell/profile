@@ -1,0 +1,53 @@
+# /etc/profile
+#
+# Essentially taken from Debian's default `/etc/profile' (2021-03-25),
+# with small adjustments and some additions.
+# Notably, changed order of sourcing `/etc/profile.d/*' and `bash.bashrc'.
+
+
+# Note: Debian does not seem to set the umask explicitly in any of the default
+#       shell-sourced files.  Parabola sets it here.  Seems like a good idea.
+umask 022
+
+
+# Note: `bash.bashrc' overrides ${PS1}, if sourced.
+if [ "`id -u`" -eq 0 ]
+then
+	PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+	PS1='# '
+else
+	PATH="/usr/local/bin:/usr/bin:/bin:/usr/local/games:/usr/games"
+	PS1='$ '
+fi
+export PATH
+
+
+if [ -d /etc/profile.d ]
+then
+	for i in /etc/profile.d/*.sh
+	do
+		. "$i"
+	done
+	unset i
+fi
+
+
+# Allow forward i-search (<C-s>).
+# Remains effective on
+#  - entering `ssh' or `su' session, and
+#  - leaving (!) `su' session (when set there).
+# See <https://stackoverflow.com/questions/12373586/how-to-reverse-i-search-back-and-forth>.
+stty -ixon
+
+
+# `[ ${var+x} ]' is equivalent to `[ -v var ]', while not Bash-specific.
+# See
+# <https://pubs.opengroup.org/onlinepubs/9699919799/utilities/V3_chap02.html>
+# (section 2.6.2) and test(1).
+#
+# Note: When run as `sh', bash does not source this file; therefore, no special
+# care needs to be taken for this case.
+if [ ${BASH+x} ] && [ -f /etc/bash.bashrc ]
+then
+	. /etc/bash.bashrc
+fi

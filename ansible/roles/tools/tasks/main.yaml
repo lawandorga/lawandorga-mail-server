@@ -1,0 +1,56 @@
+---
+# Install and configure useful tools.
+
+
+- name: Install useful tools
+  ansible.builtin.apt:
+    name: '{{ pkgs_tools + pkgs_tools_extra }}'
+    state: present
+
+
+- name: Configure GNU Screen
+  include_tasks: screen.yaml
+
+
+- name: Configure VIM
+  ansible.builtin.copy:
+    src: vimrc
+    dest: /etc/vim/vimrc
+    owner: root
+    group: root
+    mode: '0644'
+
+
+- name: Configure mlocate
+  include_tasks: mlocate.yaml
+
+
+# Notes:
+#  - See also `/doc/misc/environment.md` on configuration of the environment.
+#  - Default LESSHISTSIZE value: 100
+#  - Values <=0 are changed to the default, 100.
+#  - The upper limit is effectively INT_MAX, which is at minimum 2^15-1=32767.
+#  - For reference, see `<source>:/cmdbuf.c'.
+#  - 10000 is vim's maximum value.  `less' shall not remember more than `vim'.
+- name: Configure less
+  ansible.builtin.lineinfile:
+    regexp: '^export\s+LESSHISTSIZE='
+    line: 'export LESSHISTSIZE=10000'
+    dest: /etc/profile.d/environment.sh
+    owner: root
+    group: root
+    mode: '0644'
+    create: yes
+
+
+- name: Configure shell aliases
+  ansible.builtin.lineinfile:
+    regexp: '^alias\s+{{ item.key }}='
+    line: 'alias {{ item.key }}={{ item.value }}'
+    dest: /etc/profile.d/aliases.sh
+    owner: root
+    group: root
+    mode: '0644'
+    create: yes
+  with_items: '{{ tools_aliases }}'
+...

@@ -1,0 +1,52 @@
+---
+# APT configuration.
+#  * Depends on the fstab configuration (/tmps/apt; TODO).
+#  * This role should come before any role that installs packages.
+#    - Notable reason: no-recommends.
+
+
+# Required to use HTTPS repository URLs.
+- name: Install ca-certificates
+  ansible.builtin.apt:
+    name: ca-certificates
+    state: present
+
+
+# This is debconf's default frontend.
+#  - See debconf(7).
+#    - Note: This does not list the fallback frontend `teletype`.
+- name: Install dialog
+  ansible.builtin.apt:
+    name: dialog
+    state: present
+
+
+- name: Configure APT sources
+  ansible.builtin.template:
+    src: '{{ apt_sources_list_template }}'
+    dest: /etc/apt/sources.list
+    owner: root
+    group: root
+    mode: '0644'
+  notify:
+    - 'apt : update'
+
+
+- name: Configure APT not to install recommended packages
+  ansible.builtin.copy:
+    src: ../conf/apt/10norecommends
+    dest: /etc/apt/apt.conf.d/10norecommends
+    owner: root
+    group: root
+    mode: '0644'
+
+
+# See also the fstab configuration.
+- name: Configure APT tmpdir
+  ansible.builtin.copy:
+    src: ../conf/apt/09tempdir
+    dest: /etc/apt/apt.conf.d/09tempdir
+    owner: root
+    group: root
+    mode: '0644'
+...

@@ -1,0 +1,14 @@
+# vi: ft=sh
+
+# Disable modification of /etc/resolv.conf and hostname.
+#  - See dhclient-script(8), `/usr/sbin/dhclient-script`.
+#  - This file is sourced, but must nonetheless have the executable bit set
+#    (per the documentation, seems to work regardless).
+
+make_resolv_conf() {
+	: NOP
+}
+
+set_hostname() {
+	: NOP
+}

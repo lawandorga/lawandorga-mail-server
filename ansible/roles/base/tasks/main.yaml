@@ -1,0 +1,72 @@
+---
+# Basic common configuration.
+#  * This should be the very first role.
+
+
+- name: Configure hardware clock
+  include_tasks: "hwclock.yaml"
+  vars:
+    clock_mode: UTC
+    adjtime_path: /etc/adjtime
+
+
+- name: Configure timezone
+  ansible.builtin.file:
+    src: '/usr/share/zoneinfo/{{ timezone }}'
+    dest: /etc/localtime
+    owner: root
+    group: root
+    state: link
+
+
+# This assumes all mount points to exist.
+- name: Configure fstab
+  ansible.builtin.copy:
+    src: '{{ fstab_file }}'
+    dest: /etc/fstab
+    owner: root
+    group: root
+    mode: '0644'
+    validate: "findmnt --verify --tab-file '%s'"
+  notify:
+    - 'base : Mount all filesystems'
+
+
+# Notes:
+#  * This only works for locales available by default (C.UTF-8, C, POSIX).
+#    - These available locales are Debian-specific.
+#      - In particular, C.UTF-8 is commonly not available on other distros.
+#    - We want UTF-8.
+#    - There's not really a point in allowing configuration.
+#  * The destination path is also Debian-specific.
+- name: Configure locale
+  ansible.builtin.copy:
+    content: "LANG={{ locale }}\n"
+    dest: /etc/default/locale
+    owner: root
+    group: root
+    mode: '0644'
+  vars:
+    locale: C.UTF-8
+
+
+- name: Configure hostname
+  ansible.builtin.hostname:
+    name: '{{ hostname }}'
+    use: systemd   # `debian` does not work
+
+
+- name: Configure /etc/hosts
+  ansible.builtin.template:
+    src: '{{ hosts_template }}'
+    dest: /etc/hosts
+    owner: root
+    group: root
+    mode: '0644'
+
+
+# NOTE: This notably modifies `/etc/skel`, so no user should be created before
+#       this.
+- name: Configure Shell
+  include_tasks: shell.yaml
+...

@@ -1,3 +1,5 @@
-# Ansible overview
+# Ansible configuration
 
-*TODO*
+## Application of the configuration
+
+From the `ansible/` directory, run `ansible-playbook playbook.yaml`.

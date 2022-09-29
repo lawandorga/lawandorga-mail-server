@@ -1,0 +1,20 @@
+---
+# Common configuration for all hosts with readonly root.
+
+
+# Debian does not create the /etc/mtab symlink on installation, but rather
+# at runtime.
+#  - This fails with a readonly root.
+#  - Note: The symlink is actually rarely needed.
+- name: Symlink /etc/mtab
+  ansible.builtin.file:
+    src: ../proc/self/mounts
+    dest: /etc/mtab
+    owner: root
+    group: root
+    state: link
+
+
+- name: Configure /root for read-only root filesystem
+  include_tasks: varhome.yaml
+...

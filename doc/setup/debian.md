@@ -59,8 +59,9 @@ The actual needed steps are listed below, in order:
     - Note: In the following, all commands are to be executed from within the
       chroot, unless otherwise noted.
 * Configure APT.
-    - `install -Tm 0644 /tmp/conf/apt/sources.list /etc/apt/sources.list`
+    - `install -Tm 0644 /tmp/conf/apt/sources.list.j2 /etc/apt/sources.list`
       (c.f. D.3.4.5)
+    - `sed -Ei 's/{{ debian_release_codename }}/bullseye/g' /etc/apt/sources.list`
     - `install -Tm 0644 /tmp/conf/apt/10norecommends /etc/apt/apt.conf.d/10norecommends`
     - `install -Tm 0644 /tmp/conf/apt/09tempdir /etc/apt/apt.conf.d/09tempdir`
 * Configure mount points.
@@ -86,7 +87,8 @@ The actual needed steps are listed below, in order:
       package would need to be installed and more configuration be done.
 * Configure hostname and `/etc/hosts`.  (c.f. D.3.4.4)
     - `printf '%s\n' 'lawandorga-mail-server' > /etc/hostname`
-    - `install -Tm 0644 /tmp/conf/hosts /etc/hosts`
+    - `install -Tm 0644 /tmp/conf/hosts.j2 /etc/hosts`
+    - `sed -Ei 's/\{\{ hostname \}\}/lawandorga-mail-server/g' /etc/hosts`
 * Install a kernel.  (c.f. D.3.5)
     - *Scaleway-specific:* `apt install linux-image-cloud-amd64`
         - See [notes on Scaleway](/doc/setup/vm-scaleway.md).
@@ -112,10 +114,11 @@ The actual needed steps are listed below, in order:
     - Obtain and note down the new server key fingerprint:
         - `ssh-keygen -lE sha256 -f /etc/ssh/ssh_host_ed25519_key.pub`
 * Install further important packages.
-    - `apt install lvm2 init libpam-systemd apparmor`
+    - `apt install lvm2 init libpam-systemd apparmor python3`
         - `libpam-systemd`:
             - Recommended by `systemd-sysv` (dependency of `init`)
             - package desc.: "If in doubt, do install this package."
+        - `python3`: Needed for Ansible.
 * Install and set up the firewall.
     - `apt install nftables netbase`
     - `cp -Tr /tmp/conf/nftables/aux/ /etc/nftables/`

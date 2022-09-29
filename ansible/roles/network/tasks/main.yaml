@@ -1,0 +1,45 @@
+---
+# Network configuration using ifupdown.
+
+
+- name: Install ifupdown
+  ansible.builtin.apt:
+    name: ifupdown
+    state: present
+
+
+- name: Install isc-dhcp-client
+  ansible.builtin.apt:
+    name: isc-dhcp-client
+    state: present
+
+
+- name: Configure ifupdown
+  ansible.builtin.template:
+    src: interfaces.j2
+    dest: /etc/network/interfaces
+    owner: root
+    group: root
+    mode: '0644'
+    validate: "ifup --all --no-act --force --interface='%s'"
+  notify:
+    - 'network : Restart ifupdown'
+
+
+- name: Configure dhclient not to touch /etc/resolv.conf
+  ansible.builtin.copy:
+    src: dhcp/dhclient-enter-hooks
+    dest: /etc/dhcp/dhclient-enter-hooks
+    owner: root
+    group: root
+    mode: '0755'
+
+
+- name: Configure nameserver
+  ansible.builtin.copy:
+    content: '{{ resolv_conf_content }}'
+    dest: /etc/resolv.conf
+    owner: root
+    group: root
+    mode: '0644'
+...

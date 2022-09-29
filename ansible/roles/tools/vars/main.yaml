@@ -1,0 +1,39 @@
+---
+pkgs_tools:
+
+  # Documentation.
+  - man-db
+  - manpages
+  - info
+
+  # Network tools.
+  - iputils-ping
+  - netcat-openbsd    # Unlike netcat-traditional, supports sockets (i.a.).
+  - ldnsutils         # `drill`
+  - nload
+  - whois
+  - curl
+  - wget
+
+  # Finding stuff.
+  - findutils         # (Priority: required)
+  - mlocate
+
+  # Calculators.
+  - dc
+  - bc
+
+  # Editors.
+  - ed
+  - vim
+  - vim-scripts
+
+  # Miscellaneous tools.
+  - bash-completion
+  - screen
+  - less
+  - file
+  - lsof
+  - sed
+  - libarchive-tools  # `bsdtar`
+...

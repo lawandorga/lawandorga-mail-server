@@ -1,0 +1,36 @@
+---
+# LVM configuration.
+
+
+- name: Install LVM
+  ansible.builtin.apt:
+    name: lvm2
+    state: present
+
+
+- name: Configure LVM state directory
+  block:
+    - name: Configure LVM backup & archive directories
+      ansible.builtin.replace:
+        path: /etc/lvm/lvm.conf
+        regexp: '^(\s*(backup|archive)_dir)\s*=\s*.*$'
+        replace: '\1 = "{{ lvm_state_dir }}/\2"'
+      register: lvmconf_backup_archive_dir
+
+    - name: Create LVM state directory
+      ansible.builtin.file:
+        path: '{{ lvm_state_dir }}'
+        owner: root
+        group: root
+        mode: '0755'
+        state: directory
+
+    - name: (Re-)move old backup & archive directories
+      include_tasks: "move_statedir.yaml"
+      with_items:
+        - backup
+        - archive
+      vars:
+        default_lvm_statedir: /etc/lvm
+      when: lvmconf_backup_archive_dir.changed
+...

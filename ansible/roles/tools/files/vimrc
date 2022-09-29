@@ -1,0 +1,163 @@
+" Vim configuration.
+"
+" Sources of inspiration:
+"  - /usr/share/vim/vim82/defaults.vim
+"    (debver 2:8.2.2434-3; alleged last change '2020 Sep 30')
+"    - I ignored some more complex settings; they seemed not that important
+"      and I was lazy.
+"  - Debian's default /etc/vim/vimrc (debver 2:8.2.2434-3+deb11u1)
+" Further potential sources of inspiration:
+"  - /usr/share/vim/vim82/vimrc_example.vim
+"  - /usr/share/vim/vim82/*.vim
+
+" Source $VIMRUNTIME/debian.vim (more or less Debian specific settings).
+runtime! debian.vim
+
+" Disable loading of `defaults.vim', which would take precendence.
+"  - Note: It would only be loaded, if no user vimrc is present.
+"  - See `:help defaults.vim'
+"  - I gives some good ideas though.  I took its content (debver 2:8.2.2434-3;
+"    alleged last change '2020 Sep 30') into account when writing this file.
+"    - I ignored some more complex settings; they seemed not that important
+"      and I was lazy.
+let g:skip_defaults_vim = 1
+
+set nocompatible
+
+" Allow only "secure" modelines.
+"  - Modelines only allow set commands; nonetheless they are considered
+"    dangerous by some.
+"  - secure-modelines is a plugin and part of the `vim-scripts` package.
+set nomodeline
+packadd! secure-modelines
+
+
+" Recognize filetype, indent and highlight accordingly.
+filetype plugin indent on
+syntax on
+"set autoindent
+"set smartindent
+
+" Boring default tab size (change for specific file types).
+set tabstop=8
+" Disable 'softtabstop':
+set softtabstop=0
+" Make 'shiftwidth' fall back to 'tabstop' (only one override necessary):
+set shiftwidth=0
+set noexpandtab
+
+" Conservative textwidth (longer lines are broken).
+set textwidth=78
+
+" Assume the background is dark.
+set background=dark
+
+
+" Jump to the last position when reopening a file (from Debian's /etc/vimrc).
+au BufReadPost * if line("'\"") > 1 && line("'\"") <= line("$") | exe "normal! g'\"" | endif
+
+
+" Better command-line completion
+set wildmenu
+
+" Always show status line.
+set laststatus=2
+
+" Show line and column number.
+set ruler
+
+" (Apparently) equivalent to `set ruler' (example from :help 'statusline').
+"set statusline=%<%f\ %h%m%r%=%-14.(%l,%c%V%)\ %P
+
+" To show keys pressed.  Too fancy for me.
+"set showcmd
+
+" Keep some more command-line history (10000 is the maximum).
+set history=10000
+
+
+" Do not directly interact with the mouse (default).
+"  - defaults.vim would set `mouse=a', which annoys me.
+"    - Note that this may be alleviated, by using the shift key when using the
+"      mouse.
+set mouse=
+
+" Replace a truncated line by `@' lines (default).
+set display=
+
+" Display some context around cursor, i.e. cursor is usually not at either top
+" or bottom of the screen.
+set scrolloff=5
+
+" `incsearch' is terrible.  Default off.
+set noincsearch
+
+" Case handling.
+"  * Do not use 'ignorecase'.
+"    * Unfortunately, 'ignorecase' affects several areas of case handling.
+"    * Specific notes:
+"      - Searching:
+"        - 'ignorecase' + 'smartcase' is best.
+"          - Ignore case iff the pattern contains upper case characters.
+"      - Insert-completion (^N):
+"        - 'noignorecase' is best for formal language
+"        - 'ignorecase' + 'nosmartcase' + 'infercase' is best for natural
+"          language
+"        - 'ignorecase' + 'noinfercase' is ok for formal language.
+"          - Unsure about '[no]smartcase'.
+"      - Substitution (":s")
+"        - 'noignorecase' is best
+set noignorecase
+"set smartcase?
+"set infercase?
+"
+"  * Dunno.
+"set tagcase?
+"
+"  * Filenames (defaults as of debver 2:8.2.2434-3+deb11u1).
+set nofileignorecase
+set nowildignorecase
+
+
+" Some common files' filetypes.
+autocmd BufNewFile,BufRead PKGBUILD   setlocal filetype=sh
+
+" Some filetype-specific options.
+autocmd FileType vim     setlocal expandtab tabstop=2
+autocmd FileType sh      setlocal expandtab tabstop=2
+autocmd FileType haskell setlocal expandtab tabstop=2 autoindent
+autocmd FileType java    setlocal expandtab tabstop=4
+autocmd FileType sieve   setlocal expandtab tabstop=2 autoindent
+
+
+" Diff colorscheme
+
+" Most likely available colors:
+" Red      LightRed      DarkRed
+" Green    LightGreen    DarkGreen    SeaGreen
+" Blue     LightBlue     DarkBlue     SlateBlue
+" Cyan     LightCyan     DarkCyan
+" Magenta  LightMagenta  DarkMagenta
+" Yellow   LightYellow   Brown        DarkYellow
+" Gray     LightGray     DarkGray
+" Black    White
+" Orange   Purple        Violet
+
+"highlight DiffAdd    cterm=none ctermfg=black ctermbg=grey      gui=none guifg=black guibg=grey
+highlight DiffAdd    cterm=bold ctermfg=white ctermbg=darkblue  gui=bold guifg=white guibg=darkblue
+highlight DiffDelete cterm=bold ctermfg=white ctermbg=black     gui=bold guifg=white guibg=black
+highlight DiffChange cterm=bold ctermfg=white ctermbg=darkgreen gui=bold guifg=white guibg=darkgreen
+highlight DiffText   cterm=bold ctermfg=white ctermbg=darkred   gui=bold guifg=white guibg=darkred
+
+
+" Source /etc/vim/vimrc.d/*.vim
+"
+" Notes:
+"  * In contrast to the default Debian configuration, we do not source
+"    `/etc/vim/vimrc.local`.
+"  * The last argument causes dead symlinks to be included.
+"    - This is so that a visible error is printed.  A dead symlink hints to a
+"      misconfiguration.
+for fpath in glob('/etc/vim/vimrc.d/*.vim', v:true, v:true, v:true)
+  execute 'source ' . fnameescape(fpath)
+endfor

@@ -1,0 +1,11 @@
+---
+- name: Restart Unbound
+  ansible.builtin.service:
+    name: unbound
+    state: restarted
+
+- name: Reload Unbound
+  ansible.builtin.service:
+    name: unbound
+    state: reloaded
+...

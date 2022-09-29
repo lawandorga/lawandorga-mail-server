@@ -1,0 +1,42 @@
+---
+- name: 'Check existence of default LVM {{ item }} directory'
+  ansible.builtin.stat:
+    path: '{{ default_lvm_statedir }}/{{ item }}'
+    follow: no
+    get_attributes: yes
+    get_checksum: no
+    get_mime: no
+  register: old_stat
+
+
+- name: 'Check existence of new LVM {{ item }} directory'
+  ansible.builtin.stat:
+    path: '{{ lvm_state_dir }}/{{ item }}'
+    follow: no
+    get_attributes: yes
+    get_checksum: no
+    get_mime: no
+  register: new_stat
+
+
+- name: 'Move LVM {{ item }} directory to new location'
+  ansible.builtin.command:
+    argv:
+      - 'mv'
+      - '{{ default_lvm_statedir }}/{{ item }}'
+      - '{{ lvm_state_dir }}/{{ item }}'
+  when:
+    - 'old_stat.stat.exists'
+    - 'old_stat.stat.isdir'
+    - 'not new_stat.stat.exists'
+
+
+- name: 'Remove default LVM {{ item }} directory'
+  ansible.builtin.file:
+    path: '{{ default_lvm_statedir }}/{{ item }}'
+    state: absent
+  when:
+    - 'old_stat.stat.exists'
+    - 'old_stat.stat.isdir'
+    - 'new_stat.stat.exists'
+...

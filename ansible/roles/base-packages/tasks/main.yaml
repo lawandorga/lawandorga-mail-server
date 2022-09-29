@@ -1,0 +1,31 @@
+---
+# Install base packages.
+#  - This is not part of the `base` role; it should happen after APT
+#    configuration (notably no-recommends).
+
+
+- name: Install kernel
+  ansible.builtin.apt:
+    name: '{{ pkg_kernel }}'
+    state: present
+
+
+- name: Install GRUB package
+  ansible.builtin.apt:
+    name: '{{ pkg_grub }}'
+    state: present
+
+
+- name: Install Ansible remote dependencies
+  ansible.builtin.apt:
+    name:
+      - python3
+      - python3-apt  # Automatically installed by ansible (regardless of this).
+    state: present
+
+
+- name: Install other base system packages
+  ansible.builtin.apt:
+    name: '{{ pkgs_base_system_other + pkgs_base_system_other_extra }}'
+    state: present
+...

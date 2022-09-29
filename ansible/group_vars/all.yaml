@@ -1,0 +1,44 @@
+---
+timezone: Etc/UTC
+
+# Use local Unbound resolver.
+#  - It verifies DNSSEC, so trust that.
+resolv_conf_content: "nameserver 127.0.0.1\noptions trust-ad\n"
+
+apt_sources_list_template: ../conf/apt/sources.list.j2
+
+debian_release_codename: bullseye
+
+
+# LVM needs a state directory that is writable.
+#  - default: /etc/lvm/
+#  - It also should not reside on LVM.
+#  - See also the fstab configuration.
+lvm_state_dir: /var/nolvm/lvm
+
+
+# These are Scaleway-specific.
+#  - See `/doc/disks.md`.
+pkg_kernel: linux-image-cloud-amd64
+pkg_grub: grub-cloud-amd64
+
+pkgs_base_system_other_extra:
+  # EFI-specific.
+  #  - Allows for an fsck on bootup of the EFI System Partition (ESP).
+  - dosfstools
+
+pkgs_tools_extra:
+  # EFI-specific.
+  - efibootmgr
+
+
+# See also the fstab configuration / the disk setup.
+mlocate_prunepaths: "/tmp /tmps /var/tmp /mnt /var/spool"
+
+
+tools_aliases:
+  - key: ls
+    value: "'ls --color=auto'"
+  - key: ed
+    value: "'ed -p:'"
+...

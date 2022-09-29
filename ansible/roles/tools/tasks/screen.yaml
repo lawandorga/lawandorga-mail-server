@@ -1,0 +1,19 @@
+---
+# Configure GNU Screen.
+
+
+# Enable mouse scrolling and scroll bar history scrolling
+#  - See <https://unix.stackexchange.com/questions/40242/scroll-inside-screen-or-pause-output#answer-40246>.
+- name: Configure GNU Screen scrolling
+  ansible.builtin.lineinfile:
+    path: /etc/screenrc
+    line: 'termcapinfo xterm* ti@:te@'
+
+
+# Reduce delay when typing <ESC> (particularly useful in vim).
+- name: Configure GNU Screen timeout
+  ansible.builtin.lineinfile:
+    path: /etc/screenrc
+    regexp: '^maptimeout\s'
+    line: 'maptimeout 5'
+...

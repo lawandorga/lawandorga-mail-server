@@ -1,0 +1,6 @@
+---
+- name: Restart ifupdown
+  ansible.builtin.service:
+    name: networking
+    state: restarted
+...

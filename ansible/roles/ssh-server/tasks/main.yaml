@@ -1,0 +1,57 @@
+---
+# SSH server configuration (OpenSSH).
+
+# Note:
+#  * The firewall does not need to be configured for the SSH server.
+#    - Inbound SSH is allowed by default to avoid unwanted surprises.
+
+
+- name: Install OpenSSH server
+  ansible.builtin.apt:
+    name: openssh-server
+    state: present
+
+
+- name: Configure OpenSSH server
+  ansible.builtin.copy:
+    src: ../conf/ssh/sshd_config
+    dest: /etc/ssh/sshd_config
+    owner: root
+    group: root
+    mode: '0644'
+  notify:
+    - 'ssh-server : Reload OpenSSH server'
+
+
+- name: Configure OpenSSH system groups
+  block:
+    - name: Configure group ssh-users-pty
+      ansible.builtin.group:
+        name: ssh-users-pty
+        system: yes
+
+    - name: Configure group ssh-users-nopty
+      ansible.builtin.group:
+        name: ssh-users-nopty
+        system: yes
+
+    - name: Add root to group ssh-users-pty
+      ansible.builtin.user:
+        name: root
+        groups: ssh-users-pty
+        append: yes
+
+
+- name: Disable printing motd
+  ansible.builtin.replace:
+    path: /etc/pam.d/sshd
+    regexp: '^(session\s+optional\s+pam_motd.so\s)'
+    replace: '#\1'
+
+
+- name: Start and enable OpenSSH server
+  ansible.builtin.service:
+    name: sshd
+    state: started
+    enabled: yes
+...

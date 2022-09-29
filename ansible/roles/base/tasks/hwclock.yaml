@@ -1,0 +1,55 @@
+---
+# Configure hardware clock.
+#  * See adjtime_config(5).
+#  * We use `sed` (with `warn = false`); `replace` and `lineinfile` do not
+#    understand line numbers.
+
+
+- name: Check existance of hardware clock configuration
+  ansible.builtin.stat:
+    path: '{{ adjtime_path }}'
+    follow: no
+    get_attributes: yes
+    get_checksum: no
+    get_mime: no
+  register: adjtime_stat
+
+
+- name: Check hardware clock configuration
+  ansible.builtin.command:
+    argv:
+      - 'sed'
+      - '-En'
+      - '3 { /^{{ clock_mode }}$/ q 23 }'  # GNU sed specific
+      - '{{ adjtime_path }}'
+    warn: false
+  register: adjtime_config
+  changed_when: no
+  failed_when:
+    - 'adjtime_config.rc < 23'
+    - 'adjtime_config.rc != 0'
+  when: 'adjtime_stat.stat.exists and adjtime_stat.stat.isreg'
+
+
+- name: Install hardware clock configuration file
+  ansible.builtin.copy:
+    content: "0.0 0 0.0\n0\n{{ clock_mode }}\n"
+    dest: '{{ adjtime_path }}'
+    owner: root
+    group: root
+    mode: '0644'
+  when: 'not (adjtime_stat.stat.exists and adjtime_stat.stat.isreg)'
+
+
+- name: Configure hardware clock mode
+  ansible.builtin.command:
+    argv:
+      - 'sed'
+      - '-Ei'
+      - '3 c {{ clock_mode }}'
+      - '{{ adjtime_path }}'
+    warn: false
+  when:
+    - 'adjtime_stat.stat.exists and adjtime_stat.stat.isreg'
+    - 'adjtime_config.rc == 0'
+...

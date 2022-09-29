@@ -1,0 +1,25 @@
+---
+# System packages - Important, but not necessary ones.
+pkgs_base_system_other:
+  - apparmor
+  
+  # Package desc.:
+  #  * "Basic TCP/IP networking system",
+  #  * "... supplies ... /etc/services, /etc/rpc, and /etc/protocols."
+  - netbase
+
+  # Recommended by: initramfs-tools-core (transitive dep. of kernel package)
+  #  - This gives us the busybox tools in the initramfs.
+  #    - Useful in case booting fails at initramfs stage.
+  - busybox
+
+  # Recommended by: initramfs-tools-core (transitive dep. of kernel package)
+  #  - This should speed up the initramfs compression (and, thus, creation).
+  - pigz
+
+  # Rotate log files.
+  - logrotate
+
+  # Some packages install cron jobs that would otherwise never be executed.
+  - cron
+...

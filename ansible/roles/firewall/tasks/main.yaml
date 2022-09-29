@@ -1,0 +1,54 @@
+---
+# Firewall configuration using nftables.
+
+
+- name: Install nftables
+  ansible.builtin.apt:
+    name: nftables
+    state: present
+
+
+# Needed for our nftables configuration.
+- name: Install netbase
+  ansible.builtin.apt:
+    name: netbase
+    state: present
+
+
+- name: Configure nftables
+  block:
+
+    # The auxiliary files are `include`d by the main configuration file and
+    # should (for the validation of the latter to work) be installed first.
+    #  - Unfortunately, we cannot easily properly validate these auxiliary
+    #    files.
+
+    - name: Install auxiliary nftables configuration files
+      ansible.builtin.copy:
+        src: ../conf/nftables/aux/
+        dest: /etc/nftables/
+        owner: root
+        group: root
+        directory_mode: '0755'
+        mode: '0644'
+      notify:
+        - 'firewall : Reload nftables'
+
+    - name: Install main nftables configuration file
+      ansible.builtin.copy:
+        src: nftables.conf
+        dest: /etc/nftables.conf
+        owner: root
+        group: root
+        mode: '0755'
+        validate: "nft --check --file '%s'"
+      notify:
+        - 'firewall : Reload nftables'
+
+
+- name: Start and enable nftables
+  ansible.builtin.service:
+    name: nftables
+    enabled: yes
+    state: started
+...

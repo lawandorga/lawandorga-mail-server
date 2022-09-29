@@ -1,0 +1,39 @@
+---
+- name: Apply common configuration
+  hosts: all
+  remote_user: root
+
+  roles:
+    - base  # This should come first.
+    - readonly-root
+    - apt   # This should come before any package is installed.
+    - base-packages
+    - lvm
+    - systemd
+    - network
+    - firewall
+    - dnssec-resolver
+    - ssh-server
+    - tools
+
+
+  # Remount readonly root filesystem.
+  #  - Due to the readonly root filesystem, we have to remount that read-write
+  #    before any modification can be made.
+  #  - Ideally, we'd only do the remount once necessary, but I do not know how
+  #    to easily do that.
+  #  - Instead, we remount the root filesystem read-write before any task and
+  #    remount it read-only after the last task.
+  #  - NOTE: The final read-only remounting does not happen if any previous
+  #    task fails.
+
+  pre_tasks:
+    - name: 'Remount `/` read-write'
+      ansible.builtin.command:
+        cmd: 'mount -o remount,rw /'
+
+  post_tasks:
+    - name: 'Remount `/` read-only'
+      ansible.builtin.command:
+        cmd: 'mount -o remount,ro /'
+...

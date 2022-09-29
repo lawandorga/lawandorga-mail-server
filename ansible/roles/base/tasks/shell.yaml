@@ -1,0 +1,50 @@
+---
+# Configure Shell (Bash and sh).
+#  - Both globally, and via /root and /etc/skel.
+#  - NOTE: No users should be created before this taskset.
+#    - Reason: /etc/skel is changed here.
+
+
+- name: Configure /etc/profile
+  ansible.builtin.copy:
+    src: shell/profile
+    dest: /etc/profile
+    owner: root
+    group: root
+    mode: '0644'
+
+
+- name: Configure global bashrc
+  ansible.builtin.copy:
+    src: shell/bashrc
+    dest: /etc/bash.bashrc
+    owner: root
+    group: root
+    mode: '0644'
+
+
+- name: Configure .profile for the root user and the skeleton directory
+  ansible.builtin.copy:
+    src: shell/dot.profile
+    dest: '{{ item }}/.profile'
+    owner: root
+    group: root
+    mode: '0644'
+  with_items:
+    - /root
+    - /etc/skel
+
+
+- name: "Remove common files from root's home and the skeleton directory"
+  ansible.builtin.file:
+    path: '{{ item[0] }}/{{ item[1] }}'
+    state: absent
+  loop: '{{ dirs | product(files) | list }}'
+  vars:
+    dirs:
+      - /root
+      - /etc/skel
+    files:
+      - .bashrc
+      - .bash_logout    # Normally only present in `/etc/skel`.
+...

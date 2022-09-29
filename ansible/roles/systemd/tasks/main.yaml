@@ -1,0 +1,27 @@
+---
+# systemd configuration.
+
+
+- name: Install systemd
+  ansible.builtin.apt:
+    name:
+      # Depends on `systemd-sysv`:
+      - init
+
+      # Recommended by `systemd-sysv`.
+      # package desc.: "If in doubt, do install this package."
+      - libpam-systemd
+
+    state: present
+
+
+- name: Configure journald
+  ansible.builtin.copy:
+    src: journald.conf
+    dest: /etc/systemd/journald.conf
+    owner: root
+    group: root
+    mode: '0644'
+  notify:
+    - 'systemd : Restart journald'
+...
