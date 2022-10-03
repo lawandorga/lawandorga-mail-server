@@ -46,6 +46,16 @@
         - 'firewall : Reload nftables'
 
 
+- name: Create directory for custom firewall configuration
+  ansible.builtin.file:
+    path: /etc/nftables/custom
+    owner: root
+    group: root
+    mode: '0755'
+    state: directory
+    follow: no
+
+
 - name: Start and enable nftables
   ansible.builtin.service:
     name: nftables
