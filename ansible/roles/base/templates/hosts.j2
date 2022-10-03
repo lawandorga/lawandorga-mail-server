@@ -1,5 +1,6 @@
 # /etc/hosts
 #  - Based on [0].
+#  - See also hosts(5).
 
 127.0.0.1	localhost
 
@@ -10,6 +11,8 @@
 #  * Mapping the FQDN to this local IP address is debatable.
 #    * [0] recommends to use the FQDN here if we have one *and* we have a
 #      static IP address.
+#    * hosts(5) has this exact configuration line listed in its example
+#      configuration.
 #    * We map our FQDN to something else than what it resolves to in the DNS
 #      (which is the NAT's public IP address).
 #    * It seems to work well, however.
