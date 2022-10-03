@@ -18,23 +18,18 @@
     - tools
 
 
-  # Remount readonly root filesystem.
-  #  - Due to the readonly root filesystem, we have to remount that read-write
+  # Remount readonly filesystems (notably, the root filesysem).
+  #  - Due to the readonly filesystems, we have to remount them read-write
   #    before any modification can be made.
   #  - Ideally, we'd only do the remount once necessary, but I do not know how
   #    to easily do that.
-  #  - Instead, we remount the root filesystem read-write before any task and
+  #  - Instead, we remount the filesystems read-write before any task and
   #    remount it read-only after the last task.
   #  - NOTE: The final read-only remounting does not happen if any previous
   #    task fails.
 
   pre_tasks:
-    - name: 'Remount `/` read-write'
-      ansible.builtin.command:
-        cmd: 'mount -o remount,rw /'
-
+    - ansible.builtin.include_tasks: tasks/remount-rw.yaml
   post_tasks:
-    - name: 'Remount `/` read-only'
-      ansible.builtin.command:
-        cmd: 'mount -o remount,ro /'
+    - ansible.builtin.include_tasks: tasks/remount-ro.yaml
 ...

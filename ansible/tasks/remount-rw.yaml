@@ -1,0 +1,6 @@
+---
+- name: 'Remount filesystems read-write'
+  ansible.builtin.command:
+    cmd: 'mount -o remount,rw {{ item }}'
+  with_items: '{{ readonly_mountpoints }}'
+...

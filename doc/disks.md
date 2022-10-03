@@ -56,7 +56,9 @@ visible as `/dev/sda` on the machine.
       for LV snapshots.
 * MBR partition table
     1. "data" - *full-size* - LVM
-        * "mail-data" - 5G - ext4 - /var/mail
+        * "mail-data"     - 5G - ext4 - /var/mail
+        * "static-data"   - 4M - ext4 - /persistent
+        * "variable-data" - 4M - ext4 - /persistent/var
 * Notes:
     - We could also skip the partition table layer, given that there is only
       one partition (and no need for an MBR to boot from).

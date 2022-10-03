@@ -12,6 +12,8 @@
 /dev/main/var-tmp    /var/tmp    ext4  rw,relatime,nosuid,nodev,noexec  0 2
 /dev/main/home       /home       ext4  rw,relatime,nosuid,nodev,noexec  0 2
 /dev/data/mail-data  /var/mail   ext4  rw,relatime,nosuid,nodev,noexec  0 2
+/dev/data/static-data  /persistent  ext4  ro,relatime,nosuid,nodev,noexec  0 2
+/dev/data/variable-data  /persistent/var  ext4  rw,relatime,nosuid,nodev,noexec  0 2
 
 # These should be /dev/vda1 and /dev/vda2, but we do not want to rely on that.
 LABEL=ESP            /boot/efi   vfat  rw,relatime,nosuid,nodev,noexec  0 2

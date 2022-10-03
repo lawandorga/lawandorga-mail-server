@@ -36,6 +36,12 @@ pkgs_tools_extra:
 mlocate_prunepaths: "/tmp /tmps /var/tmp /mnt /var/spool"
 
 
+# This depends on the fstab configuration / the disk setup (TODO).
+readonly_mountpoints:
+  - /
+  - /persistent
+
+
 tools_aliases:
   - key: ls
     value: "'ls --color=auto'"
