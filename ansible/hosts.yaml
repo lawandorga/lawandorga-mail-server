@@ -19,4 +19,8 @@ all:
     # We have a read-only `/`.
     ansible_remote_tmp: /tmp/ansible
     #ansible_ssh_pipelining: true       # Might also suffice.
+
+mailservers:
+  hosts:
+    lawandorga-mail-server:
 ...

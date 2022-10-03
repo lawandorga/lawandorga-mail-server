@@ -32,4 +32,20 @@
     - ansible.builtin.include_tasks: tasks/remount-rw.yaml
   post_tasks:
     - ansible.builtin.include_tasks: tasks/remount-ro.yaml
+
+
+- name: Apply mail server configuration
+  hosts: mailservers
+  remote_user: root
+  gather_facts: false
+
+  roles:
+    # TODO: These should only be dependencies:
+    - tls-dhparams
+    - tls-acme
+
+  pre_tasks:
+    - ansible.builtin.include_tasks: tasks/remount-rw.yaml
+  post_tasks:
+    - ansible.builtin.include_tasks: tasks/remount-ro.yaml
 ...
