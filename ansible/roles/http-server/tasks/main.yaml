@@ -1,0 +1,46 @@
+---
+# Install and configure a simple HTTP server (nginx).
+#  - NOTE: Privacy: The logs contain PII (notably, IP addresses).
+#    - The `error_log` format cannot be changed, but it can be disabled.
+#    - The `access_log` format can be changed to not contain PII.
+
+
+- name: Install nginx
+  ansible.builtin.apt:
+    name:
+      - nginx-light
+      - nginx-doc
+
+
+- name: Create empty webroot
+  ansible.builtin.file:
+    path: /srv/http/empty
+    owner: root
+    group: root
+    mode: '0755'
+    state: directory
+    follow: no
+
+
+- name: Configure nginx
+  ansible.builtin.copy:
+    src: nginx.conf
+    dest: /etc/nginx/nginx.conf
+    owner: root
+    group: root
+    mode: '0644'
+    validate: "nginx -tc '%s'"
+  notify:
+    - 'http-server : Restart nginx'
+
+
+- name: Open HTTP ports
+  ansible.builtin.copy:
+    src: ports.nft
+    dest: /etc/nftables/custom/ports-http.nft
+    owner: root
+    group: root
+    mode: '0644'
+  notify:
+    - 'firewall : Reload nftables'
+...

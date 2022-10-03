@@ -1,0 +1,88 @@
+---
+# Configure LetsEncrypt certificates via ACME.
+#  - The script only works with LetsEncrypt, but should be easy to generalize.
+#  - Documentation:
+#    - /usr/share/doc/acme-tiny/README.md.gz
+#  - NOTE: Any change to the update script configuration causes a new
+#    certificate to be requested.
+#    - LetsEncrypt has rate limiting.
+#      - https://letsencrypt.org/docs/rate-limits
+#    - Be careful not to change too many things in too many small steps.
+
+
+- name: Install acme-tiny
+  ansible.builtin.apt:
+    name: acme-tiny
+    state: present
+
+
+- name: Create directories
+  ansible.builtin.file:
+    path: '{{ item }}'
+    owner: root
+    group: root
+    mode: '0755'
+    state: directory
+    follow: no
+  with_items:
+    - '{{ tls_acme_static_dir }}'
+    - '{{ tls_acme_config_dir }}'
+    - '{{ tls_acme_data_dir }}'
+    - '{{ tls_acme_data_staging_dir }}'
+    - '{{ tls_acme_challenge_dir }}'
+
+
+- name: Configure nginx for ACME http-01 challenge
+  ansible.builtin.template:
+    src: nginx-acme-minimal.conf.j2
+    dest: /etc/nginx/conf.d/acme-minimal.conf
+    owner: root
+    group: root
+    mode: '0644'
+  notify:
+    - 'http-server : Reload nginx'
+
+
+- name: Create RSA account key
+  ansible.builtin.command:
+    argv:
+      - 'openssl'
+      - 'genpkey'
+      - '-algorithm'
+      - 'rsa'
+      - '-pkeyopt'
+      - 'rsa_keygen_bits:{{ tls_acme_accountkey_rsa_bits }}'
+      - '-out'
+      - '{{ tls_acme_accountkey_path }}'
+    creates: '{{ tls_acme_accountkey_path }}'
+
+
+- name: Install update script
+  ansible.builtin.template:
+    src: update.bash.j2
+    dest: '{{ tls_acme_script_path }}'
+    owner: root
+    group: root
+    mode: '0755'
+
+
+- name: Configure update script
+  ansible.builtin.template:
+    src: config.bash.j2
+    dest: '{{ tls_acme_config_file_path }}'
+    owner: root
+    group: root
+    mode: '0644'
+  notify:
+    - 'tls-acme : Force certificate update (staging)'
+    - 'tls-acme : Force certificate update'
+
+
+- name: Configure crontab
+  ansible.builtin.template:
+    src: crontab.j2
+    dest: /etc/cron.d/tls-acme
+    owner: root
+    group: root
+    mode: '0644'
+...

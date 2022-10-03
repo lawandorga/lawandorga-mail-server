@@ -1,4 +1,6 @@
 ---
+fqdn: mail.law-orga.de
+
 # This is largely, but not fully, server-agnostic.  (culprit: /var/mail)
 #  - One might want to use the ansible.posix.mount module instead.
 #    - Problem: We also need the fstab at setup time.
@@ -6,4 +8,10 @@ fstab_file: ../conf/fstab
 
 # This is currently server-agnostic, but that will likely change.
 hosts_template: ../conf/hosts.j2
+
+tls_acme_contacts:
+  - 'mailto:work-laworga-acme@respiranto.de'    # TODO: Change this.
+
+tls_acme_domain_names:
+  - '{{ fqdn }}'
 ...

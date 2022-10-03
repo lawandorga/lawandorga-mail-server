@@ -1,0 +1,5 @@
+# Attempt update of ACME certificate, daily.
+#  - The called script only updates the certificate if it is near expiry.
+
+# m  h dom mon dow  user  command
+ 37  3   *   *   *  root  {{ tls_acme_script_path }} --production

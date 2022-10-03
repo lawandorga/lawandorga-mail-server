@@ -1,0 +1,7 @@
+---
+dependencies:
+  - role: openssl
+  - role: bash-scripts-aux
+  - role: tls-key
+  - role: http-server
+...

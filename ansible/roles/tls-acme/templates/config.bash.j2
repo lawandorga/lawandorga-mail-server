@@ -1,0 +1,42 @@
+# Configuration for ACME certificate update script.
+
+# First element is used as CN.
+typeset -ra domains=( {{ tls_acme_domain_names | join(' ') }} )
+
+# Format: E.g., "mailto:<EMAIL>".
+typeset -ra contacts=( {{ tls_acme_contacts | join(' ') }} )
+
+# The URL of the LE staging environment.
+typeset -r staging_url='https://acme-staging-v02.api.letsencrypt.org/directory'
+
+# A certificate (chain) is replaced iff the old one expires within this amount
+# of seconds (or `--force-new' is given).
+#  - This allows to run this script very frequently.
+#  - Must be < 90d - 7d - 1h.
+#    - LE certificates have a lifetime of 90 days. [0]
+#    - The certificates' validity starts one hour before time of issuing.
+#    - LE ratelimiting considers certs issued in a timeframe of one week. [1]
+#  - LE recommends renewal after 60 days (i.e., at remaining validity of 30
+#    days). [0]
+typeset -r expiry_threshold_seconds="$((30 * 24 * 60 * 60))"  # 30 days
+
+# The certificates must be stored in an rw place.
+typeset -r certdir_production='{{ tls_acme_data_dir }}'
+typeset -r certdir_staging='{{ tls_acme_data_staging_dir }}'
+typeset -r key='{{ tls_key_rsa_path }}'
+typeset -r account_key='{{ tls_acme_accountkey_path }}'
+typeset -r acme_challenge_dir='{{ tls_acme_challenge_dir }}'
+
+# The below files will be stored in ${certdir_staging} or
+# ${certdir_production} (c.f. `--production').
+#  - ${key_then_certchain_name} contains the concatenation of key and cert
+#    chain.
+typeset -r certchain_name='rsa.chain.pem'
+typeset -r certchain_name_tmp='rsa.chain.new.pem'
+typeset -r key_then_certchain_name='rsa.key_then_certchain.pem'
+typeset -r key_then_certchain_name_tmp='rsa.key_then_certchain.new.pem'
+
+
+# References:
+#  * [0] https://letsencrypt.org/docs/faq/#what-is-the-lifetime-for-let-s-encrypt-certificates-for-how-long-are-they-valid
+#  * [1] https://letsencrypt.org/docs/rate-limits

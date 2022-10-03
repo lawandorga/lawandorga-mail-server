@@ -1,0 +1,17 @@
+---
+- name: Force certificate update (staging)
+  ansible.builtin.command:
+    argv:
+      - '{{ tls_acme_script_path }}'
+      - '--force-new'
+
+# This should happen after updating the staging certificate.
+#  - I.e., it should be listed below that (and always triggered in tandem).
+#  - This should not be run too often; there are rate limits in place.
+- name: Force certificate update
+  ansible.builtin.command:
+    argv:
+      - '{{ tls_acme_script_path }}'
+      - '--production'
+      - '--force-new'
+...

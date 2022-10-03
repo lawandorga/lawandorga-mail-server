@@ -1,0 +1,181 @@
+#!/usr/bin/env bash
+
+
+# Script to update a soon expiring certificate from LetsEncrypt (LE) using
+# openssl and acme-tiny.
+#  - A certificate chain is installed, not only the leaf certificate (this is
+#    what acme-tiny does).
+
+# Run as: $0 [--production] [--force-new]
+#  - By default,
+#    - the LE staging environment is used.  Use `--production' to get a useful
+#      certificate.
+#      - The rate-limiting on the non-staging environment is very harsh; make
+#        sure not to use it too often (in 7 days).
+#    - a new certificate is only requested if the current one expires within
+#      ${expiry_threshold_seconds}.  Use `--force-new' to request a new
+#      certificate regardless.
+
+# Configuration can be done below in the corresponding section.
+
+
+source '{{ bash_aux_lib_basic_path }}' || {
+  printf 'Fatal Error.\n' >&2
+  exit 1
+}
+
+
+source '{{ tls_acme_config_file_path }}'
+
+
+
+##############
+## Main code
+
+
+# Default option values.
+typeset staging=true
+typeset force_new=false
+
+typeset tmp_csr
+
+# The certificate chain will be first written to ${certchain_new} and, in case
+# of success, then mv()'d to ${certchain}.
+#  - The two paths should point to the same filesystem s.t. the mv() can be
+#    atomic.
+#  - ${certchain} should, if existing, always contain a valid certificate
+#    (chain).
+typeset certchain_new
+typeset certchain
+
+# Analogous to ${certchain_new} and ${certchain}.
+typeset key_then_certchain_new
+typeset key_then_certchain
+
+
+function main()
+{
+  local certdir
+
+  parse_args "$@"
+
+  if $staging
+  then
+    certdir="$certdir_staging"
+  else
+    certdir="$certdir_production"
+  fi
+
+  certchain_new="${certdir}/${certchain_name_tmp}"
+  certchain="${certdir}/${certchain_name}"
+  key_then_certchain_new="${certdir}/${key_then_certchain_name_tmp}"
+  key_then_certchain="${certdir}/${key_then_certchain_name}"
+
+  if $force_new || ! test -e "$certchain"
+  then
+    update_certificate
+  else
+    # The error code of `openssl x509' does unfortunately not distinguish
+    # between error (e.g., file not existing) and failure (w.r.t.
+    # `-checkend').
+    #  - Return code 1 in both specific cases.
+    #  - To work around this, we first perform a noop using openssl--which
+    #    should return non-zero in case of an error (only).
+    #    - This is clearly not optimal.
+    openssl x509 -in "$certchain" -noout
+
+    if check_cert_soon_expired
+    then
+      update_certificate
+    fi
+  fi
+}
+
+
+function parse_args()
+{
+  for arg
+  do
+    case "$arg" in
+      --force-new)
+        force_new=true
+        ;;
+      --production)
+        staging=false
+        ;;
+      *)
+        printf "Invalid argument \`%s'\\n" "$arg" 2>&1; false
+    esac
+  done
+}
+
+
+function check_cert_soon_expired()
+{
+  ! openssl x509 -in "$certchain" -noout \
+    -checkend "$expiry_threshold_seconds" \
+    > /dev/null
+}
+
+
+function update_certificate()
+{
+  tmp_csr="$(mktemp -t tmp.XXXXXX.csr.pem)"
+
+  create_csr
+  request_certificate
+
+  # Create new concatenation, with restrictive mode.
+  (
+    umask 077
+    set -o noclobber
+    cat "$key" "$certchain_new" > "$key_then_certchain_new"
+  )
+
+  # Replace old certificate chain.
+  #  - Not executed if anything above failed due to ERR being trapped to
+  #    exiting function.
+  mv "$certchain_new" "$certchain"
+  mv "$key_then_certchain_new" "$key_then_certchain"
+
+  $staging && printf '(staging) '
+  printf 'Installed new certificate (chain) for:\n'
+  printf '  %s\n' "${domains[@]}"
+
+  rm "$tmp_csr"
+}
+
+
+function create_csr()
+{
+  # Note that the CN should be invluded in the subjectAltName.
+  local subject_alt_names="${domains[*]/#/DNS:}"
+  subject_alt_names="${subject_alt_names// /,}"
+
+  openssl req -sha256 -new \
+    -key "$key" \
+    -out "$tmp_csr" \
+    -subj "/CN=${domains[0]}" \
+    -addext subjectAltName="$subject_alt_names"
+}
+
+
+function request_certificate()
+{
+  typeset -a directory_url_args=()
+  if $staging
+  then
+    directory_url_args=( --directory-url "$staging_url" )
+  fi
+
+  acme-tiny --quiet \
+    --account-key "$account_key" \
+    --csr "$tmp_csr" \
+    --acme-dir "$acme_challenge_dir" \
+    "${directory_url_args[@]}" \
+    --contact "${contacts[@]}" \
+    > "$certchain_new"
+}
+
+
+main "$@"
