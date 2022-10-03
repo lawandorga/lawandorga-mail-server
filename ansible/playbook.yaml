@@ -2,6 +2,7 @@
 - name: Apply common configuration
   hosts: all
   remote_user: root
+  gather_facts: false
 
   roles:
     - base  # This should come first.
