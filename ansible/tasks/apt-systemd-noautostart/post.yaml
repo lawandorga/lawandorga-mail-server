@@ -1,0 +1,9 @@
+---
+# Unmask systemd unit associated with a package.
+#  - See `tasks/apt-systemd-noautostart-pre.yaml`.
+
+
+- name: 'Unmask units for {{ mask_package_name }}'
+  ansible.builtin.include_tasks: apt-systemd-noautostart/post-aux.yaml
+  with_items: '{{ mask_systemd_units }}'
+...

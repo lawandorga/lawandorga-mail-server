@@ -1,0 +1,36 @@
+---
+# Do not autostart systemd units upon package installation.
+#  - Many packages start associated systemd units automatically after
+#    installation.
+#    - This is often undesired, where packages should not start with their
+#      default configuration,
+#    - See <https://lists.debian.org/debian-devel/2020/03/msg00051.html> on
+#      how to prevent this.
+#      - Masking the unit is one suggested workaround.
+#  - This task list must be included for each package, as desired, with
+#    appropriately set variables.
+#  - The systemd units are masked.
+#    - The service should be re-enabled later.
+#      - This can be done via `tasks/apt-systemd-noautostart-post.yaml`.
+#      - Installing custom systemd units to the common location also unmasks
+#        that unit (it replaces the symlink).
+
+
+- name: Gather the package facts
+  ansible.builtin.package_facts:
+    manager: apt
+
+
+# This has the same effect as `systemctl mask`.
+- name: 'Mask units for {{ mask_package_name }}'
+  ansible.builtin.file:
+    src: /dev/null
+    dest: '/etc/systemd/system/{{ item }}'
+    owner: root
+    group: root
+    state: link
+    follow: no
+    force: yes
+  when: "'package_name|string' not in ansible_facts.packages"
+  with_items: '{{ mask_systemd_units }}'
+...
