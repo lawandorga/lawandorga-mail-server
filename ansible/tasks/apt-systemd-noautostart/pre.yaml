@@ -23,14 +23,9 @@
 
 # This has the same effect as `systemctl mask`.
 - name: 'Mask units for {{ mask_package_name }}'
-  ansible.builtin.file:
-    src: /dev/null
-    dest: '/etc/systemd/system/{{ item }}'
-    owner: root
-    group: root
-    state: link
-    follow: no
-    force: yes
-  when: "'package_name|string' not in ansible_facts.packages"
+  ansible.builtin.systemd:
+    name: '{{ item }}'
+    masked: yes
+  when: "mask_package_name|string not in ansible_facts.packages"
   with_items: '{{ mask_systemd_units }}'
 ...
