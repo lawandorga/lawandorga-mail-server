@@ -87,8 +87,7 @@ The actual needed steps are listed below, in order:
       package would need to be installed and more configuration be done.
 * Configure hostname and `/etc/hosts`.  (c.f. D.3.4.4)
     - `printf '%s\n' 'lawandorga-mail-server' > /etc/hostname`
-    - `install -Tm 0644 /tmp/conf/hosts.j2 /etc/hosts`
-    - `sed -Ei 's/\{\{ hostname \}\}/lawandorga-mail-server/g' /etc/hosts`
+    - `printf '%s\n' '127.0.0.1 localhost' '127.0.1.1 lawandorga-mail-server' > /etc/hosts`
 * Install a kernel.  (c.f. D.3.5)
     - *Scaleway-specific:* `apt install linux-image-cloud-amd64`
         - See [notes on Scaleway](/doc/setup/vm-scaleway.md).

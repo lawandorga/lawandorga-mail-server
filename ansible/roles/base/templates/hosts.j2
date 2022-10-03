@@ -1,0 +1,30 @@
+# /etc/hosts
+#  - Based on [0].
+
+127.0.0.1	localhost
+
+# Notes:
+#  * Here, we'd usually map our FQDN and hostname to our static IP.
+#  * We are behind a NAT and get an IP via DHCP.
+#    - Thus, use the address 127.0.1.1 as suggested by [0].
+#  * Mapping the FQDN to this local IP address is debatable.
+#    * [0] recommends to use the FQDN here if we have one *and* we have a
+#      static IP address.
+#    * We map our FQDN to something else than what it resolves to in the DNS
+#      (which is the NAT's public IP address).
+#    * It seems to work well, however.
+#    * The point of adding the FQDN here is to have `hostname -f` return it.
+#      - Some software depends on this.
+#  * The hostname should be the same as in `/etc/hostname`.
+127.0.1.1	{{ fqdn }} {{ hostname }}
+
+# The following lines are desirable for IPv6 capable hosts.
+::1		ip6-localhost ip6-loopback
+fe00::0		ip6-localnet
+ff00::0		ip6-mcastprefix
+ff02::1		ip6-allnodes
+ff02::2		ip6-allrouters
+ff02::3		ip6-allhosts
+
+# References:
+#  * [0] https://www.debian.org/doc/manuals/debian-reference/ch05.en.html#_the_hostname_resolution
