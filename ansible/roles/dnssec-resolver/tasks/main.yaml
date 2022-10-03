@@ -27,6 +27,7 @@
     group: root
     mode: '0755'
     state: directory
+    follow: no
 
 
 - name: Configure private addresses
@@ -74,6 +75,7 @@
     group: root
     mode: '0755'
     state: directory
+    follow: no
 
 
 - name: Create root key directory
@@ -83,6 +85,7 @@
     group: unbound
     mode: '0755'
     state: directory
+    follow: no
 
 
 - name: Install script updating the root trust anchor

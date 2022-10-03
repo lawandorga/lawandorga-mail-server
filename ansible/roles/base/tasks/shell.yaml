@@ -39,6 +39,7 @@
   ansible.builtin.file:
     path: '{{ item[0] }}/{{ item[1] }}'
     state: absent
+    follow: no
   loop: '{{ dirs | product(files) | list }}'
   vars:
     dirs:

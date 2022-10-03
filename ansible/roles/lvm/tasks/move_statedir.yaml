@@ -35,6 +35,7 @@
   ansible.builtin.file:
     path: '{{ default_lvm_statedir }}/{{ item }}'
     state: absent
+    follow: no
   when:
     - 'old_stat.stat.exists'
     - 'old_stat.stat.isdir'

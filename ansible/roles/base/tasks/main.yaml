@@ -17,6 +17,7 @@
     owner: root
     group: root
     state: link
+    follow: no
 
 
 # This assumes all mount points to exist.

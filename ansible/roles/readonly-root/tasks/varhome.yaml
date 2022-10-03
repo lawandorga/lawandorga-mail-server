@@ -9,6 +9,7 @@
     group: root
     mode: '0700'
     state: directory
+    follow: no
 
 
 - name: "Create auxiliary directories in root's home"
@@ -18,6 +19,7 @@
     group: root
     mode: '0755'
     state: directory
+    follow: no
   with_items:
     - .vim
     - .vim/plugin
@@ -51,6 +53,7 @@
   ansible.builtin.file:
     path: '/root/{{ item }}'
     state: absent
+    follow: no
   with_items:
     - .bash_history
     - .viminfo

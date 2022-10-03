@@ -13,6 +13,7 @@
     owner: root
     group: root
     state: link
+    follow: no
 
 
 - name: Configure /root for read-only root filesystem

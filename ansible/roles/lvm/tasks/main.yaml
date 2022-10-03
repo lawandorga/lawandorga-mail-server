@@ -24,6 +24,7 @@
         group: root
         mode: '0755'
         state: directory
+        follow: no
 
     - name: (Re-)move old backup & archive directories
       ansible.builtin.include_tasks: "move_statedir.yaml"
