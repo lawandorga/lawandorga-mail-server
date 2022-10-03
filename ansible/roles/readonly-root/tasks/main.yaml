@@ -16,5 +16,5 @@
 
 
 - name: Configure /root for read-only root filesystem
-  include_tasks: varhome.yaml
+  ansible.builtin.include_tasks: varhome.yaml
 ...

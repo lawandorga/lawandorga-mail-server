@@ -9,7 +9,7 @@
 
 
 - name: Configure GNU Screen
-  include_tasks: screen.yaml
+  ansible.builtin.include_tasks: screen.yaml
 
 
 - name: Configure VIM
@@ -22,7 +22,7 @@
 
 
 - name: Configure mlocate
-  include_tasks: mlocate.yaml
+  ansible.builtin.include_tasks: mlocate.yaml
 
 
 # Notes:
