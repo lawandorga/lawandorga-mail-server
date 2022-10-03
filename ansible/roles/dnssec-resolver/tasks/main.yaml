@@ -2,16 +2,14 @@
 # DNSSEC validating resolver (Unbound).
 
 
-# Notes:
-#  - Unbound should not start with the default configuration.
-#  - We later install a custom unbound.service, so there is no need for
-#    explicit unmasking.
+# Unbound should not start with the default configuration.
 - name: Prevent Unbound from starting on installation
-  ansible.builtin.include_tasks: tasks/apt-systemd-noautostart/pre.yaml
+  ansible.builtin.include_tasks: apt-systemd-noautostart/pre.yaml
   vars:
     mask_package_name: unbound
     mask_systemd_units:
       - unbound.service
+      - unbound-resolvconf.service
 
 
 - name: Install Unbound
@@ -67,7 +65,7 @@
 
 
 # This is only needed for the next task.
-#  - This directory would normally created on the first start of Unbound.
+#  - This directory would normally be created on the first start of Unbound.
 - name: Create chroot directory
   ansible.builtin.file:
     path: /var/lib/unbound
@@ -112,9 +110,28 @@
     - 'dnssec-resolver : Restart Unbound'
 
 
+- name: Unmask Unbound systemd units
+  ansible.builtin.include_tasks: apt-systemd-noautostart/post.yaml
+  vars:
+    mask_package_name: unbound
+    mask_systemd_units:
+      - unbound.service
+      - unbound-resolvconf.service
+
+
 - name: Start and enable Unbound
   ansible.builtin.service:
     name: unbound
     enabled: yes
     state: started
+
+
+# Notes:
+#  * This service, if active, might overwrite /etc/resolv.conf.
+#  * It would only ever start if resolvconf were installed.
+- name: Disable unbound-resolvconf.service
+  ansible.builtin.systemd:
+    name: unbound-resolvconf.service
+    enabled: no
+    state: stopped
 ...

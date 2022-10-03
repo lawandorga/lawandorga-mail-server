@@ -62,8 +62,10 @@ Restart=on-failure
 #ExecStartPre=-/usr/lib/unbound/package-helper chroot_setup
 
 # Debian (Update trust anchor from `/usr/share/dns/root.key'):
+#  * Would need a prefixing `+` to work.
+#  * See also our custom script below.
 #ExecStartPre=-/usr/lib/unbound/package-helper root_trust_anchor_update
-# Custom
+# Custom:
 ExecStartPre=+/etc/unbound/update-root-trust-anchor.bash
 
 # Debian (don't daemonize, allow additional options from EnvironmentFile):

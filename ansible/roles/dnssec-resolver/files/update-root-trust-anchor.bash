@@ -4,11 +4,16 @@
 # by the `dns-root-data' package--when necessary.
 #  - Only install, when unbound's current root key is missing or older (by
 #    timestamp).
+#  - The trust anchor file must be located in a directory writable by
+#    unbound; see also `/etc/unbound/unbound.conf'.
 #  - This is pretty much what
 #      `/usr/lib/unbound/package-helper root_trust_anchor_update'
-#    does, except it assumes a fixed target path--one that we cannot use.
-#    - The trust anchor file must be located in a directory writable by
-#      unbound; see also `/etc/unbound/unbound.conf'.
+#    does.
+#    - This would need ROOT_TRUST_ANCHOR_FILE to be set appropriately in
+#      `/etc/default/unbound`.
+#      - See
+#        - `/usr/lib/unbound/package-helper`,
+#        - `/usr/share/doc/unbound/NEWS.Debian.gz`.
 
 
 typeset -r src='/usr/share/dns/root.key'
