@@ -5,7 +5,7 @@
 #    understand line numbers.
 
 
-- name: Check existance of hardware clock configuration
+- name: Check existence of hardware clock configuration
   ansible.builtin.stat:
     path: '{{ adjtime_path }}'
     follow: no
