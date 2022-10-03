@@ -1,0 +1,4 @@
+---
+bash_aux_libs_dir: /usr/local/lib/bash
+bash_aux_lib_basic_path: '{{ bash_aux_libs_dir }}/basic.bash'
+...

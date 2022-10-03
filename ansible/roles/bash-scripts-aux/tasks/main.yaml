@@ -1,0 +1,22 @@
+---
+# Auxiliary configuration for Bash scripts.
+
+
+- name: Create directory for custom Bash libraries
+  ansible.builtin.file:
+    path: '{{ bash_aux_libs_dir }}'
+    owner: root
+    group: root
+    mode: '0755'
+    state: directory
+    follow: no
+
+
+- name: Install Bash library providing basic configuration for Bash scripts
+  ansible.builtin.copy:
+    src: basic.bash
+    dest: '{{ bash_aux_lib_basic_path }}'
+    owner: root
+    group: root
+    mode: '0644'
+...
