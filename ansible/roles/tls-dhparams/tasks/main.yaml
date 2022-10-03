@@ -1,0 +1,44 @@
+---
+# Install TLS DH parameters.
+#  - Creating 4096 bit DH parameters takes roughly 10 minutes on a Scaleway
+#    DEV1-S instance.
+#  - We generate our own DH parameters, periodically.
+#    - This is to prevent precomputation attacks on well known DH parameters.
+#      - See
+#        - <https://freedom-to-tinker.com/2015/10/14/how-is-nsa-breaking-so-much-crypto/>,
+#        - <https://weakdh.org/imperfect-forward-secrecy-ccs15.pdf>.
+#      - Larger DH param sizes might suffice, though.
+
+
+- name: Create directories for TLS DH parameter generation
+  ansible.builtin.file:
+    path: '{{ item }}'
+    owner: root
+    group: root
+    mode: '0755'
+    state: directory
+    follow: no
+  with_items:
+    - '{{ tls_dhparams_script_dir }}'
+    - '{{ tls_dhparams_data_dir }}'
+
+
+- name: Install script updating TLS DH parameters
+  ansible.builtin.template:
+    src: update.bash.j2
+    dest: '{{ tls_dhparams_script_path }}'
+    owner: root
+    group: root
+    mode: '0755'
+  notify:
+    - 'tls-dhparams : Update DH parameters (this may take a while)'
+
+
+- name: Configure cron to periodically update DH parameters
+  ansible.builtin.template:
+    src: crontab.j2
+    dest: /etc/cron.d/tls-dhparams
+    owner: root
+    group: root
+    mode: '0644'
+...

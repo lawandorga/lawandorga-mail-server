@@ -1,0 +1,12 @@
+---
+tls_dhparams_size: 4096
+
+tls_dhparams_script_dir: /usr/local/lib/tls-dhparams
+tls_dhparams_script_path: '{{ tls_dhparams_script_dir }}/update.bash'
+
+# NOTE: The path's basename prefix and suffix are hard-coded in the script.
+#  - This is because the script can handle more than one pair of DH parameters,
+#    while the Ansible setup, for the reason of simplicity, cannot.
+tls_dhparams_data_dir: /var/local/tls-dhparams
+tls_dhparams_path: '{{ tls_dhparams_data_dir }}/dh{{ tls_dhparams_size }}.pem'
+...

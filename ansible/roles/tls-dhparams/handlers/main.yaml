@@ -1,0 +1,6 @@
+---
+- name: Update DH parameters (this may take a while)
+  ansible.builtin.command:
+    argv:
+      - '{{ tls_dhparams_script_path }}'
+...
