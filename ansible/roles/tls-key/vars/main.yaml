@@ -1,0 +1,12 @@
+---
+# The below depends on the fstab configuration (`/persistent`; TODO).
+
+# The TLS key should survive a re-installation.
+#  - Reason: DANE, persistent certificates.
+#    - These would otherwise need to be set up anew.
+#  - Thus, install to a persistent filesystem.
+tls_key_dir: /persistent/tls
+tls_key_rsa_path: '{{ tls_key_dir }}/rsa.key.pem'
+
+tls_key_rsa_bits: 4096
+...

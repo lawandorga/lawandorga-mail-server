@@ -1,0 +1,38 @@
+---
+# Install a (RSA) TLS key.
+
+
+- name: Create directory for TLS key
+  ansible.builtin.file:
+    path: '{{ tls_key_dir }}'
+    owner: root
+    group: root
+    mode: '0755'
+    state: directory
+    follow: no
+
+
+- name: Create RSA TLS key
+  ansible.builtin.command:
+    argv:
+      - 'openssl'
+      - 'genpkey'
+      - '-algorithm'
+      - 'rsa'
+      - '-pkeyopt'
+      - 'rsa_keygen_bits:{{ tls_key_rsa_bits }}'
+      - '-out'
+      - '{{ tls_key_rsa_path }}'
+    creates: '{{ tls_key_rsa_path }}'
+
+
+# Note: `openssl` should set these permissions correctly.
+- name: Restrict access permissions for RSA TLS key
+  ansible.builtin.file:
+    path: '{{ tls_key_rsa_path }}'
+    owner: root
+    group: root
+    mode: '0600'
+    state: file
+    follow: no
+...

@@ -1,0 +1,9 @@
+---
+# Install and configure OpenSSL.
+
+
+- name: Install OpenSSL
+  ansible.builtin.apt:
+    name: openssl
+    state: present
+...
