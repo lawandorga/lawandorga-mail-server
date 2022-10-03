@@ -2,13 +2,14 @@
 all:
   hosts:
     lawandorga-mail-server:
-      ansible_host: '{{ ip.ipv4.address }}'
+      ansible_host: '{{ ip.ipv4.nat.external_address }}'
       ip:
         interface_name: ens2
         ipv4:
-          # This is the IP address of the NAT, we get a private address via
+          # We are behind a NAT and get a private address and the gateway via
           # DHCP.
-          address: '51.15.218.231'
+          nat:
+            external_address: '51.15.218.231'
         ipv6:
           address: '2001:bc8:47a0:1015::1'
           gateway_address: '2001:bc8:47a0:1015::'
