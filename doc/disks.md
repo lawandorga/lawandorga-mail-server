@@ -40,7 +40,7 @@ We assume an EFI setup.
     3. "main"  - *remainder* - LVM
         * "root"    - 2G   - ext4 - /
         * "var"     - 1G   - ext4 - /var
-        * "var-log" - 1G   - ext4 - /var/log
+        * "var-log" - 2G   - ext4 - /var/log
         * "var-tmp" - 1G   - ext4 - /var/tmp
         * "home"    - 128M - ext4 - /home
 
