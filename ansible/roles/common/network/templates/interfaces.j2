@@ -1,7 +1,3 @@
 auto {{ ip.interface_name }}
 
 iface {{ ip.interface_name }} inet dhcp
-
-iface {{ ip.interface_name }} inet6 static
-	address {{ ip.ipv6.address }}/{{ ip.ipv6.prefix_size }}
-	gateway {{ ip.ipv6.gateway_address }}
