@@ -1,0 +1,25 @@
+---
+# This role groups all common configuration roles.
+#  - Non-common configuration roles should
+#    - assume an implicit dependency on this role set,
+#      - In a playbook, `common` should always come first.
+#    - generally not depend on individual common roles.
+#      - They may do so, however, to emphasize a particular dependency.
+#      - They should depend on a particular role, if that role is deemed
+#        actually-not-that-common (e.g., dnssec-resolver).
+#  - There are some dependencies between the common roles, explicitly stated
+#    in their respective `meta/main.yaml`.
+
+dependencies:
+  - role: common/base
+  - role: common/base-packages
+  - role: common/readonly-root
+  - role: common/lvm
+  - role: common/systemd
+  - role: common/apt
+  - role: common/network
+  - role: common/firewall
+  - role: common/dnssec-resolver
+  - role: common/ssh-server
+  - role: common/tools
+...

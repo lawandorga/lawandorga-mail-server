@@ -1,21 +1,15 @@
 ---
-- name: Apply common configuration
-  hosts: all
+- name: Apply mail server configuration
+  hosts: mailservers
   remote_user: root
   gather_facts: false
 
   roles:
-    - base  # This should come first.
-    - readonly-root
-    - apt   # This should come before any package is installed.
-    - base-packages
-    - lvm
-    - systemd
-    - network
-    - firewall
-    - dnssec-resolver
-    - ssh-server
-    - tools
+    - common
+
+    # TODO: These should only be dependencies:
+    - tls-dhparams
+    - tls-acme
 
 
   # Remount readonly filesystems (notably, the root filesysem).
@@ -27,22 +21,6 @@
   #    remount it read-only after the last task.
   #  - NOTE: The final read-only remounting does not happen if any previous
   #    task fails.
-
-  pre_tasks:
-    - ansible.builtin.include_tasks: tasks/remount-rw.yaml
-  post_tasks:
-    - ansible.builtin.include_tasks: tasks/remount-ro.yaml
-
-
-- name: Apply mail server configuration
-  hosts: mailservers
-  remote_user: root
-  gather_facts: false
-
-  roles:
-    # TODO: These should only be dependencies:
-    - tls-dhparams
-    - tls-acme
 
   pre_tasks:
     - ansible.builtin.include_tasks: tasks/remount-rw.yaml

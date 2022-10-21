@@ -1,0 +1,8 @@
+---
+dependencies:
+  - role: base
+  - role: readonly-root
+  - role: apt
+  - role: systemd
+  - role: network   # To query the upstream name server(s).
+...

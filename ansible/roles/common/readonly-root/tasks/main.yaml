@@ -1,5 +1,6 @@
 ---
 # Common configuration for all hosts with readonly root.
+#  * This should best come right after the "base" role.
 
 
 # Debian does not create the /etc/mtab symlink on installation, but rather

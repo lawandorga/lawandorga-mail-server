@@ -1,0 +1,6 @@
+---
+dependencies:
+  - role: base  # Notably, the shell config.
+  - role: readonly-root
+  - role: apt
+...
