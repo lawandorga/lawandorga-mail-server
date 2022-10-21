@@ -1,5 +1,5 @@
 ---
 dependencies:
-  - role: openssl
+  - role: tls/openssl
   - role: bash-scripts-aux
 ...

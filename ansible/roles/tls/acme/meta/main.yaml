@@ -1,7 +1,7 @@
 ---
 dependencies:
-  - role: openssl
+  - role: tls/openssl
   - role: bash-scripts-aux
-  - role: tls-key
+  - role: tls/key
   - role: http-server
 ...

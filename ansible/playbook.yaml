@@ -8,8 +8,8 @@
     - common
 
     # TODO: These should only be dependencies:
-    - tls-dhparams
-    - tls-acme
+    - tls/dhparams
+    - tls/acme
 
 
   # Remount readonly filesystems (notably, the root filesysem).
