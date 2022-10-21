@@ -1,8 +1,8 @@
 ---
 dependencies:
-  - role: base
-  - role: readonly-root
-  - role: apt
-  - role: systemd
-  - role: network   # To query the upstream name server(s).
+  - role: common/base
+  - role: common/readonly-root
+  - role: common/apt
+  - role: common/systemd
+  - role: common/network   # To query the upstream name server(s).
 ...

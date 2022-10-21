@@ -31,7 +31,7 @@
     group: root
     mode: '0755'
   notify:
-    - 'tls-dhparams : Update DH parameters (this may take a while)'
+    - 'tls/dhparams : Update DH parameters (this may take a while)'
 
 
 - name: Configure cron to periodically update DH parameters

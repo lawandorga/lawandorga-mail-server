@@ -20,7 +20,7 @@
     group: root
     mode: '0644'
   notify:
-    - 'ssh-server : Reload OpenSSH server'
+    - 'common/ssh-server : Reload OpenSSH server'
 
 
 - name: Configure OpenSSH system groups

@@ -23,7 +23,7 @@
     mode: '0644'
     validate: "ifup --all --no-act --force --interface='%s'"
   notify:
-    - 'network : Restart ifupdown'
+    - 'common/network : Restart ifupdown'
 
 
 - name: Configure dhclient not to touch /etc/resolv.conf

@@ -30,7 +30,7 @@
     mode: '0644'
     validate: "findmnt --verify --tab-file '%s'"
   notify:
-    - 'base : Mount all filesystems'
+    - 'common/base : Mount all filesystems'
 
 
 # Notes:

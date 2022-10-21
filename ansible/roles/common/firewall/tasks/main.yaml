@@ -32,7 +32,7 @@
         directory_mode: '0755'
         mode: '0644'
       notify:
-        - 'firewall : Reload nftables'
+        - 'common/firewall : Reload nftables'
 
     - name: Install main nftables configuration file
       ansible.builtin.copy:
@@ -43,7 +43,7 @@
         mode: '0755'
         validate: "nft --check --file '%s'"
       notify:
-        - 'firewall : Reload nftables'
+        - 'common/firewall : Reload nftables'
 
 
 - name: Create directory for custom firewall configuration

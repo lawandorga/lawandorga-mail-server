@@ -74,8 +74,8 @@
     group: root
     mode: '0644'
   notify:
-    - 'tls-acme : Force certificate update (staging)'
-    - 'tls-acme : Force certificate update'
+    - 'tls/acme : Force certificate update (staging)'
+    - 'tls/acme : Force certificate update'
 
 
 - name: Configure crontab

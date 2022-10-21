@@ -29,7 +29,7 @@
     group: root
     mode: '0644'
   notify:
-    - 'apt : update'
+    - 'common/apt : update'
 
 
 - name: Configure APT not to install recommended packages

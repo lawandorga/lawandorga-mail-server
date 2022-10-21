@@ -1,5 +1,5 @@
 ---
 dependencies:
-  - role: base
-  - role: readonly-root
+  - role: common/base
+  - role: common/readonly-root
 ...

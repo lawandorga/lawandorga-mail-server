@@ -1,6 +1,6 @@
 ---
 dependencies:
-  - role: base  # Notably, the shell config.
-  - role: readonly-root
-  - role: apt
+  - role: common/base  # Notably, the shell config.
+  - role: common/readonly-root
+  - role: common/apt
 ...

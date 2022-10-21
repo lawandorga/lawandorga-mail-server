@@ -36,7 +36,7 @@
     group: root
     mode: '0644'
   notify:
-    - 'dnssec-resolver : Reload Unbound'
+    - 'common/dnssec-resolver : Reload Unbound'
 
 
 - name: Configure forward servers
@@ -47,7 +47,7 @@
     group: root
     mode: '0644'
   notify:
-    - 'dnssec-resolver : Reload Unbound'
+    - 'common/dnssec-resolver : Reload Unbound'
 
 
 - name: Configure Unbound
@@ -61,7 +61,7 @@
     # This does not work before Unbound's first run.
     #validate: "unbound-checkconf '%s'"
   notify:
-    - 'dnssec-resolver : Reload Unbound'
+    - 'common/dnssec-resolver : Reload Unbound'
 
 
 # This is only needed for the next task.
@@ -106,8 +106,8 @@
     # This fails due to the temporary file not ending in `.service`.
     #validate: "systemd-analyze verify '%s'"
   notify:
-    - 'systemd : daemon-reload'
-    - 'dnssec-resolver : Restart Unbound'
+    - 'common/systemd : daemon-reload'
+    - 'common/dnssec-resolver : Restart Unbound'
 
 
 - name: Unmask Unbound systemd units
