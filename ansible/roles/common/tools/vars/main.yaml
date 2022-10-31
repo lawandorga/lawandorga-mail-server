@@ -1,5 +1,7 @@
 ---
-pkgs_tools:
+pkgs_tools: '{{ pkgs_tools_standard + pkgs_tools_extra }}'
+
+pkgs_tools_standard:
 
   # Documentation.
   - man-db

@@ -26,6 +26,6 @@
 
 - name: Install other base system packages
   ansible.builtin.apt:
-    name: '{{ pkgs_base_system_other + pkgs_base_system_other_extra }}'
+    name: '{{ pkgs_base_system_other }}'
     state: present
 ...

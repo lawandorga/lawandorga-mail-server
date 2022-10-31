@@ -4,7 +4,7 @@
 
 - name: Install useful tools
   ansible.builtin.apt:
-    name: '{{ pkgs_tools + pkgs_tools_extra }}'
+    name: '{{ pkgs_tools }}'
     state: present
 
 
