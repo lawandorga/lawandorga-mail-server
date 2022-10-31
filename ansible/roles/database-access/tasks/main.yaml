@@ -4,7 +4,7 @@
 - name: Configure firewall
   ansible.builtin.template:
     src: access.nft.j2
-    dest: /etc/nftables/custom/access-database.nft
+    dest: '{{ nftables_custom_conf_dir }}/access-database.nft'
     owner: root
     group: root
     mode: '0644'

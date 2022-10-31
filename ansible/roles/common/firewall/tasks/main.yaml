@@ -48,7 +48,7 @@
 
 - name: Create directory for custom firewall configuration
   ansible.builtin.file:
-    path: /etc/nftables/custom
+    path: '{{ nftables_custom_conf_dir }}'
     owner: root
     group: root
     mode: '0755'

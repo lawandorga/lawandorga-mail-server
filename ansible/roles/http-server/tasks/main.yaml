@@ -37,7 +37,7 @@
 - name: Open HTTP ports
   ansible.builtin.copy:
     src: ports.nft
-    dest: /etc/nftables/custom/ports-http.nft
+    dest: '{{ nftables_custom_conf_dir }}/ports-http.nft'
     owner: root
     group: root
     mode: '0644'
