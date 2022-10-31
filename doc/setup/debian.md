@@ -61,7 +61,7 @@ The actual needed steps are listed below, in order:
 * Configure APT.
     - `install -Tm 0644 /tmp/conf/apt/sources.list.j2 /etc/apt/sources.list`
       (c.f. D.3.4.5)
-    - `sed -Ei 's/{{ debian_release_codename }}/bullseye/g' /etc/apt/sources.list`
+    - `sed -Ei 's/\{\{ debian_release_codename \}\}/bullseye/g' /etc/apt/sources.list`
     - `install -Tm 0644 /tmp/conf/apt/10norecommends /etc/apt/apt.conf.d/10norecommends`
     - `install -Tm 0644 /tmp/conf/apt/09tempdir /etc/apt/apt.conf.d/09tempdir`
 * Configure mount points.
