@@ -25,7 +25,7 @@ The database is set up as follows, via Scaleway.
         2. Set the `secret_database_password` variable in
            [`secrets.yaml`](/ansible/host_vars/lawandorga-mail-server/secrets.yaml).
             * This file is, for obvious reasons, not tracked via git.
-                * See also Ansible's [`.gitignore`](/ansible/.gitignore).
+                * See also the [`.gitignore`](/.gitignore) file.
 
 
 See also
