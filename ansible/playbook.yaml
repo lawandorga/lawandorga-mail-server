@@ -10,6 +10,7 @@
     # TODO: These should only be dependencies:
     - tls/dhparams
     - tls/acme
+    - database-access
 
 
   # Remount readonly filesystems (notably, the root filesysem).

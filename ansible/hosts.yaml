@@ -2,14 +2,26 @@
 all:
   hosts:
     lawandorga-mail-server:
-      ansible_host: '{{ ip.ipv4.nat.external_address }}'
-      ip:
-        interface_name: ens2
-        ipv4:
-          # We are behind a NAT and get a private address and the gateway via
-          # DHCP.
-          nat:
-            external_address: '51.15.218.231'
+      ansible_host: '{{ network.primary.ipv4.nat.external_address }}'
+      network:
+        primary:
+          interface_name: ens2
+          ipv4:
+            # We are behind a NAT and get a private address and the gateway via
+            # DHCP.
+            nat:
+              external_address: '51.15.218.231'
+
+        # See `/doc/database.md`.
+        private_db:
+          interface_name: ens5
+          ipv4:
+            address: 10.25.0.1
+            mask_length: 30
+            db:
+              address: 10.25.0.2
+              port: 5432
+
       hostname: '{{ inventory_hostname }}'
 
   vars:

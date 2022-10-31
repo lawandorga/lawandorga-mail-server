@@ -1,0 +1,13 @@
+---
+# Allow connection to database (server).
+
+- name: Configure firewall
+  ansible.builtin.template:
+    src: access.nft.j2
+    dest: /etc/nftables/custom/access-database.nft
+    owner: root
+    group: root
+    mode: '0644'
+  notify:
+    - 'common/firewall : Reload nftables'
+...

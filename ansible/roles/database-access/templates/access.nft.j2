@@ -1,0 +1,8 @@
+table inet filter {
+	chain out_outbound {
+		oif {{ network.private_db.interface_name }} \
+			ip daddr {{ network.private_db.ipv4.db.address }} \
+			tcp dport {{ network.private_db.ipv4.db.port }} \
+			accept
+	}
+}

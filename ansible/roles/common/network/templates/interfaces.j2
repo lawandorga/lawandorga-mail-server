@@ -1,3 +1,6 @@
-auto {{ ip.interface_name }}
+auto {{ network.primary.interface_name }}
+iface {{ network.primary.interface_name }} inet dhcp
 
-iface {{ ip.interface_name }} inet dhcp
+auto {{ network.private_db.interface_name }}
+iface {{ network.private_db.interface_name }} inet static
+	address {{ network.private_db.ipv4.address }}/{{ network.private_db.ipv4.mask_length }}
