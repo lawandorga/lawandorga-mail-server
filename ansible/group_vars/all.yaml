@@ -18,7 +18,7 @@ lvm_state_dir: /var/nolvm/lvm
 
 
 # These are Scaleway-specific.
-#  - See `/doc/disks.md`.
+#  - See `/doc/setup/vm-scaleway.md`, `/doc/setup/vm-scaleway/packages.md`.
 pkg_kernel: linux-image-cloud-amd64
 pkg_grub: grub-cloud-amd64
 
