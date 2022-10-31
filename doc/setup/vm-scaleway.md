@@ -38,6 +38,7 @@
         - Compare with fingerprint accepted on first connection.
             - If they are distinct, check again, then start over.
     6. Unset root password (`passwd -d root`).
+3. Adjust the IPv4 address in Ansible's [`hosts.yaml`](/ansible/hosts.yaml).
 
 
 ## Notes on next steps
