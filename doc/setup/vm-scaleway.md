@@ -6,7 +6,7 @@
 ## Setup new VM with installation environment
 
 1. Create a new "instance".
-    - name: prod-mail.law-orga.de
+    - name: lawandorga-mail-server
     - OS: Debian
     - disks
         - *local storage* - 10G - "system"
