@@ -35,8 +35,8 @@
         - 'common/firewall : Reload nftables'
 
     - name: Install main nftables configuration file
-      ansible.builtin.copy:
-        src: nftables.conf
+      ansible.builtin.template:
+        src: nftables.conf.j2
         dest: /etc/nftables.conf
         owner: root
         group: root

@@ -1,0 +1,3 @@
+---
+nftables_custom_conf_dir: /etc/nftables/custom
+...
