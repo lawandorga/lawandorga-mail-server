@@ -4,13 +4,16 @@
   remote_user: root
   gather_facts: false
 
+
   roles:
     - common
+    - mail/postfix
+    - mail/dovecot
 
-    # TODO: These should only be dependencies:
-    - tls/dhparams
-    - tls/acme
-    - database-access
+
+  vars:
+    tls_acme_services_to_reload_on_update:
+      - dovecot.service
 
 
   # Remount readonly filesystems (notably, the root filesysem).

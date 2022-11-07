@@ -1,0 +1,22 @@
+---
+# Configure Postfix header checks.
+
+
+- name: Create directory for header checks
+  ansible.builtin.file:
+    path: '{{ mail_postfix_header_checks_dir }}'
+    owner: root
+    group: root
+    mode: '0755'
+    state: directory
+    follow: no
+
+
+- name: Configure PII-redacting header checks
+  ansible.builtin.copy:
+    src: header-checks/privacy.re
+    dest: '{{ mail_postfix_header_checks_dir }}/privacy.re'
+    owner: root
+    group: root
+    mode: '0644'
+...

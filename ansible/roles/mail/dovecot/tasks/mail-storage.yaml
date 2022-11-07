@@ -1,0 +1,33 @@
+---
+# Configure mail storage, with its own user and group.
+#  * The mail storage needs an owner with a static uid:gid s.t. a rebuild of
+#    the system can work with the old mail data.
+
+
+- name: Configure mail storage group
+  ansible.builtin.group:
+    name: '{{ mail_dovecot_storage_group }}'
+    gid: '{{ mail_dovecot_storage_gid }}'
+    system: yes
+
+
+- name: Configure mail storage user
+  ansible.builtin.user:
+    name: '{{ mail_dovecot_storage_user }}'
+    uid: '{{ mail_dovecot_storage_uid }}'
+    group: '{{ mail_dovecot_storage_group }}'
+    home: /var/mail
+    create_home: no
+    shell: /usr/sbin/nologin
+    system: yes
+
+
+- name: Create mail storage directory
+  ansible.builtin.file:
+    path: '{{ mail_dovecot_storage_dir }}'
+    owner: '{{ mail_dovecot_storage_user }}'
+    group: '{{ mail_dovecot_storage_group }}'
+    mode: '0700'
+    state: directory
+    follow: no
+...

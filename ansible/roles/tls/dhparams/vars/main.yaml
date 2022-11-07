@@ -1,4 +1,6 @@
 ---
+# See Postfix's `main.cf#smtpd_tls_dh1024_param_file` for a discussion on the
+# size.
 tls_dhparams_size: 4096
 
 tls_dhparams_script_dir: /usr/local/lib/tls-dhparams

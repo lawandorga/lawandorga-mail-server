@@ -1,0 +1,56 @@
+---
+# Configuration files for Dovecot itself.
+
+
+- name: Install main Dovecot configuration file
+  ansible.builtin.template:
+    src: dovecot.conf.j2
+    dest: /etc/dovecot/dovecot.conf
+    owner: root
+    group: root
+    mode: '0644'
+  notify:
+    - 'mail/dovecot : Reload Dovecot'
+
+
+- name: Create directory for auxiliary configuration files
+  ansible.builtin.file:
+    path: '{{ mail_dovecot_conf_aux_dir }}'
+    owner: root
+    group: root
+    mode: '0755'
+    state: directory
+    follow: no
+
+
+- name: Install auxiliary configuration files
+  ansible.builtin.template:
+    src: 'dovecot/{{ item }}.j2'
+    dest: '{{ mail_dovecot_conf_aux_dir }}/{{ item }}'
+    owner: root
+    group: root
+    mode: '0644'
+  with_items:
+    - services.conf
+    - tls.conf
+    - auth.conf
+    - logging.conf
+    - mail-storage.conf
+    - mailboxes.conf
+    - lmtp.conf
+    - imap.conf
+  notify:
+    - 'mail/dovecot : Reload Dovecot'
+
+
+# This file contains the SQL password; thus, the access needs restricting.
+- name: Configure SQL
+  ansible.builtin.template:
+    src: dovecot/sql.conf.ext.j2
+    dest: '{{ mail_dovecot_sqlconf_path }}'
+    owner: root
+    group: root
+    mode: '0600'
+  notify:
+    - 'mail/dovecot : Reload Dovecot'
+...

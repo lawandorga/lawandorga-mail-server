@@ -1,0 +1,57 @@
+# Static (non-db) aliases (and sender login maps).
+#  - See
+#    - `/doc/mail/postfix/aliases/static.md`,
+#    - `/doc/mail/postfix/aliases.md`.
+#  - This map is used both in
+#    - ${virtual_alias_maps}, and
+#      - See postconf(5)#virtual_alias_maps, virtual(5).
+#    - ${smtpd_sender_login_maps}.
+#      - See postconf(5)#smtpd_sender_login_maps.
+#    * We have to make sure that the format is compatible with both.
+#      - See also postmap(1) (this is (the source of a) "hash" database).
+#  - This file must be processed by postmap(1) to be usable.
+#  - See also BASIC_CONFIGURATION_README.
+
+
+# Rules (self imposed)
+#  * LHS
+#    * Only statically configured domains of ours.
+#      * Aliases for database domains are configured in the database.
+#      * We do not want to rewrite addresses for foreign domains.
+#    * Format
+#      - a) "user@domain"
+#      - b) "@domain"
+#      - not: "user"
+#        - Reason(s):
+#          - This matches for any domain in $myorigin, $mydestination,
+#            $inet_interfaces, $proxy_interfaces.
+#            - E.g., user@[<proxy-addr>] would be accepted.
+#          - We generally only want mail to be accepted that is destined to a
+#            virtual [alias] domain.
+#        - exception: `postmaster`.  See `/doc/mail/postfix/aliases/static.md`.
+#  * RHS
+#    * Format: "user@domain"
+#      - SASL login names have this form.
+#      - The other formats have no special meaning for
+#        ${smtpd_sender_login_maps}.
+
+
+# Accept mail for postmaster (and allow sending as them).
+#  - See
+#    - `/doc/mail/postfix/aliases/static.md`,
+#    - `/doc/mail/postfix/postmaster.md`.
+
+postmaster
+	{{ mail_postmaster_alias_targets | join(', ') }}
+
+{% for domain in mail_static_domains %}
+postmaster@{{ domain }}
+	{{ mail_postmaster_alias_targets | join(', ') }}
+{% endfor %}
+
+
+# Alias local admin addresses.
+{% for localpart in mail_localadmin_alias_source_localparts %}
+{{ localpart }}@{{ mail_postfix_myorigin }}
+	{{ mail_localadmin_alias_targets | join(', ') }}
+{% endfor %}

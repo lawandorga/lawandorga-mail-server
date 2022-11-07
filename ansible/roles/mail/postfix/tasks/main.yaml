@@ -1,0 +1,76 @@
+---
+# Postfix configuration.
+
+
+- name: Prevent Postfix from starting on installation
+  ansible.builtin.include_tasks: apt-systemd-noautostart/pre.yaml
+  vars:
+    mask_package_name: postfix
+    mask_systemd_units:
+      - postfix.service
+
+
+- name: Install Postfix
+  ansible.builtin.apt:
+    name:
+      - postfix
+      - postfix-doc
+      - postfix-pgsql
+    state: present
+
+
+- name: Install main.cf
+  ansible.builtin.template:
+    src: main.cf.j2
+    dest: /etc/postfix/main.cf
+    owner: root
+    group: root
+    mode: '0644'
+  notify:
+    - 'mail/postfix : Reload Postfix'
+
+
+- name: Install master.cf
+  ansible.builtin.copy:
+    src: master.cf
+    dest: /etc/postfix/master.cf
+    owner: root
+    group: root
+    mode: '0644'
+  notify:
+    - 'mail/postfix : Reload Postfix'
+
+
+- name: Configure maps and sets
+  ansible.builtin.include_tasks: maps-sets.yaml
+
+
+- name: Configure header checks
+  ansible.builtin.include_tasks: header-checks.yaml
+
+
+- name: Configure firewall
+  ansible.builtin.copy:
+    src: ports.nft
+    dest: '{{ nftables_custom_conf_dir }}/ports-postfix.nft'
+    owner: root
+    group: root
+    mode: '0644'
+  notify:
+    - 'common/firewall : Reload nftables'
+
+
+- name: Unmask postfix.service
+  ansible.builtin.include_tasks: apt-systemd-noautostart/post.yaml
+  vars:
+    mask_package_name: postfix
+    mask_systemd_units:
+      - postfix.service
+
+
+- name: Start and enable Postfix
+  ansible.builtin.service:
+    name: postfix
+    enabled: yes
+    state: started
+...

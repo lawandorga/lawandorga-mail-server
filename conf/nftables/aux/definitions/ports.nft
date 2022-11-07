@@ -17,4 +17,5 @@ define port_both_https = 443
 
 define port_tcp_smtp = 25
 define port_tcp_smtp_submission = 587
+define port_tcp_imap = 143
 define port_tcp_imaps = 993

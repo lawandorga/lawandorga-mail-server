@@ -24,6 +24,8 @@
       - '-out'
       - '{{ tls_key_rsa_path }}'
     creates: '{{ tls_key_rsa_path }}'
+  notify:
+    - "Reload TLS key"
 
 
 # Note: `openssl` should set these permissions correctly.

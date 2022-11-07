@@ -1,0 +1,27 @@
+# Map regular sender addresses to their login name (main account address).
+#  - This is effectively the union map of the aliases map and an identity map
+#    on the users.
+#  - The SQL query for the aliases is almost the same.
+#    - See `./aliases.pgsql.cf`.
+#  - See
+#    - `/doc/mail/postfix/aliases/static.md`,
+#    - `/doc/mail/postfix/aliases.md`.
+
+hosts = {{ database_server_address }}:{{ database_server_port }}
+user = {{ database_user }}
+password = {{ database_password }}
+dbname = {{ database_name }}
+
+expansion_limit = 1
+
+query =
+  SELECT u.localpart || '@' || d.name
+  FROM       core_alias    a
+  INNER JOIN core_alias    u ON a.user_id   = u.user_id
+  INNER JOIN core_mailuser m ON a.user_id   = m.pk
+  INNER JOIN core_domain   d ON m.domain_id = d.pk
+  WHERE '%d' NOT IN ({{ "'" + mail_static_domains | join("', '") + "'" }})
+  AND   a.localpart  = '%u'
+  AND   d.name       = '%d'
+  AND   u.is_default = true
+  ;

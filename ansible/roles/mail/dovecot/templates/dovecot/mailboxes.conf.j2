@@ -1,0 +1,49 @@
+# Mailboxes configuration.
+
+# See
+#  - <https://doc.dovecot.org/configuration_manual/namespace/>
+#  - <https://doc.dovecot.org/admin_manual/namespaces/>
+#  - `/etc/dovecot/conf.d/10-mail.conf`
+#  - `/etc/dovecot/conf.d/15-mailboxes.conf`
+#  - <https://doc.dovecot.org/settings/core/>
+
+
+namespace inbox {
+  inbox = yes
+
+  # Both default.
+  type = private
+  subscriptions = yes
+
+
+  # Default mailboxes.
+  #  - All below mailboxes are created and subscribed to by default.
+  #    - (`auto = subscribe`)
+
+  mailbox Drafts {
+    special_use = \Drafts
+    auto = subscribe
+  }
+
+  mailbox Junk {
+    special_use = \Junk
+    auto = subscribe
+  }
+
+  mailbox Trash {
+    special_use = \Trash
+    auto = subscribe
+  }
+
+  # In the default configuration (`/etc/dovecot/conf.d/15-mailboxes.conf`),
+  # there are two \Sent mailboxes configured.
+  #  - We are picky.
+  mailbox Sent {
+    special_use = \Sent
+    auto = subscribe
+  }
+  #mailbox "Sent Messages" {
+  #  special_use = \Sent
+  #  auto = subscribe
+  #}
+}

@@ -22,6 +22,10 @@ pkgs_base_system_other_standard:
   # Rotate log files.
   - logrotate
 
+  # Some packages need this for proper logging.
+  #  - Notably, `postfix`.
+  - rsyslog
+
   # Some packages install cron jobs that would otherwise never be executed.
   - cron
 ...

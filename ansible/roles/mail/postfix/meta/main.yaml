@@ -1,0 +1,10 @@
+---
+dependencies:
+  - role: mail/common
+  - role: mail/dovecot
+  - role: database-access
+  - role: tls/dhparams
+  - role: tls/acme
+  - role: common/firewall
+  - role: common/dnssec-resolver
+...

@@ -1,0 +1,143 @@
+# Service configuration.
+
+# See
+#  - <https://doc.dovecot.org/configuration_manual/service_configuration/>
+#    - In particular, lists all default services.
+#  - `/etc/dovecot/conf.d/10-master.conf`
+#  - <https://doc.dovecot.org/settings/core/>
+
+# Notes:
+#  * All default services were considered.
+#    - Generally, only settings made here where the default is to be changed.
+#  * We do not use POP, so there is no corresponding block for pop3-login.
+#    - See also $protocols.
+
+
+# See
+#  - <https://doc.dovecot.org/configuration_manual/service_configuration/#auth>
+#  - <https://doc.dovecot.org/configuration_manual/protocols/lda/#with-a-lookup>
+service auth {
+
+  # This is the default auth listener.
+  #  - See `./auth.conf`, $auth_socket_path.
+  unix_listener auth-userdb {
+    mode = 0600
+    user = {{ mail_dovecot_storage_user }}
+  }
+
+  # Authentication for Postfix.
+  #  - Only permits SASL auth due to file name.
+  #  - See
+  #    - <https://www.postfix.org/SASL_README.html#server_dovecot>,
+  #    - <https://doc.dovecot.org/configuration_manual/howto/postfix_and_dovecot_sasl/#example-conf-d-10-master-conf-excerpt>.
+  unix_listener /var/spool/postfix/private/dovecot-auth {
+    mode = 0660
+    user = postfix
+    group = postfix
+  }
+
+  # Default.
+  #user = $default_internal_user
+
+  chroot = empty
+
+  # We want to use Argon2, for which >= 2G memory is recommended.
+  #  - <https://doc.dovecot.org/configuration_manual/authentication/password_schemes/>
+  vsz_limit = {{ mail_dovecot_auth_memory_limit }}
+}
+
+
+# See
+#  - <https://doc.dovecot.org/configuration_manual/service_configuration/#auth-worker>
+service auth-worker {
+
+  # Default `root`, for PAM auth.
+  user = $default_internal_user
+
+  chroot = empty
+}
+
+
+# See
+#  - <https://doc.dovecot.org/admin_manual/login_processes/#login-processes>
+service imap-login {
+
+  inet_listener imap {
+    # Default.
+    #port = 143
+  }
+
+  inet_listener imaps {
+    # Disable IMAPS.
+    #  - We use STARTTLS instead.
+    port = 0
+  }
+
+  # "High security mode".  Default.
+  service_count = 1
+}
+
+
+# See
+#  - <https://doc.dovecot.org/configuration_manual/service_configuration/#imap-pop3-submission-managesieve>
+service imap {
+
+  # Default.
+  #  - "for now it's not safe to set this value higher than 1 in enterprise
+  #    mail systems".
+  client_limit = 1
+
+  # Default.
+  #process_limit = 1024
+}
+
+
+# See
+#  - <https://doc.dovecot.org/configuration_manual/service_configuration/#lmtp>
+#  - <https://doc.dovecot.org/configuration_manual/protocols/lmtp_server/>
+service lmtp {
+
+  # Disable default listener.
+  #  - All mail should arrive via Postfix.
+  unix_listener lmtp {
+    mode = 0
+  }
+
+  # LMTP for Postfix.
+  unix_listener /var/spool/postfix/private/dovecot-lmtp {
+    mode = 0660
+    user = postfix
+    group = postfix
+  }
+
+  # Default `root`.
+  user = {{ mail_dovecot_storage_user }}
+
+  # Default.
+  client_limit = 1
+}
+
+
+# See
+#  - <https://doc.dovecot.org/configuration_manual/service_configuration/#doveadm>
+service doveadm {
+
+  # Default `root`.
+  user = {{ mail_dovecot_storage_user }}
+}
+
+
+# See
+#  - <https://doc.dovecot.org/configuration_manual/service_configuration/#indexer>
+service indexer {
+  chroot = $base_dir
+}
+
+
+# See
+#  - <https://doc.dovecot.org/configuration_manual/service_configuration/#indexer-worker>
+service indexer-worker {
+
+  # Default `root`.
+  user = {{ mail_dovecot_storage_user }}
+}

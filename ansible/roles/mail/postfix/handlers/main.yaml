@@ -1,0 +1,12 @@
+---
+- name: Reload Postfix
+  ansible.builtin.service:
+    name: postfix
+    state: reloaded
+
+- name: Hash static aliases
+  ansible.builtin.command:
+    argv:
+      - postmap
+      - 'hash:{{ mail_postfix_maps_dir }}/static-aliases'
+...

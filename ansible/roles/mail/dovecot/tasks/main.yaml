@@ -1,0 +1,85 @@
+---
+- name: Prevent Dovecot from starting on installation
+  ansible.builtin.include_tasks: apt-systemd-noautostart/pre.yaml
+  vars:
+    mask_package_name: dovecot-core
+    mask_systemd_units:
+      - dovecot.service
+
+
+- name: Install Dovecot
+  ansible.builtin.apt:
+    name:
+      - dovecot-core
+      - dovecot-pgsql
+      - dovecot-lmtpd
+      - dovecot-imapd
+    state: present
+
+
+- name: Configure mail storage
+  ansible.builtin.include_tasks: mail-storage.yaml
+
+
+- name: Configure Dovecot
+  ansible.builtin.include_tasks: dovecot-config.yaml
+
+
+- name: Configure firewall
+  ansible.builtin.copy:
+    src: ports.nft
+    dest: '{{ nftables_custom_conf_dir }}/ports-dovecot.nft'
+    owner: root
+    group: root
+    mode: '0644'
+  notify:
+    - 'common/firewall : Reload nftables'
+
+
+- name: Configure kernel parameters
+  ansible.builtin.copy:
+    src: sysctl.conf
+    dest: '{{ mail_dovecot_sysctl_conf_path }}'
+    owner: root
+    group: root
+    mode: '0644'
+  notify:
+    - 'mail/dovecot : Apply kernel parameters'
+
+
+- name: Create directory for extra service configuration
+  ansible.builtin.file:
+    path: /etc/systemd/system/dovecot.service.d
+    owner: root
+    group: root
+    mode: '0755'
+    state: directory
+    follow: no
+
+
+- name: Amend service configuration
+  ansible.builtin.copy:
+    src: service-override.conf
+    dest: /etc/systemd/system/dovecot.service.d/override.conf
+    owner: root
+    group: root
+    mode: '0644'
+  notify:
+    - 'common/systemd : daemon-reload'
+    - 'mail/dovecot : Restart Dovecot'
+
+
+- name: Unmask dovecot.service
+  ansible.builtin.include_tasks: apt-systemd-noautostart/post.yaml
+  vars:
+    mask_package_name: dovecot-core
+    mask_systemd_units:
+      - dovecot.service
+
+
+- name: Start and enable Dovecot
+  ansible.builtin.service:
+    name: dovecot
+    enabled: yes
+    state: started
+...

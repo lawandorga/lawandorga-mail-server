@@ -1,0 +1,22 @@
+---
+mail_dovecot_storage_user: vmail
+mail_dovecot_storage_group: vmail
+
+# These should be < 1000 (system user), and something that is usually unused.
+mail_dovecot_storage_uid: 525
+mail_dovecot_storage_gid: 525
+
+mail_dovecot_storage_user_home: /var/mail
+mail_dovecot_storage_dir: /var/mail/virtual
+
+
+mail_dovecot_admin_address: 'postmaster@{{ mail_default_domain }}'
+
+
+mail_dovecot_conf_aux_dir: /etc/dovecot/extra
+
+mail_dovecot_sqlconf_path: '{{ mail_dovecot_conf_aux_dir }}/sql.conf.ext'
+
+
+mail_dovecot_sysctl_conf_path: /etc/sysctl.d/50-dovecot-custom.conf
+...

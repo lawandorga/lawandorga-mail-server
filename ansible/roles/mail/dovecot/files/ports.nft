@@ -1,0 +1,8 @@
+table inet filter {
+	set in_ports_allow {
+		type inet_proto . inet_service
+		elements = \
+			{ tcp . $port_tcp_imap
+			}
+	}
+}

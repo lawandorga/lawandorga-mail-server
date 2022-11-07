@@ -1,0 +1,20 @@
+---
+- name: Reload Dovecot
+  ansible.builtin.service:
+    name: dovecot
+    state: reloaded
+  listen: "Reload TLS key"
+
+
+- name: Restart Dovecot
+  ansible.builtin.service:
+    name: dovecot
+    state: restarted
+
+
+- name: Apply kernel parameters
+  ansible.builtin.command:
+    argv:
+      - sysctl
+      - '--load={{ mail_dovecot_sysctl_conf_path }}'
+...

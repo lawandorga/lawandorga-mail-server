@@ -1,0 +1,29 @@
+# LMTP (mail delivery from Postfix)
+
+# See
+#  - <https://doc.dovecot.org/configuration_manual/protocols/lmtp_server/>
+#  - `/etc/dovecot/conf.d/20-lmtp.conf`
+#  - `/etc/dovecot/conf.d/15-lda.conf`
+#  - <https://doc.dovecot.org/settings/core/>
+
+# See also
+#  - `./services.conf`
+
+
+
+# How to handle detail elements (usually user+detail@domain).
+#  - See <https://doc.dovecot.org/configuration_manual/protocols/lmtp_server/#address-extension-delivery>.
+
+# Note: Postfix (importantly) sets the same recipient delimiter.
+recipient_delimiter = {{ mail_recipient_delimiter }}
+
+# Default.
+lmtp_save_to_detail_mailbox = no
+
+
+
+# Default.
+lmtp_add_received_header = yes
+
+# Default.
+#lmtp_hdr_delivery_address = final

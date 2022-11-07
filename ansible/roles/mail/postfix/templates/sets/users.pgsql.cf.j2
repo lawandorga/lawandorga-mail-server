@@ -1,0 +1,19 @@
+# Set of all database users.
+
+hosts = {{ database_server_address }}:{{ database_server_port }}
+user = {{ database_user }}
+password = {{ database_password }}
+dbname = {{ database_name }}
+
+expansion_limit = 1
+
+query =
+  SELECT 1
+  FROM       core_alias    u
+  INNER JOIN core_mailuser m ON u.user_id   = m.pk
+  INNER JOIN core_domain   d ON m.domain_id = d.pk
+  WHERE '%d' NOT IN ({{ "'" + mail_static_domains | join("', '") + "'" }})
+  AND   u.localpart  = '%u'
+  AND   d.name       = '%d'
+  AND   u.is_default = true
+  ;

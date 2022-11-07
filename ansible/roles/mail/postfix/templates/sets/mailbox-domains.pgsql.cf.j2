@@ -1,0 +1,18 @@
+# Set of all database domains.
+#  - Static domains (notably, $myorigin), should generally not be in the
+#    database, but in case any of them is, it is explicitly ignored.
+#  - See also `/doc/mail/postfix/aliases/database.md`.
+
+hosts = {{ database_server_address }}:{{ database_server_port }}
+user = {{ database_user }}
+password = {{ database_password }}
+dbname = {{ database_name }}
+
+expansion_limit = 1
+
+query =
+  SELECT 1
+  FROM core_domain
+  WHERE '%s' NOT IN ({{ "'" + mail_static_domains | join("', '") + "'" }})
+  AND   name = '%s'
+  ;

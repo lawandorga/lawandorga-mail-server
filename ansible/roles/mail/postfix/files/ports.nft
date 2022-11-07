@@ -1,0 +1,15 @@
+table inet filter {
+	set in_ports_allow {
+		type inet_proto . inet_service
+		elements = \
+			{ tcp . $port_tcp_smtp
+			, tcp . $port_tcp_smtp_submission
+			}
+	}
+	set out_ports_allow {
+		type inet_proto . inet_service
+		elements = \
+			{ tcp . $port_tcp_smtp
+			}
+	}
+}

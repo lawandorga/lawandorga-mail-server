@@ -1,0 +1,38 @@
+---
+# Server specific mail configuration.
+
+
+# Memory.
+#  - See `/ansible/roles/mail/dovecot/templates/services.conf.j2`.
+#  - We cannot set this in the role vars, because that should be agnostic
+#    w.r.t. the available server memory.
+mail_dovecot_auth_memory_limit: 2G
+
+
+# This should generally not be changed once established.
+#  - Do not use the {{ fqdn }} variable here, which may change with aguably
+#    less implications.
+#    - Note, however, that the {{ mail_postfix_myhostname }} is by default
+#      defined as {{ fqdn }}.
+mail_default_domain: mail.law-orga.de
+
+
+# Requires 'root' in `mail_postfix_localadmin_alias_source_localparts`.
+mail_default_local_recipient: 'root@{{ mail_default_domain }}'
+
+
+# Aliases
+
+# For privacy reasons, all alias targets should generally be local addresses.
+#  - Also, SRS is not (yet?) set up, so SPF might break things for non-local
+#    recipients.
+
+mail_postmaster_alias_targets:
+  - 'test@testmail.law-orga.de'     # TODO: Change this.
+
+# See also `mail_default_local_recipient` above.
+mail_localadmin_alias_source_localparts:
+  - root
+
+mail_localadmin_alias_targets: '{{ mail_postmaster_alias_targets }}'
+...

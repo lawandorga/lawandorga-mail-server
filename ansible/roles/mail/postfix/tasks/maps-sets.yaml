@@ -1,0 +1,54 @@
+---
+# Configuration of Postfix maps and sets.
+
+
+- name: Create directories for maps and sets
+  ansible.builtin.file:
+    path: '{{ item }}'
+    owner: root
+    group: root
+    mode: '0755'
+    state: directory
+    follow: no
+  with_items:
+    - '{{ mail_postfix_maps_dir }}'
+    - '{{ mail_postfix_sets_dir }}'
+
+
+- name: Configure static aliases
+  ansible.builtin.template:
+    src: maps/static-aliases.j2
+    dest: '{{ mail_postfix_maps_dir }}/static-aliases'
+    owner: root
+    group: root
+    mode: '0644'
+  notify:
+    - 'mail/postfix : Hash static aliases'
+
+
+# These files contain the SQL password; thus, the access needs restricting.
+- name: Configure PostgreSQL maps
+  ansible.builtin.template:
+    src: 'maps/{{ item }}.j2'
+    dest: '{{ mail_postfix_maps_dir }}/{{ item }}'
+    owner: root
+    group: root
+    mode: '0600'
+  with_items:
+    - postmaster-aliases.pgsql.cf
+    - aliases.pgsql.cf
+    - sender-to-login.pgsql.cf
+
+
+# These files contain the SQL password; thus, the access needs restricting.
+- name: Configure PostgreSQL sets
+  ansible.builtin.template:
+    src: 'sets/{{ item }}.j2'
+    dest: '{{ mail_postfix_sets_dir }}/{{ item }}'
+    owner: root
+    group: root
+    mode: '0600'
+  with_items:
+    - mailbox-domains.pgsql.cf
+    - users.pgsql.cf
+...

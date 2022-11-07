@@ -1,0 +1,20 @@
+# Postmaster aliases (and sender login maps) for database domains.
+#  - See
+#    - `/doc/mail/postfix/aliases/static.md`,
+#    - `/doc/mail/postfix/postmaster.md`,
+#    - `/doc/mail/postfix/aliases.md`.
+
+hosts = {{ database_server_address }}:{{ database_server_port }}
+user = {{ database_user }}
+password = {{ database_password }}
+dbname = {{ database_name }}
+
+expansion_limit = 1
+
+query =
+  SELECT '{{ mail_postmaster_alias_targets | join(', ') }}'
+  FROM core_domain
+  WHERE '%d' NOT IN ({{ "'" + mail_static_domains | join("', '") + "'" }})
+  AND   '%u' = 'postmaster'
+  AND   name = '%d'
+  ;

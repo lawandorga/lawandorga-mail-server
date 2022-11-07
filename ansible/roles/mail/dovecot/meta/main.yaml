@@ -1,0 +1,12 @@
+---
+dependencies:
+  - role: mail/common
+  - role: database-access
+  - role: tls/key
+  - role: tls/acme
+  - role: common/firewall
+  - role: common/systemd    # We use a handler from there.
+
+  # See <https://doc.dovecot.org/configuration_manual/os/>.
+  - role: common/ntp-client
+...

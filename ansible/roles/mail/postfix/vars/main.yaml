@@ -1,0 +1,8 @@
+---
+# Must be in {{ mail_static_domains }}.
+mail_postfix_myorigin: '{{ mail_default_domain }}'
+
+mail_postfix_header_checks_dir: /etc/postfix/header-checks
+mail_postfix_maps_dir: /etc/postfix/maps
+mail_postfix_sets_dir: /etc/postfix/sets
+...

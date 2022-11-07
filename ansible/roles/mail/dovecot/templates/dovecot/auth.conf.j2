@@ -1,0 +1,60 @@
+# Authentication
+
+# See 
+#  - <https://doc.dovecot.org/configuration_manual/authentication/>
+#    - <https://doc.dovecot.org/configuration_manual/authentication/auth_settings/>
+#    - <https://doc.dovecot.org/configuration_manual/authentication/sql/#postgresql>
+#  - `/etc/dovecot/conf.d/10-auth.conf`
+#  - `/etc/dovecot/conf.d/auth-sql.conf.ext`
+#  - <https://doc.dovecot.org/settings/core/>
+
+# See also
+#  - `./services.conf`
+
+
+# Default.
+#  - See <https://doc.dovecot.org/configuration_manual/common_configuration/>.
+#  - See also `./services.conf`.
+auth_socket_path = auth-userdb
+
+
+# Disable policy checking.
+#  - See <https://doc.dovecot.org/configuration_manual/authentication/auth_policy>.
+auth_policy_check_before_auth = no
+auth_policy_check_after_auth = no
+
+
+# Disable plaintext auth unless TLS is used.
+#  - This setting has no effect; we have ssl=required.
+disable_plaintext_auth = yes
+
+# See
+#  - <https://doc.dovecot.org/configuration_manual/authentication/authentication_mechanisms/>
+auth_mechanisms = plain
+
+auth_ssl_require_client_cert = no
+
+
+# Default minus upper case characters.
+auth_username_chars = abcdefghijklmnopqrstuvwxyz01234567890.-_@
+
+# Use lowercase username (default).
+#  - We enforce lower case above, so this is ineffective.
+auth_username_format = %Lu
+
+
+# See
+#  - <https://doc.dovecot.org/configuration_manual/authentication/sql/#dovecot-configuration>
+#  - <https://doc.dovecot.org/configuration_manual/authentication/password_databases_passdb/>
+passdb {
+  driver = sql
+  args = {{ mail_dovecot_sqlconf_path }}
+}
+
+
+# See
+#  - <https://doc.dovecot.org/configuration_manual/authentication/user_databases_userdb/>
+userdb {
+  driver = sql
+  args = {{ mail_dovecot_sqlconf_path }}
+}

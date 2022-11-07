@@ -1,0 +1,95 @@
+# Dovecot configuration.
+#
+# * Documentation:
+#   - <https://doc.dovecot.org/>
+#     - Individual settings: <https://doc.dovecot.org/settings/>
+#       - Important settings: <https://doc.dovecot.org/settings/core/>
+#         - All options considered.
+#     - Syntax: <https://doc.dovecot.org/configuration_manual/config_file/>
+#     - All documentation seeming relevant read.
+#   - <https://wiki2.dovecot.org/>
+#     - To be phased out in favor of <https://doc.dovecot.org/>.
+#     - Also available at `/usr/share/doc/dovecot-core/wiki/`
+#     - This has not been consulted much.
+#   - `/usr/share/doc/dovecot-core/README.Debian`
+#   - The default configuration files at `/etc/dovecot/`.
+#     - Note that we override the main `dovecot.conf` file.
+
+
+# General notes:
+#  * Generally ignored settings (see also Postfix's `main.cf`):
+#    - timeouts, and similar,
+#      - I did generally not read their documentation.
+#    - settings where the default seemed fine and
+#      - unlikely to ever change, or
+#      - the setting not that relevant, or
+#      - we prefer to trust the (future) default,
+#    - settings not relevant to the current configuration (e.g., POP3).
+#  * Below are only general settings.
+#    - More specific configuration is found in included files.
+#      - Unlike in the default `dovecot.conf`, we include these explicitly.
+
+
+# CONSIDER:
+#  - valid_chroot_dirs
+#    - We'd likely want to restrict this to mountpoints with nosuid mount
+#      option.
+#    - See <https://wiki.dovecot.org/Chrooting>.
+
+
+
+## Hostname and admin addresses.
+
+# See
+#  - <https://doc.dovecot.org/configuration_manual/common_configuration/>
+
+# Similar to default.
+postmaster_address = postmaster@%{if;%d;ne;;%d;{{ mail_default_domain }}}
+
+hostname = {{ mail_dovecot_hostname }}
+
+mail_server_admin = mailto:{{ mail_dovecot_admin_address }}
+
+
+
+## General settings
+
+# See
+#  - <https://doc.dovecot.org/configuration_manual/general_settings/>
+#  - <https://doc.dovecot.org/configuration_manual/general_backend_settings/>
+
+protocols = lmtp imap
+
+# Default.
+#  - This might otherwise be considered relevant for privacy.
+verbose_proctitle = no
+
+# Notably contains TZ, by default.
+#  - See also our systemd service override.conf.
+#import_environment =
+
+# Temporary storage.
+#  - Default.
+#  - This is relevant for privacy (TODO).
+#    - Note, however, that `/tmp` is not backed up.
+mail_temp_dir = /tmp
+mail_temp_scan_interval = 1w
+
+
+
+## Include other configuration files.
+
+# Note that the order of inclusion matters.
+#  - Notably, variables need to be defined before use.
+#  - See <https://doc.dovecot.org/configuration_manual/config_file/>.
+
+!include {{ mail_dovecot_conf_aux_dir }}/services.conf
+!include {{ mail_dovecot_conf_aux_dir }}/tls.conf
+!include {{ mail_dovecot_conf_aux_dir }}/auth.conf
+!include {{ mail_dovecot_conf_aux_dir }}/logging.conf
+
+!include {{ mail_dovecot_conf_aux_dir }}/mail-storage.conf
+!include {{ mail_dovecot_conf_aux_dir }}/mailboxes.conf
+
+!include {{ mail_dovecot_conf_aux_dir }}/lmtp.conf
+!include {{ mail_dovecot_conf_aux_dir }}/imap.conf

@@ -1,0 +1,31 @@
+# Logging
+
+# See
+#  - `/etc/dovecot/conf.d/10-logging.conf`
+#  - <https://doc.dovecot.org/admin_manual/logging/#logging-verbosity>
+#  - <https://doc.dovecot.org/settings/core/>
+
+
+# Defaults.
+log_path = syslog
+syslog_facility = mail
+
+
+# By default, all extra verbose logging is disabled.
+#  - We make this explicit.
+#  - At least in some cases, this is relevant for privacy.
+
+# Defaults.
+auth_debug = no
+auth_debug_passwords = no
+auth_verbose = no
+auth_verbose_passwords = no
+verbose_ssl = no
+imap_id_log =
+log_debug =
+
+
+# CONSIDER:
+#  - May be relevant for privacy (TODO).
+#login_log_format =
+#login_log_format_elements =
