@@ -1,0 +1,16 @@
+---
+# NTP client configuration (sytemd-timesyncd).
+
+
+- name: Install NTP client
+  ansible.builtin.apt:
+    name: systemd-timesyncd
+    state: present
+
+
+- name: Start and enable NTP client
+  ansible.builtin.service:
+    name: systemd-timesyncd
+    state: started
+    enabled: yes
+...

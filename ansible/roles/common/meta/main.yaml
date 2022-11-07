@@ -22,4 +22,5 @@ dependencies:
   - role: common/dnssec-resolver
   - role: common/ssh-server
   - role: common/tools
+  - role: common/ntp-client
 ...
