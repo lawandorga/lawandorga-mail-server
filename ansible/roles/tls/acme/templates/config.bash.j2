@@ -36,6 +36,11 @@ typeset -r certchain_name_tmp='rsa.chain.new.pem'
 typeset -r key_then_certchain_name='rsa.key_then_certchain.pem'
 typeset -r key_then_certchain_name_tmp='rsa.key_then_certchain.new.pem'
 
+# Systemd services to reload on (production) certificate update.
+services_to_reload_on_update=(
+  '{{ tls_acme_services_to_reload_on_update | join(' ') }}'
+)
+
 
 # References:
 #  * [0] https://letsencrypt.org/docs/faq/#what-is-the-lifetime-for-let-s-encrypt-certificates-for-how-long-are-they-valid

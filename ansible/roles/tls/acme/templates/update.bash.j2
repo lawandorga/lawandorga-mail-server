@@ -74,6 +74,7 @@ function main()
   if $force_new || ! test -e "$certchain"
   then
     update_certificate
+    reload_services
   else
     # The error code of `openssl x509' does unfortunately not distinguish
     # between error (e.g., file not existing) and failure (w.r.t.
@@ -87,6 +88,7 @@ function main()
     if check_cert_soon_expired
     then
       update_certificate
+      reload_services
     fi
   fi
 }
@@ -175,6 +177,20 @@ function request_certificate()
     "${directory_url_args[@]}" \
     --contact "${contacts[@]}" \
     > "$certchain_new"
+}
+
+
+function reload_services()
+{
+  $staging && return 0
+
+  for service in "${services_to_reload_on_update[@]}"
+  do
+    if systemctl -q is-active "$service"
+    then
+      systemctl reload "$service"
+    fi
+  done
 }
 
 
