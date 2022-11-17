@@ -262,13 +262,12 @@ smtp_cname_overrides_servername = no
 # If this were not empty, this might (I don't know) give a problem with DKIM.
 undisclosed_recipients_header =
 
-# TODO: Install & setup polcyd-spf, then uncomment the below.
 # See 
 #  - /usr/share/doc/postfix-policyd-spf-python/README.Debian
 #  - policyd-spf(1)
 #  - SMTPD_POLICY_README
 #  - postconf(5):transport_time_limit
-#policyd-spf_time_limit = 3600s
+policyd-spf_time_limit = 3600s
 
 # Do not allow XVERP via SMTP.
 #  - See
@@ -1005,8 +1004,9 @@ submission_relay_restrictions =
 #      - The RFC also allows intermediate CNAMEs (and does not say anything
 #        about well-formedness).
 #      - Any outbound mail affected by this could not be delivered anyway.
-#  - TODO: SPF
+#  - SPF
 #    - See /usr/share/doc/postfix-policyd-spf-python/README.Debian
+#      - also: policyd-spf(1)
 #    - Should not apply to relayed mail.
 #    - If we did not split off ${smtpd_relay_restrictions}, this would need to
 #      come after `reject_unauth_destination'.
@@ -1024,9 +1024,7 @@ smtpd_recipient_restrictions =
 	reject_unknown_recipient_domain,
 	permit_mynetworks,
 	permit_sasl_authenticated
-
-# TODO: Add to the above, once the SPF checker is set up:
-#	check_policy_service unix:private/policyd-spf
+	check_policy_service unix:private/policyd-spf
 
 # This rejects mail if at any point until the DATA command, illegal pipelining
 # was detected.

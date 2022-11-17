@@ -1,0 +1,37 @@
+# Postfix SPF configuration
+#  - Originally written 2022-04-06 for postfix-policyd-spf-python debver
+#    2.9.2-1.
+#    - Reviewed 2022-11 (also debver 2.9.2-1).
+#  - See
+#    - policyd-spf.conf(5)
+#    - /usr/share/doc/postfix-policyd-spf-python/policyd-spf.conf.commented.gz
+#    - policyd-spf(1)
+#    - RFC 7208
+
+# Notes:
+#  * policyd-spf(1) recommends a local caching DNS resolver, for performance.
+#  * The below are mostly default values.
+
+# Default, reasonable loglevel.
+debugLevel = 1
+
+# 1 means not to run in testing mode (default).
+TestOnly = 1
+
+# Defaults:
+HELO_reject = Fail
+Mail_From_reject = Fail
+
+# Prefer to avoid false positives (default).
+PermError_reject = False
+TempError_Defer = False
+
+# If "No", the receiver logged would "always be the first recipient sent by the
+# sending MTA, even if that recipient is a BCC recipient."
+#  - Thus, "Yes", for privacy.
+#  - "Yes" is the default.
+Hide_Receiver = Yes
+
+# This must be unique.
+#  - See also `/etc/opendkim.conf'.
+Authserv_Id = {{ mail_postfix_spf_authserv_id }}

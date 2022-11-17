@@ -1,0 +1,22 @@
+---
+# Configuration for SPF checking.
+#  - This is not its own role due to a mutual dependency between this and the
+#    Postfix configuration.
+
+
+- name: Install SPF checker
+  ansible.builtin.apt:
+    name: postfix-policyd-spf-python
+    state: present
+
+
+- name: Configure SPF checker
+  ansible.builtin.template:
+    src: spf-checker/policyd-spf.conf.j2
+    dest: /etc/postfix-policyd-spf-python/policyd-spf.conf
+    owner: root
+    group: root
+    mode: '0644'
+  notify:
+    - 'mail/postfix : Reload Postfix'
+...

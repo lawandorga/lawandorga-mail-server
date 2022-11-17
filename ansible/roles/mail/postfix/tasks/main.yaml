@@ -49,6 +49,10 @@
   ansible.builtin.include_tasks: header-checks.yaml
 
 
+- name: Configure SPF checking
+  ansible.builtin.include_tasks: spf-checker.yaml
+
+
 - name: Configure firewall
   ansible.builtin.copy:
     src: ports.nft

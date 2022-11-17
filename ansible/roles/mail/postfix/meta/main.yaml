@@ -6,5 +6,11 @@ dependencies:
   - role: tls/dhparams
   - role: tls/acme
   - role: common/firewall
+
+  # We want/need
+  #  - a local DNSSEC validating resolver to verify DANE TLSA records.
+  #  - a local resolver, for SPF checking performance.
+  #    - See policyd-spf(1)#PERFORMANCE_CONSIDERATIONS.
+  #    - SPF, like most DNS related things, does also benefit from DNSSEC.
   - role: common/dnssec-resolver
 ...

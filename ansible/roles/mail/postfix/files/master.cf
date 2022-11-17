@@ -68,6 +68,8 @@ postlog   unix-dgram n  -       n       -       1       postlogd
 #no scalemail-backend
 #no mailman
 
-# TODO: Uncomment once the SPF checker is set up.
-#policyd-spf unix -      n       n       -       0       spawn
-#  user=policyd-spf argv=/usr/bin/policyd-spf
+# See
+#  - `/usr/share/doc/postfix-policyd-spf-python/README.Debian`,
+#  - policyd-spf(1).
+policyd-spf unix -      n       n       -       0       spawn
+  user=policyd-spf argv=/usr/bin/policyd-spf
