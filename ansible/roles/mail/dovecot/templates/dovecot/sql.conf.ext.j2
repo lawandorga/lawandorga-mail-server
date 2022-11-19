@@ -33,43 +33,39 @@ connect = "hostaddr={{ database_server_address }} \
 #  - Note that we explicitly require our domain not to be a static one.
 #    - See also `/doc/mail/postfix/aliases/database.md`.
 password_query = \
-  SELECT m.pw_hash AS password                                              \
-  FROM       core_alias u                                                   \
-  INNER JOIN core_mailuser m ON u.user_id   = m.pk                          \
-  INNER JOIN core_domain   d ON m.domain_id = d.pk                          \
+  SELECT usr.pw_hash AS password                                            \
+  FROM       core_mailaddress addr                                          \
+  INNER JOIN core_maildomain  d    ON addr.domain_id  = d.id                \
+  INNER JOIN core_mailaccount acc  ON addr.account_id = acc.id              \
+  INNER JOIN core_mailuser    usr  ON acc.user_id     = usr.id              \
   WHERE '%Ld' NOT IN ({{ "'" + mail_static_domains | join("', '") + "'" }}) \
-  AND   u.localpart  = '%Ln'                                                \
+  AND   addr.localpart  = '%Ln'                                             \
   AND   d.name       = '%Ld'                                                \
-  AND   u.is_default = true                                                 \
+  AND   addr.is_default                                                     \
   ;
 
 
 # See 
 #  - <https://doc.dovecot.org/configuration_manual/authentication/user_databases_userdb/>
 user_query = \
-  SELECT '{{ mail_dovecot_storage_dir }}/'                                  \
-           || d.relative_path                                               \
-           || '/'                                                           \
-           || m.relative_path                                               \
-           AS home                                                          \
-  FROM       core_alias u                                                   \
-  INNER JOIN core_mailuser m ON u.user_id   = m.pk                          \
-  INNER JOIN core_domain   d ON m.domain_id = d.pk                          \
+  SELECT '{{ mail_dovecot_storage_dir }}/' || acc.relative_path AS home     \
+  FROM       core_mailaddress addr                                          \
+  INNER JOIN core_maildomain  d    ON addr.domain_id  = d.id                \
+  INNER JOIN core_mailaccount acc  ON addr.account_id = acc.id              \
   WHERE '%Ld' NOT IN ({{ "'" + mail_static_domains | join("', '") + "'" }}) \
-  AND   u.localpart  = '%Ln'                                                \
+  AND   addr.localpart  = '%Ln'                                             \
   AND   d.name       = '%Ld'                                                \
-  AND   u.is_default = true                                                 \
+  AND   addr.is_default                                                     \
   ;
 
 
 # See
 #  - <https://doc.dovecot.org/configuration_manual/authentication/sql/#user-iteration>
 iterate_query = \
-  SELECT u.localpart AS username,                                           \
-         d.name      AS domain                                              \
-  FROM       core_alias u                                                   \
-  INNER JOIN core_mailuser m ON u.user_id   = m.pk                          \
-  INNER JOIN core_domain   d ON m.domain_id = d.pk                          \
+  SELECT addr.localpart AS username,                                        \
+         d.name         AS domain                                           \
+  FROM       core_mailaddress addr                                          \
+  INNER JOIN core_maildomain  d    ON addr.domain_id  = d.id                \
   WHERE '%Ld' NOT IN ({{ "'" + mail_static_domains | join("', '") + "'" }}) \
-  AND   u.is_default = true                                                 \
+  AND   addr.is_default                                                     \
   ;

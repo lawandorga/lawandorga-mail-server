@@ -1,6 +1,8 @@
 # Map regular sender addresses to their login name (main account address).
 #  - This is effectively the union map of the aliases map and an identity map
 #    on the users.
+#    - However, restricted to user accounts (i.e., excluding group accounts)
+#      for now (TODO).
 #  - The SQL query for the aliases is almost the same.
 #    - See `./aliases.pgsql.cf`.
 #  - See
@@ -15,13 +17,16 @@ dbname = {{ database_name }}
 expansion_limit = 1
 
 query =
-  SELECT u.localpart || '@' || d.name
-  FROM       core_alias    a
-  INNER JOIN core_alias    u ON a.user_id   = u.user_id
-  INNER JOIN core_mailuser m ON a.user_id   = m.pk
-  INNER JOIN core_domain   d ON m.domain_id = d.pk
-  WHERE '%d' NOT IN ({{ "'" + mail_static_domains | join("', '") + "'" }})
-  AND   a.localpart  = '%u'
-  AND   d.name       = '%d'
-  AND   u.is_default = true
+  SELECT u.localpart || '@' || ud.name
+  FROM       core_mailaddress a
+  INNER JOIN core_mailaddress u   ON a.account_id = u.account_id
+  INNER JOIN core_maildomain  ad  ON a.domain_id  = ad.id
+  INNER JOIN core_maildomain  ud  ON u.domain_id  = ud.id
+  INNER JOIN core_mailaccount acc ON u.account_id = acc.id
+  WHERE ad.name NOT IN ({{ "'" + mail_static_domains | join("', '") + "'" }})
+  AND   ud.name NOT IN ({{ "'" + mail_static_domains | join("', '") + "'" }})
+  AND   a.localpart = '%u'
+  AND   ad.name     = '%d'
+  AND   u.is_default
+  AND   acc.user_id IS NOT NULL
   ;

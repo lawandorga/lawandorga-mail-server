@@ -6,5 +6,5 @@ database_server_address: '{{ network.private_db.ipv4.db.address }}'
 database_server_port: '{{ network.private_db.ipv4.db.port }}'
 database_user: lawandorga-mail-server
 database_password: '{{ secret_database_password }}'
-database_name: lawandorga-mail-server
+database_name: lawandorga-backend
 ...

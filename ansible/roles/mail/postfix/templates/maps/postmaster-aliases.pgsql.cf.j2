@@ -13,7 +13,7 @@ expansion_limit = 1
 
 query =
   SELECT '{{ mail_postmaster_alias_targets | join(', ') }}'
-  FROM core_domain
+  FROM core_maildomain
   WHERE '%d' NOT IN ({{ "'" + mail_static_domains | join("', '") + "'" }})
   AND   '%u' = 'postmaster'
   AND   name = '%d'

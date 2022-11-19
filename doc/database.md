@@ -3,19 +3,17 @@
 We use an external database to store variable configuration such as mail
 accounts and aliases.
 
-We assume a (PostgreSQL) managed database has already been created at
-Scaleway.  It shall be used in the following.
+We assume a (PostgreSQL) managed database server and the database to be used,
+`lawandorga-backend`, have already been created at Scaleway.  These shall be
+used in the following.
 
 The database is set up as follows, via Scaleway.
 
-1. Setup database.
-    1. Create database `lawandorga-mail-server`.
-    2. Create database user `lawandorga-mail-server`.
-    3. Give [lawandorga-backend-service](https://github.com/lawandorga/lawandorga-backend-service)'s
-       user read-write access to `lawandorga-mail-server`.
-    4. Give the `lawandorga-mail-server` user read-only access to
-       `lawandorga-mail-server`.
-2. Populate the database via the [Law&Orga backend](https://github.com/lawandorga/lawandorga-backend-service).
+1. Set up database access.
+    1. Create database user `lawandorga-mail-server`.
+    2. Give the `lawandorga-mail-server` user read-only access to
+       `lawandorga-backend`.
+2. Set up database tables via the [Law&Orga backend](https://github.com/lawandorga/lawandorga-backend-service).
 3. Set up a private network.
     1. To the database server, add a new private network
        `lawandorga-mail-server-db`, with IP address `10.25.0.2/30`.
