@@ -15,9 +15,9 @@ expansion_limit = 1
 query =
   SELECT u.localpart || '@' || ud.name
   FROM       core_mailaddress a
-  INNER JOIN core_mailaddress u ON a.account_id = u.account_id
-  INNER JOIN core_maildomain  ad  ON a.domain_id  = ad.id
-  INNER JOIN core_maildomain  ud  ON u.domain_id  = ud.id
+  INNER JOIN core_mailaddress u  ON a.account_id = u.account_id
+  INNER JOIN core_maildomain  ad ON a.domain_id  = ad.id
+  INNER JOIN core_maildomain  ud ON u.domain_id  = ud.id
   WHERE ad.name NOT IN ({{ "'" + mail_static_domains | join("', '") + "'" }})
   AND   ud.name NOT IN ({{ "'" + mail_static_domains | join("', '") + "'" }})
   AND   a.localpart = '%u'
