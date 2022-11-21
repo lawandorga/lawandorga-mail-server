@@ -15,7 +15,10 @@ mail_dovecot_admin_address: 'postmaster@{{ mail_default_domain }}'
 
 mail_dovecot_conf_aux_dir: /etc/dovecot/extra
 
-mail_dovecot_sqlconf_path: '{{ mail_dovecot_conf_aux_dir }}/sql.conf.ext'
+mail_dovecot_sqlconf_common_path:
+  '{{ mail_dovecot_conf_aux_dir }}/sql-common.conf.ext'
+mail_dovecot_sqlconf_groupauth_path:
+  '{{ mail_dovecot_conf_aux_dir }}/sql-groupauth.conf.ext'
 
 
 mail_dovecot_sysctl_conf_path: /etc/sysctl.d/50-dovecot-custom.conf

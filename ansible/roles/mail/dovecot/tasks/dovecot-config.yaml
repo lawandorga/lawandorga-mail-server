@@ -44,10 +44,22 @@
 
 
 # This file contains the SQL password; thus, the access needs restricting.
-- name: Configure SQL
+- name: Configure common SQL queries
   ansible.builtin.template:
-    src: dovecot/sql.conf.ext.j2
-    dest: '{{ mail_dovecot_sqlconf_path }}'
+    src: dovecot/sql-common.conf.ext.j2
+    dest: '{{ mail_dovecot_sqlconf_common_path }}'
+    owner: root
+    group: root
+    mode: '0600'
+  notify:
+    - 'mail/dovecot : Reload Dovecot'
+
+
+# This file contains the SQL password; thus, the access needs restricting.
+- name: Configure SQL query for group accounts
+  ansible.builtin.template:
+    src: dovecot/sql-groupauth.conf.ext.j2
+    dest: '{{ mail_dovecot_sqlconf_groupauth_path }}'
     owner: root
     group: root
     mode: '0600'

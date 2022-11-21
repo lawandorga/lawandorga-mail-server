@@ -1,11 +1,14 @@
-# Dovecot SQL configuration.
+# Dovecot common SQL configuration.
 #  - This file contains a password and must get restrictive read permissions.
 
 # See
 #  - `/etc/dovecot/dovecot-sql.conf.ext`
-#  - https://doc.dovecot.org/settings/plugin/sql-postgresl/
-#    - https://www.postgresql.org/docs/9.0/libpq-connect.html
-#  - https://doc.dovecot.org/configuration_manual/config_file/config_variables/#config-variables
+#  - <https://doc.dovecot.org/settings/plugin/sql-postgresl/>
+#    - <https://www.postgresql.org/docs/9.0/libpq-connect.html>
+#  - <https://doc.dovecot.org/configuration_manual/config_file/config_variables/#config-variables>
+
+# See also
+#  - `./sql-groupauth.conf.ext`
 
 # Notes
 #  * The input fields (username, domain / address) are all cast to lower case.
@@ -26,7 +29,8 @@ connect = "hostaddr={{ database_server_address }} \
 
 
 
-# Password query.
+# Password query (for regular (non-group) accounts).
+#  - Group accounts do not have a password themselves.
 #  - See
 #    - <https://doc.dovecot.org/configuration_manual/authentication/sql/#password-database-lookups>
 #    - <https://doc.dovecot.org/configuration_manual/authentication/password_databases_passdb/>
@@ -39,8 +43,8 @@ password_query = \
   INNER JOIN core_mailaccount acc  ON addr.account_id = acc.id              \
   INNER JOIN core_mailuser    usr  ON acc.user_id     = usr.id              \
   WHERE '%Ld' NOT IN ({{ "'" + mail_static_domains | join("', '") + "'" }}) \
-  AND   addr.localpart  = '%Ln'                                             \
-  AND   d.name       = '%Ld'                                                \
+  AND   addr.localpart = '%Ln'                                              \
+  AND   d.name         = '%Ld'                                              \
   AND   addr.is_default                                                     \
   ;
 
@@ -53,8 +57,8 @@ user_query = \
   INNER JOIN core_maildomain  d    ON addr.domain_id  = d.id                \
   INNER JOIN core_mailaccount acc  ON addr.account_id = acc.id              \
   WHERE '%Ld' NOT IN ({{ "'" + mail_static_domains | join("', '") + "'" }}) \
-  AND   addr.localpart  = '%Ln'                                             \
-  AND   d.name       = '%Ld'                                                \
+  AND   addr.localpart = '%Ln'                                              \
+  AND   d.name         = '%Ld'                                              \
   AND   addr.is_default                                                     \
   ;
 

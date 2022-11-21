@@ -1,0 +1,38 @@
+# Dovecot SQL configuration for group authentication ("master users").
+#  - This file contains a password and must get restrictive read permissions.
+
+# See
+#  - `./sql-common.conf.ext` (including references made there)
+#  - <https://doc.dovecot.org/configuration_manual/authentication/master_users/>
+
+
+driver=pgsql
+
+
+connect = "hostaddr={{ database_server_address }} \
+  port={{ database_server_port }} \
+  dbname={{ database_name }} \
+  user={{ database_user }} \
+  password={{ database_password }}"
+
+
+password_query = \
+  SELECT usr.pw_hash AS password                                              \
+  FROM       core_mailaddress       uaddr                                     \
+  INNER JOIN core_maildomain        ud    ON uaddr.domain_id  = ud.id         \
+  INNER JOIN core_mailaccount       uacc  ON uaddr.account_id = uacc.id       \
+  INNER JOIN core_mailuser          usr   ON uacc.user_id     = usr.id        \
+  INNER JOIN core_mailgroup_members mem   ON usr.id   = mem.mailuser_id       \
+  INNER JOIN core_mailgroup         grp   ON mem.mailgroup_id = grp.id        \
+  INNER JOIN core_mailaccount       gacc  ON grp.id   = gacc.group_id         \
+  INNER JOIN core_mailaddress       gaddr ON gacc.id  = gaddr.account_id      \
+  INNER JOIN core_maildomain        gd    ON gaddr.domain_id  = gd.id         \
+  WHERE ud.name NOT IN ({{ "'" + mail_static_domains | join("', '") + "'" }}) \
+  AND   gd.name NOT IN ({{ "'" + mail_static_domains | join("', '") + "'" }}) \
+  AND   uaddr.localpart = '%Ln'                                               \
+  AND   ud.name         = '%Ld'                                               \
+  AND   uaddr.is_default                                                      \
+  AND   gaddr.localpart = '%L{login_username}'                                \
+  AND   gd.name         = '%L{login_domain}'                                  \
+  AND   gaddr.is_default                                                      \
+  ;

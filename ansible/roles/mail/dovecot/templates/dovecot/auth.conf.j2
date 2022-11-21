@@ -43,12 +43,47 @@ auth_username_chars = abcdefghijklmnopqrstuvwxyz01234567890.-_@
 auth_username_format = %Lu
 
 
-# See
-#  - <https://doc.dovecot.org/configuration_manual/authentication/sql/#dovecot-configuration>
-#  - <https://doc.dovecot.org/configuration_manual/authentication/password_databases_passdb/>
+# The separator to be allowed for alternative login to our "group accounts".
+#  - This should not be contained in $auth_username_chars.
+#  - `*` is what the Dovecot documentation suggests.
+auth_master_user_separator = *
+
+
+# Authentication for group accounts (using "master users").
+#  - For a group account group@gdomain, allow login as user@udomain, iff this
+#    user belongs to that group.
+#  - Login is possible using
+#    a) authorization ID `group@gdomain` and authentication ID `user@udomain`,
+#    b) authorization ID and authentication ID `group@gdomain*user@udomain`, or
+#       - Most mail clients do not differentiate between authorization ID and
+#         authentication ID, so should use this.
+#    c) authorization ID `group@gdomain` and authentication ID
+#       `group@gdomain*user@udomain`.
+#       - This seems to be undocumented, and may cease to work in the future.
+#    - The password is always that of the user account.
+#  - See
+#    - <https://doc.dovecot.org/configuration_manual/authentication/master_users/>
+#    - <https://doc.dovecot.org/configuration_manual/authentication/password_databases_passdb/>
 passdb {
   driver = sql
-  args = {{ mail_dovecot_sqlconf_path }}
+  args = {{ mail_dovecot_sqlconf_groupauth_path }}
+  master = yes
+
+  # The documentation on "master users" suggests the following to check that
+  # the user authorized as actually exists.
+  #  - We do not need this due to already checking the existance (and more) in
+  #    the SQL query for the "master user".
+  #result_success = continue
+}
+
+
+# Authentication for ordinary user accounts.
+#  - See
+#    - <https://doc.dovecot.org/configuration_manual/authentication/sql/#dovecot-configuration>
+#    - <https://doc.dovecot.org/configuration_manual/authentication/password_databases_passdb/>
+passdb {
+  driver = sql
+  args = {{ mail_dovecot_sqlconf_common_path }}
 }
 
 
@@ -56,5 +91,5 @@ passdb {
 #  - <https://doc.dovecot.org/configuration_manual/authentication/user_databases_userdb/>
 userdb {
   driver = sql
-  args = {{ mail_dovecot_sqlconf_path }}
+  args = {{ mail_dovecot_sqlconf_common_path }}
 }
