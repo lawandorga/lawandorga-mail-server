@@ -1,0 +1,23 @@
+# apticron.conf
+#
+# * Written for debver 1.2.5.
+# * See `/usr/lib/apticron/apticron.conf' for documentation and default values.
+# * This file is sourced by a bash script.
+# * Some variables are explicitly set to their default values here.
+
+
+# Recipient.
+EMAIL='{{ mail_default_local_recipient }}'
+
+# Remind of everything, in every message; not only new stuff.
+DIFF_ONLY='0'
+
+# Use short hostname (default: FQDN).
+SYSTEM="$(/bin/hostname)"
+
+# Subject.  The single quotes are intentional; see the documentation.
+CUSTOM_SUBJECT='[apticron] $SYSTEM: $NUM_PACKAGES package update(s)'
+
+# Header-from.
+#  - If using msmtp for sendmail, this might be overriden.
+CUSTOM_FROM='{{ mail_default_local_sender }}'

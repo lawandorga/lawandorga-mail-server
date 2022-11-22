@@ -1,0 +1,38 @@
+---
+# Apticron configuration.
+#  - NOTE: This needs a mail system to be set up.
+#    - We do not depend on the `mail` rule; otherwise, this could not be part
+#      of the `common` rule.
+#    - A simple alternative to a fully fledged mail server would be msmtp-mta.
+
+
+- name: Create configuration directory for Apticron
+  ansible.builtin.file:
+    path: /etc/apticron
+    owner: root
+    group: root
+    mode: '0644'
+    state: directory
+    follow: no
+
+
+- name: Configure Apticron
+  ansible.builtin.template:
+    src: apticron.conf.j2
+    dest: /etc/apticron/apticron.conf
+    owner: root
+    group: root
+    mode: '0644'
+
+
+- name: Install apt-listchanges
+  ansible.builtin.apt:
+    name: apt-listchanges
+    state: present
+
+
+- name: Install Apticron
+  ansible.builtin.apt:
+    name: apticron
+    state: present
+...

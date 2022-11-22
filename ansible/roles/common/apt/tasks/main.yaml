@@ -49,4 +49,8 @@
     owner: root
     group: root
     mode: '0644'
+
+
+- name: Set up Apticron
+  ansible.builtin.include_tasks: apticron.yaml
 ...
