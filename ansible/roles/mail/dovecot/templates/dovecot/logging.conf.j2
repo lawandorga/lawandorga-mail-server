@@ -25,7 +25,7 @@ imap_id_log =
 log_debug =
 
 
-# CONSIDER:
-#  - May be relevant for privacy (TODO).
-#login_log_format =
-#login_log_format_elements =
+# Add info on negotiated TLS cipher (like Postfix).
+#  - Otherwise default.
+#  - This setting in general may be relevant for privacy (TODO).
+login_log_format_elements = user=<%u> method=%m rip=%r lip=%l mpid=%e %c session=<%{session}> %{ssl_security}
