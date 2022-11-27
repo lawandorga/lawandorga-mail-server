@@ -1,0 +1,6 @@
+---
+dependencies:
+  - role: bash-scripts-aux
+  - role: database-access
+  - role: mail/dovecot
+...

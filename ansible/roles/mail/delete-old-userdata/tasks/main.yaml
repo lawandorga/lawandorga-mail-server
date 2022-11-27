@@ -1,0 +1,38 @@
+---
+# Configure deletion of data for users not (anymore) present in the database.
+
+
+- name: Install PostgreSQL client
+  ansible.builtin.apt:
+    name: postgresql-client
+    state: present
+
+
+- name: Create script directory
+  ansible.builtin.file:
+    path: '{{ mail_delete_old_userdata_script_dir }}'
+    owner: root
+    group: root
+    mode: '0755'
+    state: directory
+    follow: no
+
+
+# This file contains the SQL password; thus, the access needs restricting.
+- name: Install script
+  ansible.builtin.template:
+    src: delete-old-userdata.bash.j2
+    dest: '{{ mail_delete_old_userdata_script_path }}'
+    owner: '{{ mail_dovecot_storage_user }}'
+    group: '{{ mail_dovecot_storage_group }}'
+    mode: '0700'
+
+
+- name: Install crontab
+  ansible.builtin.template:
+    src: crontab.j2
+    dest: '{{ mail_delete_old_userdata_crontab_path }}'
+    owner: root
+    group: root
+    mode: '0644'
+...

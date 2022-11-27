@@ -1,0 +1,6 @@
+---
+dependencies:
+  - role: mail/postfix
+  - role: mail/dovecot
+  - role: mail/delete-old-userdata
+...

@@ -1,0 +1,7 @@
+---
+mail_delete_old_userdata_script_dir: /usr/local/lib/mail-delete-old-userdata
+mail_delete_old_userdata_script_path:
+  '{{ mail_delete_old_userdata_script_dir }}/delete-old-userdata.bash'
+
+mail_delete_old_userdata_crontab_path: /etc/cron.d/mail-delete-old-userdata
+...

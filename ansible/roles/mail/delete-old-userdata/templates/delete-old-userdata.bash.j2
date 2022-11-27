@@ -1,0 +1,229 @@
+#!/usr/bin/env bash
+
+# Delete data for users that are no longer present in the database.
+
+# Call as
+#  - `$0 --delete` (to be used in production), or
+#  - `$0 --list-only` (meant for testing).
+
+# Notes:
+#  - This script should be run as the Dovecot storage user.
+#  - This script assumes the database configured "relative_path" not to contain
+#    slashes.
+#  - This script is meant to be run by cron, with `--delete`; it should have
+#    output (that cron should mail) iff anything goes wrong.
+#    - This does not apply when run with `--list-only`.
+#  - Logging:
+#    - Logged to syslog:
+#      - Removal of a directory.
+#      - A no-removal notice if nothing to be removed.
+#      - Failure to remove a directory.
+#    - Not logged:
+#      - Anything else.  That is, basically, failure to build the list of
+#        directories to be removed.
+
+# Technical notes:
+#  - We generally use the NUL byte as file name separator where one might
+#    be tempted to use a newline instead.
+#    - Filenames may generally contain newline characters.
+
+# Dependencies:
+#  - bash
+#  - coreutils (`comm`; Debian Priority=required)
+#  - findutils (`find`; Debian Priority=required)
+#  - bsdutils (`logger`; Debian Priority=required)
+#  - postgresql-client (`psql`)
+
+
+
+source '{{ bash_aux_lib_basic_path }}' || {
+  printf 'Fatal Error.\n' >&2
+  exit 1
+}
+
+
+
+##################
+## Configuration
+
+# See also
+#  - `/ansible/roles/mail/dovecot/templates/dovecot/sql-common.conf.ext.j2`
+typeset -r cfg_QUERY_DIRS='SELECT relative_path FROM core_mailaccount;'
+
+typeset -r cfg_LOG_TAG=delete-old-userdata
+typeset -r cfg_LOG_FACILITY=mail
+
+typeset -r cfg_DATA_BASE_DIR='{{ mail_dovecot_storage_dir }}'
+
+typeset -r cfg_PGSQL_HOST='{{ database_server_address }}'
+typeset -r cfg_PGSQL_PORT='{{ database_server_port }}'
+typeset -r cfg_PGSQL_DBNAME='{{ database_name }}'
+typeset -r cfg_PGSQL_USER='{{ database_user }}'
+typeset -r cfg_PGSQL_PASSWORD='{{ database_password }}'
+
+
+
+##############
+## Main code
+
+{# Use 'raw', 'endraw' to allow for ${#VAR} bash syntax. #}
+{% raw %}
+
+
+# Whether to actually delete the old data, and not only list its names.
+typeset delete_old_data
+
+typeset -A tmpfiles=()
+
+typeset -a dirs_to_be_removed
+
+
+function main()
+{
+  parse_args "$@"
+
+  get_dirs_from_db
+  get_dirs_from_fs
+
+  identify_dirs_to_be_removed
+
+  if $delete_old_data
+  then
+    delete_old_dirs
+  else
+    list_old_dirs
+  fi
+}
+
+
+function on_exit()
+{
+  local tmpfile
+  for tmpfile in "${tmpfiles[@]}"
+  do
+    rm -f "$tmpfile"
+  done
+}
+
+
+function log()
+{
+  [[ $# -eq 2 ]]
+  local loglevel="$1"
+  local message="$2"
+  logger -t "$cfg_LOG_TAG" -p "${cfg_LOG_FACILITY}.${loglevel}" "$message"
+}
+
+
+function get_dirs_from_db()
+{
+  tmpfiles[dirs-db-unsorted]="$(umask 077; mktemp -t tmp.XXXXXX)"
+
+  # Note that giving the password in the environment is safe, at least due to
+  # our setting hidepid=2 on /proc.
+  #  - Even otherwise, `/proc/<pid>/environ` seems to have restrictive
+  #    permissions.
+  PGPASSWORD="$cfg_PGSQL_PASSWORD" psql \
+    --host="$cfg_PGSQL_HOST" \
+    --port="$cfg_PGSQL_PORT" \
+    --dbname="$cfg_PGSQL_DBNAME" \
+    --username="$cfg_PGSQL_USER" \
+    --no-password \
+    --no-psqlrc \
+    --no-readline \
+    --echo-errors \
+    --quiet \
+    --tuples-only --no-align \
+    --record-separator-zero \
+    --command="$cfg_QUERY_DIRS" \
+    --output="${tmpfiles[dirs-db-unsorted]}"
+}
+
+
+function get_dirs_from_fs()
+{
+  tmpfiles[dirs-fs-unsorted]="$(umask 077; mktemp -t tmp.XXXXXX)"
+
+  find -P "$cfg_DATA_BASE_DIR" \
+    -mindepth 1 -maxdepth 1 \
+    -type d \
+    -fprintf "${tmpfiles[dirs-fs-unsorted]}" '%P\0'
+}
+
+
+function identify_dirs_to_be_removed()
+{
+  local typ
+  for typ in db fs
+  do
+    tmpfiles["dirs-${typ}-sorted"]="$(umask 077; mktemp -t tmp.XXXXXX)"
+    sort --zero-terminated "${tmpfiles["dirs-${typ}-unsorted"]}" \
+      > "${tmpfiles["dirs-${typ}-sorted"]}"
+  done
+
+  tmpfiles["dirs-local-only"]="$(umask 077; mktemp -t tmp.XXXXXX)"
+
+  comm --zero-terminated -23 \
+    "${tmpfiles["dirs-fs-sorted"]}" \
+    "${tmpfiles["dirs-db-sorted"]}" \
+    > "${tmpfiles["dirs-local-only"]}"
+
+  mapfile -t -d '' dirs_to_be_removed < "${tmpfiles["dirs-local-only"]}"
+}
+
+
+function delete_old_dirs()
+{
+  if [[ ${#dirs_to_be_removed[@]} -gt 0 ]]
+  then
+    local dir
+    for dir in "${dirs_to_be_removed[@]}"
+    do
+      if rm -r "${cfg_DATA_BASE_DIR}/${dir}"
+      then
+        log notice "Deleted old data directory: ${dir}"
+      else
+        log error "Failed to delete old data directory: ${dir}"
+        exit 1
+      fi
+    done
+  else
+    log info "No old data directory to delete."
+  fi
+}
+
+
+function list_old_dirs()
+{
+  if [[ ${#dirs_to_be_removed[@]} -gt 0 ]]
+  then
+    printf 'Directories that would be removed:\n'
+    printf ' %s\n' "${dirs_to_be_removed[@]}"
+  else
+    printf 'No directory would be removed.\n'
+  fi
+}
+
+
+function parse_args()
+{
+  if [ $# -ne 1 ]
+  then
+    printf 'Wrong number of arguments given.\n' >&2
+    exit 1
+  fi
+
+  case "$1" in
+    --delete)
+      delete_old_data=true
+      ;;
+    --list-only)
+      delete_old_data=false
+  esac
+}
+
+
+main "$@"
+
+
+{% endraw %}

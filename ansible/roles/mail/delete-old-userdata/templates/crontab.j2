@@ -1,0 +1,4 @@
+# Delete data for accounts not (anymore) present in the DB, daily.
+
+# m  h dom mon dow  user                             command
+ 19  5   *   *   *  {{ mail_dovecot_storage_user }}  {{ mail_delete_old_userdata_script_path }} --delete

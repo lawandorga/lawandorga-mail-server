@@ -7,8 +7,7 @@
 
   roles:
     - common
-    - mail/postfix
-    - mail/dovecot
+    - mail
 
 
   # Remount readonly filesystems (notably, the root filesysem).
