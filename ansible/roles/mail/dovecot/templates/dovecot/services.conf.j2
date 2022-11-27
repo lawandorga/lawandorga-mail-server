@@ -39,7 +39,9 @@ service auth {
   # Default.
   #user = $default_internal_user
 
-  chroot = empty
+	# Invoking the iterate query (via `doveadm mailbox list -A`, e.g.) fails with
+	# chroot enabled here.
+  #chroot = empty
 
   # We want to use Argon2, for which >= 2G memory is recommended.
   #  - <https://doc.dovecot.org/configuration_manual/authentication/password_schemes/>

@@ -66,10 +66,10 @@ user_query = \
 # See
 #  - <https://doc.dovecot.org/configuration_manual/authentication/sql/#user-iteration>
 iterate_query = \
-  SELECT addr.localpart AS username,                                        \
-         d.name         AS domain                                           \
-  FROM       core_mailaddress addr                                          \
-  INNER JOIN core_maildomain  d    ON addr.domain_id  = d.id                \
-  WHERE '%Ld' NOT IN ({{ "'" + mail_static_domains | join("', '") + "'" }}) \
-  AND   addr.is_default                                                     \
+  SELECT addr.localpart AS username,                                         \
+         d.name         AS domain                                            \
+  FROM       core_mailaddress addr                                           \
+  INNER JOIN core_maildomain  d    ON addr.domain_id  = d.id                 \
+  WHERE d.name NOT IN ({{ "'" + mail_static_domains | join("', '") + "'" }}) \
+  AND   addr.is_default                                                      \
   ;
