@@ -37,9 +37,9 @@ typeset -r key_then_certchain_name='rsa.key_then_certchain.pem'
 typeset -r key_then_certchain_name_tmp='rsa.key_then_certchain.new.pem'
 
 # Systemd services to reload on (production) certificate update.
-services_to_reload_on_update=(
-  '{{ tls_acme_services_to_reload_on_update | join(' ') }}'
-)
+mapfile -t services_to_reload_on_update \
+  < '{{ tls_acme_services_to_reload_on_update_config_path }}'
+typeset -r services_to_reload_on_update
 
 
 # References:

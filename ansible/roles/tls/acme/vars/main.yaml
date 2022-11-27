@@ -3,7 +3,9 @@ tls_acme_static_dir: /usr/local/lib/tls-acme
 tls_acme_script_path: '{{ tls_acme_static_dir }}/update.bash'
 
 tls_acme_config_dir: /usr/local/etc/tls-acme
-tls_acme_config_file_path: /usr/local/etc/tls-acme/config.bash
+tls_acme_config_file_path: '{{ tls_acme_config_dir }}/config.bash'
+tls_acme_services_to_reload_on_update_config_path:
+  '{{ tls_acme_config_dir }}/services-to-reload-on-update'
 tls_acme_accountkey_path: '{{ tls_acme_config_dir }}/account-key.pem'
 tls_acme_accountkey_rsa_bits: 4096
 

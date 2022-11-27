@@ -69,6 +69,12 @@
     - 'mail/dovecot : Restart Dovecot'
 
 
+- name: Configure Dovecot to be reloaded on certificate update
+  ansible.builtin.lineinfile:
+    path: '{{ tls_acme_services_to_reload_on_update_config_path }}'
+    line: 'dovecot.service'
+
+
 - name: Unmask dovecot.service
   ansible.builtin.include_tasks: apt-systemd-noautostart/post.yaml
   vars:

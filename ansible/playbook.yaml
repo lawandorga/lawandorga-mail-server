@@ -11,11 +11,6 @@
     - mail/dovecot
 
 
-  vars:
-    tls_acme_services_to_reload_on_update:
-      - dovecot.service
-
-
   # Remount readonly filesystems (notably, the root filesysem).
   #  - Due to the readonly filesystems, we have to remount them read-write
   #    before any modification can be made.

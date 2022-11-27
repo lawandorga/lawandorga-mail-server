@@ -66,6 +66,16 @@
     mode: '0755'
 
 
+- name: Configure services to reload on certificate update
+  ansible.builtin.copy:
+    content: ''
+    dest: '{{ tls_acme_services_to_reload_on_update_config_path }}'
+    owner: root
+    group: root
+    mode: '0644'
+    force: false
+
+
 - name: Configure update script
   ansible.builtin.template:
     src: config.bash.j2
