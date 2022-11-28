@@ -1,0 +1,5 @@
+---
+# Note that under unnormal conditions (notably, extended downtime), log data
+# may be kept a little longer.
+privacy_log_retention_days: 7
+...

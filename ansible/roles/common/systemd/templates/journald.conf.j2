@@ -1,0 +1,73 @@
+# Journald configuration.  See journald.conf(5).
+#  - Written with systemd debver 247.3-7+deb11u1 in mind.
+
+
+[Journal]
+
+
+############
+## General
+
+Storage=persistent
+
+# Defaults.
+#Compress=yes
+#SplitMode=uid
+#SyncIntervalSec=5m
+
+
+
+###################
+## Storage limits
+
+# Logs are valuable.  /var/log should be on a separate partition anyways.
+SystemMaxUse=90%
+SystemKeepFree=5%
+
+# Applicable during early boot:
+RuntimeMaxUse=90%
+RuntimeKeepFree=10%
+
+# Restrict to 1000 messages per 30s, per service.
+#  - Note that RateLimitBurst= is effectively multiplied by a small constant
+#    c >= 1, depending on available disk space s
+#    (c ~ log s, c = 1 for s <= 1MB, c <= 6 for s <= 1TB).
+#  - At 100 bytes per message, limits to c*720 MB (not MiB) per day.
+#  - Note that this can be overriden per service.
+RateLimitIntervalSec=30
+RateLimitBurst=1000
+
+
+
+#########################
+## Rotation & retention
+
+# Notes:
+#  * See also `/ansible/roles/common/base-packages/tasks/logrotate.yaml`.
+#  * Unlike with logrotate, we cannot apparently configure "secure" deletion.
+
+# How long to use a single logfile.
+#  - This influences the granularity at which old log entries can be removed.
+MaxFileSec=1day
+
+# How long to keep log entries (!).
+#  - Unless there is only one log file left (should require MaxFileSec= >
+#    MaxRetentionSec=), this enforces deletion of any log file that contains
+#    log entries older than specified.
+MaxRetentionSec={{ privacy_log_retention_days }}day
+
+
+
+###################
+## Log forwarding
+
+# Full forwarding to syslog (default).
+#  - Needed for rsyslogd.
+ForwardToSyslog=yes
+MaxLevelSyslog=debug
+
+# Further defaults.
+#ForwardToKMsg=no
+#ForwardToConsole=no
+#ForwardToWall=yes
+#MaxLevelWall=emerg
