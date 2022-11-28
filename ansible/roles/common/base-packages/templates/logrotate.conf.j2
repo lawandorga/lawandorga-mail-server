@@ -1,0 +1,169 @@
+# Global logrotate(8) configuration.
+#  - This is usually overriden by logfile-specific configuration.
+#  - See also `/ansible/roles/common/systemd/templates/journald.conf.j2`.
+#  - See also the logrotate configuration for rsyslog
+#    (`/ansible/roles/common/base-packages/files/logrotate-rsyslog.conf`).
+#  - Note that changing this configuration (notably the naming and location)
+#    may require manual moving around or deletion of old logfiles.
+
+
+
+#########################
+## Rotation & retention
+
+# Notes:
+#  * Timely deletion of old log data is a privacy issue.
+#  * Let n = {{ privacy_log_retention_days }}.
+#  * We want to generally keep no log entries (!) older than n days accessible.
+#    * We accept that in some cases log entries stay a little longer.
+#  * Any backup solution keeps old log files an additional amount of time.
+
+# Frequency of rotation.
+#  - See also `dateformat`.
+daily
+
+# How many old logfiles to keep.
+#  - Assuming that logrotate is actually run daily (at the same time), just
+#    before rotation, we want there to be n files in total.
+#    - I.e., we want to keep n-1 old logfiles.
+#    - We do allow small variations in the time logrotate is run daily.
+#  - If logrotate is for some reason not actually run daily (at roughly the
+#    same time), this is insufficient.
+#    - I.e., this does not assure all old log entries to be timely deleted
+#      in such a case.
+#    - E.g., the server might be down for some time, or during the scheduled
+#      rotation (the latter of which a modern cron daemon (or systemd) should
+#      handle, though).
+#    - See `maxage` below.
+rotate {{ privacy_log_retention_days - 1 }}
+
+# Delete old logfiles by age.
+#  - This considers mtime and deletes files that are at least $maxage + 1 days
+#    old.  (Manually tested.)
+#  - This is to be considered a fallback to `rotate`.
+#  - We assume the next rotation to happen in 1 day.
+#    - Thus, we want to keep log data that is at most n-1 days old.
+#  - We assume logrotate was run n-1 days ago (at roughly the same time).
+#    - We want to keep all logfiles that were newly created at or after that
+#      rotation.
+#    - We want to delete all logfiles that were first rotated then.
+#      - The time of first rotation is the mtime.
+#  - That is, we want to delete all old logfiles with an mtime that is at
+#    least roughly n-1 days old.
+#  - Thus, we want
+#      $maxage + 1 =~ n - 1,
+#    i.e.,
+#      $maxage =~ n - 2.
+#  - To account for the "roughly", we add another day.
+#    - This means that in presumably about half of the cases, this setting
+#      would keep one old logfile too many.
+#      - This is deemed OK, because normally the `rotate` settings should cause
+#        that to be deleted.
+maxage {{ privacy_log_retention_days - 1 }}
+
+# Minimum age (none).
+minage 0
+
+# Rotate a log file even if it is empty (default).
+#  - This is important w.r.t. privacy; i.e., to enforce timely deletion of old
+#    log entries via `rotate`.
+ifempty
+
+# After rotation, create a new log file, with the old ownership and mode.
+#  - The Default Debian configuration file sets this.
+create
+
+# Issue an error if a log file is missing (default).
+nomissingok
+
+
+
+#################################
+## Location of rotated logfiles
+
+# Where to store rotated logfiles.
+#  - Note: This must be on same filesystem; otherwise, `renamecopy` must be
+#    used.
+#  - This is deliberately a relative path, so it works as expected for logfiles
+#    in any location.
+#  - Note: If this is changed or removed/disabled, old logfiles have to be
+#    manually (re-)moved.
+olddir old
+
+# Create the `olddir` if not existing.
+createolddir 0755 root root
+
+
+
+###############################
+## Naming of rotated logfiles
+
+# Note:
+#  - If these settings are changed, we should probably manually (re-)move old
+#    logfiles.
+#    - They might otherwise not be deleted, ever, or so I fear.
+
+# Add a date extension rather than a number.
+#  - Note: The date is the date of rotation, not of creation.
+#    - We might consider to use  `dateyesterday` but this yields unexpected
+#      results for example when the host was down during the last scheduled
+#      rotation.
+dateext
+
+# Notes:
+#  - Only quite few format strings allowed, unlike with date(1).
+#  - The lexicographic order must match the order of time.
+#  - The chosen format makes most sense with `daily` rotation.
+dateformat .%Y-%m-%d
+
+
+
+######################
+## "Secure" deletion
+
+# "Securely" delete old logfiles.
+#  - Note that this is not truly secure if the underlying file system and
+#    hardware overwrite data in-place.
+#    - ext4 with the default data=ordered is fine.
+#    - The hardware (and any other layers) at our provider likely do not
+#      satisfy this condition.
+#    - See <https://www.gnu.org/software/coreutils/manual/html_node/shred-invocation.html>.
+shred
+
+# This is effectively the default.
+shredcycles 3
+
+
+
+################
+## Compression
+
+# Compress old logfiles (default).
+compress
+
+# Defaults.
+#compresscmd gzip
+#uncompresscmd gunzip
+#compressoptions -6
+
+# Only compress after second rotation (not default).
+#  - This is for the case where a program (briefly?) still uses the old logfile
+#    after rotation.
+#  - A few default per-logfile configurations set this.
+delaycompress
+
+
+
+##################
+## Miscellaneous
+
+# Do not mail old logfiles.
+nomail
+
+
+
+###################################
+## Logfile-specific configuration
+
+# Several packages put logfile-specific configuration here.
+include /etc/logrotate.d

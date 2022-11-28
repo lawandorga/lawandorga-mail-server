@@ -24,6 +24,10 @@
     state: present
 
 
+- name: Configure logrotate
+  ansible.builtin.include_tasks: logrotate.yaml
+
+
 - name: Install other base system packages
   ansible.builtin.apt:
     name: '{{ pkgs_base_system_other }}'

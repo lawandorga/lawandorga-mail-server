@@ -1,0 +1,45 @@
+---
+# Configure logrotate(8).
+#  - This is mostly relevant for privacy.
+#  - We have to specifically configure logrotate for each log file we want it
+#    to handle.
+#    - Many packages include default configurations.
+#    - We only explicitly configure logrotate for logfiles where we expect
+#      sensible data (e.g., the default `/etc/logrotate.d/alternatives` is
+#      deemed fine/irrelevant).
+#      - Such explicit per-logfile configuration should generally be configured
+#        within the Ansible role where the respective logfile is [implicitly]
+#        configured.
+#  - These tasks should be run before installation of logrotate.
+#    - This is s.t. this configuration is used on the first run.
+
+
+- name: Configure logrotate defaults
+  ansible.builtin.template:
+    src: logrotate.conf.j2
+    dest: /etc/logrotate.conf
+    owner: root
+    group: root
+    mode: '0644'
+
+
+# The package `logrotate` also would create (and populate) this directory.
+#  - That packages is, however, installed after this configuration.
+- name: Create directory for extra logrotate configuration
+  ansible.builtin.file:
+    path: /etc/logrotate.d
+    owner: root
+    group: root
+    mode: '0755'
+    state: directory
+    follow: no
+
+
+- name: Configure logrotate for rsyslog
+  ansible.builtin.copy:
+    src: logrotate-rsyslog.conf
+    dest: /etc/logrotate.d/rsyslog
+    owner: root
+    group: root
+    mode: '0644'
+...
