@@ -1,5 +1,5 @@
 ---
-mail_static_domains: '{{ mail_static_domains_standard + mail_static_domains_extra }}'
+mail_static_domains: '{{ mail_static_domains_standard + mail_static_domains_extra | unique }}'
 
 mail_static_domains_standard:
   - '{{ mail_default_domain }}'

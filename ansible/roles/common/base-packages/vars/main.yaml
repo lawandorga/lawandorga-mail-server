@@ -1,5 +1,5 @@
 ---
-pkgs_base_system_other: '{{ pkgs_base_system_other_standard + pkgs_base_system_other_extra }}'
+pkgs_base_system_other: '{{ pkgs_base_system_other_standard + pkgs_base_system_other_extra | unique }}'
 
 # System packages - Important, but not necessary ones.
 pkgs_base_system_other_standard:
