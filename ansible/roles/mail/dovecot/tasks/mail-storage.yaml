@@ -16,7 +16,7 @@
     name: '{{ mail_dovecot_storage_user }}'
     uid: '{{ mail_dovecot_storage_uid }}'
     group: '{{ mail_dovecot_storage_group }}'
-    home: /var/mail
+    home: '{{ mail_dovecot_storage_user_home }}'
     create_home: no
     shell: /usr/sbin/nologin
     system: yes
