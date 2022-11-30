@@ -23,8 +23,7 @@ password_query = \
   INNER JOIN core_mailaccount       uacc  ON uaddr.account_id = uacc.id       \
   INNER JOIN core_mailuser          usr   ON uacc.user_id     = usr.id        \
   INNER JOIN core_mailgroup_members mem   ON usr.id   = mem.mailuser_id       \
-  INNER JOIN core_mailgroup         grp   ON mem.mailgroup_id = grp.id        \
-  INNER JOIN core_mailaccount       gacc  ON grp.id   = gacc.group_id         \
+  INNER JOIN core_mailaccount       gacc  ON mem.mailgroup_id = gacc.group_id \
   INNER JOIN core_mailaddress       gaddr ON gacc.id  = gaddr.account_id      \
   INNER JOIN core_maildomain        gd    ON gaddr.domain_id  = gd.id         \
   WHERE ud.name NOT IN ({{ "'" + mail_static_domains | join("', '") + "'" }}) \
