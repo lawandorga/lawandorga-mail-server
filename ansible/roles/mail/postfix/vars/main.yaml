@@ -1,7 +1,4 @@
 ---
-# Must be in {{ mail_static_domains }}.
-mail_postfix_myorigin: '{{ mail_default_domain }}'
-
 mail_postfix_spf_authserv_id: 'spf.{{ fqdn }}'
 
 mail_postfix_header_checks_dir: /etc/postfix/header-checks

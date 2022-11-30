@@ -175,7 +175,7 @@ mydomain = mydomain.invalid
 # This must be contained in one of
 #  - ${virtual_mailbox_domains},
 #  - ${virtual_alias_domains}.
-myorigin = {{ mail_postfix_myorigin }}
+myorigin = {{ mail_default_domain }}
 
 # We do not want to accept any mail via local(8).
 #  - This does not suffice.  See "local(8) delivery" section.

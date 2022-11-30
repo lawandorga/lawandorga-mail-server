@@ -52,6 +52,6 @@ postmaster@{{ domain }}
 
 # Alias local admin addresses.
 {% for localpart in mail_localadmin_alias_source_localparts %}
-{{ localpart }}@{{ mail_postfix_myorigin }}
+{{ localpart }}@{{ mail_default_domain }}
 	{{ mail_localadmin_alias_targets | join(', ') }}
 {% endfor %}
