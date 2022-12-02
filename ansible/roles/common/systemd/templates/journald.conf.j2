@@ -45,6 +45,7 @@ RateLimitBurst=1000
 # Notes:
 #  * See also `/ansible/roles/common/base-packages/tasks/logrotate.yaml`.
 #  * Unlike with logrotate, we cannot apparently configure "secure" deletion.
+#    - See `/ansible/roles/common/base-packages/templates/logrotate.conf.j2`.
 
 # How long to use a single logfile.
 #  - This influences the granularity at which old log entries can be removed.
