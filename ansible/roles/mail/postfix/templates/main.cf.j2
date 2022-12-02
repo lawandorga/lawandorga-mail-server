@@ -104,11 +104,6 @@
 #    - CONNECTION_CACHE_README
 #    - TUNING_README
 
-# TODO:
-#  - Privacy (evaluate whether relevant):
-#    - ${maximal_queue_lifetime}
-#    - ${bounce_queue_lifetime}
-
 
 
 ############
@@ -224,6 +219,11 @@ enable_long_queue_ids = yes
 # This probably does not matter; we only have virtual users.
 biff = no
 
+# How long to keep an undeliverable [bounce] mail in the queue.
+#  - This is relevant for privacy.
+maximal_queue_lifetime = {{ privacy_mail_postfix_queue_max_lifetime_days }}d
+bounce_queue_lifetime = {{ privacy_mail_postfix_queue_max_lifetime_days }}d
+
 # How soon to get a warning on a not yet delivered email.
 delay_warning_time = 1h
 
@@ -301,6 +301,8 @@ show_user_unknown_table_name = no
 #disable_vrfy_command = no
 
 # See also
+#  - ${maximal_queue_lifetime},
+#  - ${bounce_queue_lifetime},
 #  - ${notify_classes},
 #  - ${smtpd_sasl_authenticated_header},
 #  - the "Builtin filter" section.

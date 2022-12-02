@@ -2,4 +2,7 @@
 # Note that under unnormal conditions (notably, extended downtime), log data
 # may be kept a little longer.
 privacy_log_retention_days: 7
+
+# This is the default as of Postfix 3.5.13-0+deb11u1.
+privacy_mail_postfix_queue_max_lifetime_days: 5
 ...
