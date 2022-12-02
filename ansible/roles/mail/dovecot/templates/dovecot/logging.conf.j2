@@ -25,7 +25,19 @@ imap_id_log =
 log_debug =
 
 
-# Add info on negotiated TLS cipher (like Postfix).
+# Login log format.
+#  - This is relevant for privacy.
+#  - Add info on negotiated TLS cipher (like Postfix).
+#  - Add `auth_user`.  This is relevant for "master" user login.
 #  - Otherwise default.
-#  - This setting in general may be relevant for privacy (TODO).
-login_log_format_elements = user=<%u> method=%m rip=%r lip=%l mpid=%e %c session=<%{session}> %{ssl_security}
+#  - We use the short names %m, %r, %l instead of %{mechanism}, %{remote_ip},
+#    %{local_ip}, for the latter are only valid by version 2.3.14.
+login_log_format_elements = user=<%{user}> auth_user=<%{auth_user}> method=%m rip=%r lip=%l mpid=%{mail_pid} %{secured} %{ssl_security} session=<%{session}>
+
+# IMAP logout log format.
+#  - This is relevant for privacy.
+#  - Add number of new messages saved (%{appended}).
+#  - Otherwise default.
+#  - Note: pid, session id are implicitly logged.
+#    - I.e. all data logged for login can be related to these.
+imap_logout_format = in=%{input} out=%{output} appended=%{appended} deleted=%{deleted} expunged=%{expunged} trashed=%{trashed} hdr_count=%{fetch_hdr_count} hdr_bytes=%{fetch_hdr_bytes} body_count=%{fetch_body_count} body_bytes=%{fetch_body_bytes}
