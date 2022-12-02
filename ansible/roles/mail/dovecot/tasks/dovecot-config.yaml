@@ -43,26 +43,36 @@
     - 'mail/dovecot : Reload Dovecot'
 
 
-# This file contains the SQL password; thus, the access needs restricting.
-- name: Configure common SQL queries
+# Access.
+#  - Dovecot's $default_internal_user (`dovecot`) needs read access.
+#  - Restrict access mode.
+#    - This should not be necessary.
+#      - The file does not contain a (valid) password (hash), despite its name.
+#    - This is to avoid future mistakes, where passwords are configured within
+#      without restricting the mode here.
+- name: Configure static accounts
   ansible.builtin.template:
-    src: dovecot/sql-common.conf.ext.j2
-    dest: '{{ mail_dovecot_sqlconf_common_path }}'
-    owner: root
-    group: root
+    src: dovecot/static-users.passwd.j2
+    dest: '{{ mail_dovecot_conf_aux_dir }}/static-users.passwd'
+    owner: dovecot
+    group: dovecot
     mode: '0600'
   notify:
     - 'mail/dovecot : Reload Dovecot'
 
 
-# This file contains the SQL password; thus, the access needs restricting.
-- name: Configure SQL query for group accounts
+# These files contains the SQL password; thus, the access needs restricting.
+- name: Configure SQL queries
   ansible.builtin.template:
-    src: dovecot/sql-groupauth.conf.ext.j2
-    dest: '{{ mail_dovecot_sqlconf_groupauth_path }}'
+    src: 'dovecot/{{ item }}.j2'
+    dest: '{{ mail_dovecot_conf_aux_dir }}/{{ item }}'
     owner: root
     group: root
     mode: '0600'
+  with_items:
+    - sql-common.conf.ext
+    - sql-adminauth.conf.ext
+    - sql-groupauth.conf.ext
   notify:
     - 'mail/dovecot : Reload Dovecot'
 ...

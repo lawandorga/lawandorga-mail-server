@@ -1,5 +1,6 @@
 ---
 # Configure deletion of data for users not (anymore) present in the database.
+#  - This does not handle static users.
 
 
 - name: Install PostgreSQL client

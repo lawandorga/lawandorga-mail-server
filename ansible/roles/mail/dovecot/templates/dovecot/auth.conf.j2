@@ -61,19 +61,30 @@ auth_master_user_separator = *
 #       `group@gdomain*user@udomain`.
 #       - This seems to be undocumented, and may cease to work in the future.
 #    - The password is always that of the user account.
+#  - The documentation on "master users" suggests `result_success = continue`
+#    for "master" passdbs, to check that the user authorized as actually
+#    exists.
+#    - We do not need this due to already checking the existance (and more) in
+#      the SQL queries for the "master user".
 #  - See
 #    - <https://doc.dovecot.org/configuration_manual/authentication/master_users/>
 #    - <https://doc.dovecot.org/configuration_manual/authentication/password_databases_passdb/>
+
+# Special (static) admin group account.
+#  - This comes deliberately before the group accounts, to take precedence
+#    in case of hypothetical overlaps.
+#    - Such overlaps should, however, not be possible.
 passdb {
   driver = sql
-  args = {{ mail_dovecot_sqlconf_groupauth_path }}
+  args = {{ mail_dovecot_conf_aux_dir }}/sql-adminauth.conf.ext
   master = yes
+}
 
-  # The documentation on "master users" suggests the following to check that
-  # the user authorized as actually exists.
-  #  - We do not need this due to already checking the existance (and more) in
-  #    the SQL query for the "master user".
-  #result_success = continue
+# Regular group accounts.
+passdb {
+  driver = sql
+  args = {{ mail_dovecot_conf_aux_dir }}/sql-groupauth.conf.ext
+  master = yes
 }
 
 
@@ -83,13 +94,30 @@ passdb {
 #    - <https://doc.dovecot.org/configuration_manual/authentication/password_databases_passdb/>
 passdb {
   driver = sql
-  args = {{ mail_dovecot_sqlconf_common_path }}
+  args = {{ mail_dovecot_conf_aux_dir }}/sql-common.conf.ext
 }
 
 
-# See
-#  - <https://doc.dovecot.org/configuration_manual/authentication/user_databases_userdb/>
+# Home lookup for static users.
+#  - This comes deliberately before the lookup for dynamic users.
+#    - There should be no ovelap possible, however.
+#      - The static and dynamic domains already do not overlap.
+#  - The `auth` service needs read access to this.
+#    - See `./services.conf`.
+#    - See also `/ansible/roles/mail/dovecot/tasks/dovecot-config.yaml`.
+#  - See
+#    - <https://doc.dovecot.org/configuration_manual/authentication/user_databases_userdb/>
+#    - <https://doc.dovecot.org/configuration_manual/authentication/passwd_file/>
+userdb {
+  driver = passwd-file
+  args = {{ mail_dovecot_conf_aux_dir }}/static-users.passwd
+}
+
+
+# Home lookup for dynamic users.
+#  - See
+#    - <https://doc.dovecot.org/configuration_manual/authentication/user_databases_userdb/>
 userdb {
   driver = sql
-  args = {{ mail_dovecot_sqlconf_common_path }}
+  args = {{ mail_dovecot_conf_aux_dir }}/sql-common.conf.ext
 }

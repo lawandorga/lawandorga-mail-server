@@ -975,6 +975,7 @@ smtpd_sender_restrictions =
 #      by the order of the queries.
 #  - See also ${virtual_alias_maps}.
 smtpd_sender_login_maps =
+	hash:{{ mail_postfix_maps_dir }}/id_static-users,
 	hash:{{ mail_postfix_maps_dir }}/static-aliases,
 	pgsql:{{ mail_postfix_maps_dir }}/postmaster-aliases.pgsql.cf,
 	pgsql:{{ mail_postfix_maps_dir }}/sender-to-login.pgsql.cf
@@ -1128,18 +1129,18 @@ virtual_transport = lmtp:unix:private/dovecot-lmtp
 #    - They are only alias domains, to keep the setup simple.
 #  - These must contain $myorigin.
 virtual_mailbox_domains =
+	{{ mail_static_domains | join(', ') }},
 	pgsql:{{ mail_postfix_sets_dir }}/mailbox-domains.pgsql.cf
-virtual_alias_domains = {{ mail_static_domains | join(', ') }}
+virtual_alias_domains =
 
 # This is just defined for use by ${smtpd_reject_unlisted_recipient}.
 #  - The default common functionality is gone, due to the non-default
 #    ${virtual_transport}.
 #  - The rhs of the map does not matter there, we use it as a set.
-#  - Note that we do not have no static user accounts, only those configured
-#    in the database.
-#    - Hence, we only need to query the database here.
-#    - See also `/doc/mail/postfix/aliases.md`.
-virtual_mailbox_maps = pgsql:{{ mail_postfix_sets_dir }}/users.pgsql.cf
+#    - This is why we can reuse the id_static-users table here.
+virtual_mailbox_maps =
+	hash:{{ mail_postfix_maps_dir }}/id_static-users,
+	pgsql:{{ mail_postfix_sets_dir }}/users.pgsql.cf
 
 # See also ${virtual_alias_maps} above.
 

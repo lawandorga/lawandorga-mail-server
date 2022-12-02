@@ -9,4 +9,10 @@
     argv:
       - postmap
       - 'hash:{{ mail_postfix_maps_dir }}/static-aliases'
+
+- name: Hash static user identity map
+  ansible.builtin.command:
+    argv:
+      - postmap
+      - 'hash:{{ mail_postfix_maps_dir }}/id_static-users'
 ...

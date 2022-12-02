@@ -1,0 +1,12 @@
+# Home directories of static users.
+#  - This file must not be used for authentication (i.e., with an `authdb`).
+#    - We deliberately set an invalid password hash to disallow login in the
+#      case that this file is ever wrongly attempted to be used for
+#      authentication.
+#      - See crypt(3), crypt(5), passwd(5).
+#  - This file is in the passwd format.
+#    - See <https://doc.dovecot.org/configuration_manual/authentication/passwd_file/>.
+#    - We only need to fill the `user` (1.), `home` (6.) (and `password` (2.))
+#      columns.
+#  - See also `/ansible/roles/mail/postfix/templates/maps/id_static-users.j2`.
+{{ mail_admin_address }}:{CRYPT}*::::{{ mail_dovecot_storage_admin_account_dir }}

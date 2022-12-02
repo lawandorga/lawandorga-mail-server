@@ -1,3 +1,5 @@
 ---
 mail_static_domains_extra: []
+
+mail_admin_alias_localparts_extra: []
 ...

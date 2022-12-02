@@ -50,5 +50,3 @@ See [postmaster addresses](/doc/mail/postfix/postmaster.md).
         * Such aliases should generally not exist; this is only a safeguard.
         * I.e., the identity map should take precedence over the alias map.
         * Exception: Postmaster aliases must take precedence.
-    * Note that actual accounts only exist in the database, and none are
-      statically configured.

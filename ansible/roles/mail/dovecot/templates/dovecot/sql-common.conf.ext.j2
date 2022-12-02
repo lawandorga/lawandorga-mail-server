@@ -54,7 +54,9 @@ password_query = \
 # See also
 #  - `/ansible/roles/mail/delete-old-userdata/templates/delete-old-userdata.bash.j2`
 user_query = \
-  SELECT '{{ mail_dovecot_storage_dir }}/' || acc.relative_path AS home     \
+  SELECT '{{ mail_dovecot_storage_dynamic_accounts_dir }}/'                 \
+      || acc.relative_path                                                  \
+      AS home                                                               \
   FROM       core_mailaddress addr                                          \
   INNER JOIN core_maildomain  d    ON addr.domain_id  = d.id                \
   INNER JOIN core_mailaccount acc  ON addr.account_id = acc.id              \

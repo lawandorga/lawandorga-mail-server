@@ -15,26 +15,4 @@ mail_dovecot_auth_memory_limit: 2G
 #    - Note, however, that the {{ mail_postfix_myhostname }} is by default
 #      defined as {{ fqdn }}.
 mail_default_domain: mail.law-orga.de
-
-
-# Requires 'root' in `mail_postfix_localadmin_alias_source_localparts`.
-mail_default_local_recipient: 'root@{{ mail_default_domain }}'
-
-mail_default_local_sender: '{{ mail_default_local_recipient }}'
-
-
-# Aliases
-
-# For privacy reasons, all alias targets should generally be local addresses.
-#  - Also, SRS is not (yet?) set up, so SPF might break things for non-local
-#    recipients.
-
-mail_postmaster_alias_targets:
-  - 'test@testmail.law-orga.de'     # TODO: Change this.
-
-# See also `mail_default_local_recipient` above.
-mail_localadmin_alias_source_localparts:
-  - root
-
-mail_localadmin_alias_targets: '{{ mail_postmaster_alias_targets }}'
 ...

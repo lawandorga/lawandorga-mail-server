@@ -1,8 +1,37 @@
 ---
 mail_static_domains: '{{ mail_static_domains_standard + mail_static_domains_extra | unique }}'
 
+# This must contain {{ mail_default_domain }}.
+#  - See `/ansible/roles/mail/postfix/templates/main.cf.j2#myorigin`.
 mail_static_domains_standard:
   - '{{ mail_default_domain }}'
+
+
+mail_admin_address_localpart: admin
+
+# This is automatically statically configured (as a full account).
+mail_admin_address:
+  '{{ mail_admin_address_localpart }}@{{ mail_default_domain }}'
+
+mail_admin_alias_localparts: '{{ mail_admin_alias_localparts_standard + mail_admin_alias_localparts_extra | unique }}'
+
+# We should not include `postmaster` here.
+#  - `postmaster` is handled explicitly (and for all domains).
+#    - See `/ansible/roles/mail/postfix/templates/maps/static-aliases.j2`.
+mail_admin_alias_localparts_standard:
+  - root
+
+
+# These localparts must be statically configured.
+#  - See {{ mail_admin_alias_localparts_standard }} above.
+mail_default_local_recipient_localpart: root
+mail_default_local_sender_localpart: root
+
+mail_default_local_recipient:
+  '{{ mail_default_local_recipient_localpart }}@{{ mail_default_domain }}'
+mail_default_local_sender:
+  '{{ mail_default_local_sender_localpart }}@{{ mail_default_domain }}'
+
 
 mail_recipient_delimiter: '+'
 ...

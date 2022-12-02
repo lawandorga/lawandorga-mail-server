@@ -22,12 +22,16 @@
     system: yes
 
 
-- name: Create mail storage directory
+- name: Create mail storage directories
   ansible.builtin.file:
-    path: '{{ mail_dovecot_storage_dir }}'
+    path: '{{ item }}'
     owner: '{{ mail_dovecot_storage_user }}'
     group: '{{ mail_dovecot_storage_group }}'
     mode: '0700'
     state: directory
     follow: no
+  with_items:
+    - '{{ mail_dovecot_storage_base_dir }}'
+    - '{{ mail_dovecot_storage_static_accounts_dir }}'
+    - '{{ mail_dovecot_storage_dynamic_accounts_dir }}'
 ...

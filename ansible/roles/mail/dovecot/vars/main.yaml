@@ -7,19 +7,19 @@ mail_dovecot_storage_uid: 525
 mail_dovecot_storage_gid: 525
 
 mail_dovecot_storage_user_home: /var/mail
-mail_dovecot_storage_dir: /var/mail/virtual
+mail_dovecot_storage_base_dir: /var/mail/virtual
+mail_dovecot_storage_static_accounts_dir:
+  '{{ mail_dovecot_storage_base_dir }}/static'
+mail_dovecot_storage_admin_account_dir:
+  '{{ mail_dovecot_storage_static_accounts_dir }}/admin'
+mail_dovecot_storage_dynamic_accounts_dir:
+  '{{ mail_dovecot_storage_base_dir }}/dynamic'
 
 
 mail_dovecot_admin_address: 'postmaster@{{ mail_default_domain }}'
 
 
 mail_dovecot_conf_aux_dir: /etc/dovecot/extra
-
-mail_dovecot_sqlconf_common_path:
-  '{{ mail_dovecot_conf_aux_dir }}/sql-common.conf.ext'
-mail_dovecot_sqlconf_groupauth_path:
-  '{{ mail_dovecot_conf_aux_dir }}/sql-groupauth.conf.ext'
-
 
 mail_dovecot_sysctl_conf_path: /etc/sysctl.d/50-dovecot-custom.conf
 ...

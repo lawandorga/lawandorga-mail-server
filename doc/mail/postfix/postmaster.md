@@ -25,12 +25,10 @@ Also, Dovecot sends bounces from a postmaster address.  See Dovecot's
 
 ## Goal
 
-* All postmaster addresses are aliased to a fixed set of addresses
-  (Ansible: `mail_postmaster_alias_targets`).
-    * We allow these to be external.
-    * We also allow users logged in using such an address to send with any
-      postmaster address.
-        * This naturally only works for non-external addresses.
+* All postmaster addresses are aliased to a single statically configured
+  local admin address.  (Ansible: `mail_admin_address`).
+    * Like with any aliases, we allow users logged in as that admin address
+      to send with any postmaster address.
         * We exclude the literal `postmaster` address here, which is not a
           proper address.
 * We may be tempted to just alias `postmaster@*`, but this would naturally

@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
 # Delete data for users that are no longer present in the database.
+#  - This does not handle static users.
 
 # Call as
 #  - `$0 --delete` (to be used in production), or
@@ -53,7 +54,7 @@ typeset -r cfg_QUERY_DIRS='SELECT relative_path FROM core_mailaccount;'
 typeset -r cfg_LOG_TAG=delete-old-userdata
 typeset -r cfg_LOG_FACILITY=mail
 
-typeset -r cfg_DATA_BASE_DIR='{{ mail_dovecot_storage_dir }}'
+typeset -r cfg_DATA_BASE_DIR='{{ mail_dovecot_storage_dynamic_accounts_dir }}'
 
 typeset -r cfg_PGSQL_HOST='{{ database_server_address }}'
 typeset -r cfg_PGSQL_PORT='{{ database_server_port }}'

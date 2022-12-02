@@ -26,6 +26,17 @@
     - 'mail/postfix : Hash static aliases'
 
 
+- name: Configure static user identity map
+  ansible.builtin.template:
+    src: maps/id_static-users.j2
+    dest: '{{ mail_postfix_maps_dir }}/id_static-users'
+    owner: root
+    group: root
+    mode: '0644'
+  notify:
+    - 'mail/postfix : Hash static user identity map'
+
+
 # These files contain the SQL password; thus, the access needs restricting.
 - name: Configure PostgreSQL maps
   ansible.builtin.template:
