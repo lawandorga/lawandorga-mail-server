@@ -9,8 +9,8 @@
 
 # Notes:
 #  - This script should be run as the Dovecot storage user.
-#  - This script assumes the database configured "relative_path" not to contain
-#    slashes.
+#  - This script importantly assumes the database configured "relative_path"
+#    not to contain slashes.
 #  - This script is meant to be run by cron, with `--delete`; it should have
 #    output (that cron should mail) iff anything goes wrong.
 #    - This does not apply when run with `--list-only`.
