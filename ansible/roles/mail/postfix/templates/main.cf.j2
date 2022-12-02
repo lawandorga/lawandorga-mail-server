@@ -231,12 +231,12 @@ delay_warning_time = 1h
 confirm_delay_cleared = yes
 
 # What to send postmaster mail for:
-#  - TODO: Review w.r.t. privacy.
-#  - This is currently everything configurable except "bounce", "policy",
-#    "protocol".
+#  - This is relevant for privacy.
+#  - This is currently everything configurable except "bounce", "delay",
+#    "policy", "protocol".
 #    - "protocol" yields very many (annoying) results.
 #  - We might want to reduce this, should we get too much such mail.
-notify_classes = 2bounce, data, delay, resource, software
+notify_classes = 2bounce, data, resource, software
 
 # Note: Dovecot (importantly) sets the same recipient delimiter.
 recipient_delimiter = {{ mail_recipient_delimiter }}
