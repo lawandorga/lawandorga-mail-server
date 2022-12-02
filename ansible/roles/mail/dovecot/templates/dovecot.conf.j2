@@ -69,11 +69,16 @@ verbose_proctitle = no
 #import_environment =
 
 # Temporary storage.
-#  - Default.
-#  - This is relevant for privacy (TODO).
-#    - Note, however, that `/tmp` is not backed up.
+#  - The scan interval specifies how often to scan and delete (!) stale
+#    temporary files.
+#  - This is relevant for privacy.
+#    - Note, however, that `/tmp` is not backed up, so the total storage
+#      time is not increased by that.
+#    - Note further that /tmp is on a tmpfs (see fstab configuration), so
+#      there is no risk of "deleted" data to remain on disk post removal.
+#      - I.e., we do not need to worry about "secure" deletion.
 mail_temp_dir = /tmp
-mail_temp_scan_interval = 1w
+mail_temp_scan_interval = {{ privacy_mail_dovecot_tmp_cleanup_frequency_days }}days
 
 
 
