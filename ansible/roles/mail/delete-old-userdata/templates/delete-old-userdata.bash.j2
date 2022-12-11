@@ -9,8 +9,16 @@
 
 # Notes:
 #  - This script should be run as the Dovecot storage user.
-#  - This script importantly assumes the database configured "relative_path"
-#    not to contain slashes.
+#  - This script requires the database configured "relative_path"s (and the
+#    directory names on the filesystem derived thereof) to match [a-z0-9-]+.
+#    - We importantly want valid single path elements (i.e., no slashes),
+#      excluding "." and "..".
+#      - For simplicity, and to avoid other potential issues, we require more.
+#    - This script terminates with an error otherwise.
+#      - This only applies to invalid names in the database.
+#        - We cannot check the on-fs names for slashes, "..", ".".
+#      - See verify_format_of_dirs_from_db().
+#    - We allow "-", because currently, UUIDs are used.
 #  - This script is meant to be run by cron, with `--delete`; it should have
 #    output (that cron should mail) iff anything goes wrong.
 #    - This does not apply when run with `--list-only`.
@@ -93,6 +101,7 @@ function main()
   parse_args "$@"
 
   get_dirs_from_db
+  verify_format_of_dirs_from_db
   get_dirs_from_fs
 
   identify_dirs_to_be_removed
@@ -127,10 +136,10 @@ function log()
 
 function error()
 {
-  [[ $# -eq 1 ]]
-  local -r message="$1"
-  log error "$message"
-  printf '%s\n' "$message" >&2
+  [[ $# -ge 1 ]]
+  local -ra messages=( "$@" )
+  log error "${messages[*]}"
+  printf '%s\n' "${messages[@]}" >&2
   return 1
 }
 
@@ -157,6 +166,24 @@ function get_dirs_from_db()
     --record-separator-zero \
     --command="$cfg_QUERY_DIRS" \
     --output="${tmpfiles[dirs-db-unsorted]}"
+}
+
+
+# Check that the dirs from the database are of a valid format.
+#  - This is not actually important for the current run of this script.
+#    - The database-configured directories are NOT removed.
+#  - This is important for future runs of the script.
+#    - The on-fs directory names stem from the database, and we assume them
+#      to be valid single-path components.
+#  - See also the corresponding note on the top of this file.
+function verify_format_of_dirs_from_db()
+{
+  if grep -Eq --null-data '^[a-z0-9-]+$' -- "${tmpfiles[dirs-db-unsorted]}"
+  then
+    error \
+      "The database contains a directory name of invalid format" \
+      "(or an error occured with grep(1))."
+  fi
 }
 
 
