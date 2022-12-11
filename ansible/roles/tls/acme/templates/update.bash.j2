@@ -19,13 +19,13 @@
 # Configuration can be done below in the corresponding section.
 
 
-source '{{ bash_aux_lib_basic_path }}' || {
+source -- '{{ bash_aux_lib_basic_path }}' || {
   printf 'Fatal Error.\n' >&2
   exit 1
 }
 
 
-source '{{ tls_acme_config_file_path }}'
+source -- '{{ tls_acme_config_file_path }}'
 
 
 
@@ -65,6 +65,7 @@ function main()
   else
     certdir="$certdir_production"
   fi
+	local -r certdir
 
   certchain_new="${certdir}/${certchain_name_tmp}"
   certchain="${certdir}/${certchain_name}"
@@ -96,6 +97,7 @@ function main()
 
 function parse_args()
 {
+	local arg
   for arg
   do
     case "$arg" in
@@ -131,44 +133,46 @@ function update_certificate()
   (
     umask 077
     set -o noclobber
-    cat "$key" "$certchain_new" > "$key_then_certchain_new"
+    cat -- "$key" "$certchain_new" > "$key_then_certchain_new"
   )
 
   # Replace old certificate chain.
   #  - Not executed if anything above failed due to ERR being trapped to
   #    exiting function.
-  mv "$certchain_new" "$certchain"
-  mv "$key_then_certchain_new" "$key_then_certchain"
+  mv -- "$certchain_new" "$certchain"
+  mv -- "$key_then_certchain_new" "$key_then_certchain"
 
   $staging && printf '(staging) '
   printf 'Installed new certificate (chain) for:\n'
   printf '  %s\n' "${domains[@]}"
 
-  rm "$tmp_csr"
+  rm -- "$tmp_csr"
 }
 
 
 function create_csr()
 {
-  # Note that the CN should be invluded in the subjectAltName.
-  local subject_alt_names="${domains[*]/#/DNS:}"
+  # Note that the CN should be included in the subjectAltName.
+  local subject_alt_names
+	subject_alt_names="${domains[*]/#/DNS:}"
   subject_alt_names="${subject_alt_names// /,}"
 
   openssl req -sha256 -new \
     -key "$key" \
     -out "$tmp_csr" \
     -subj "/CN=${domains[0]}" \
-    -addext subjectAltName="$subject_alt_names"
+    -addext "subjectAltName=${subject_alt_names}"
 }
 
 
 function request_certificate()
 {
-  typeset -a directory_url_args=()
+  local -a directory_url_args=()
   if $staging
   then
     directory_url_args=( --directory-url "$staging_url" )
   fi
+	local -ra directory_url_args
 
   acme-tiny --quiet \
     --account-key "$account_key" \
@@ -184,11 +188,12 @@ function reload_services()
 {
   $staging && return 0
 
+	local service
   for service in "${services_to_reload_on_update[@]}"
   do
-    if systemctl -q is-active "$service"
+    if systemctl -q is-active -- "$service"
     then
-      systemctl reload "$service"
+      systemctl reload -- "$service"
     fi
   done
 }

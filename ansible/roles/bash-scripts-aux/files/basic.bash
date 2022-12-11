@@ -31,14 +31,14 @@ set -o nounset
 #    - I do not know how to fix this (TODO).
 function on_error()
 {
-	local -i i
-	local -a args=()
-	for (( i=1; i < ${#BASH_SOURCE[@]}; i++ ))
-	do
-		args+=( "${BASH_SOURCE[$i]} ${BASH_LINENO[${i}-1]} ${FUNCNAME[$i]}" )
-	done
+  local -i i
+  local -a args=()
+  for (( i=1; i < ${#BASH_SOURCE[@]}; i++ ))
+  do
+    args+=( "${BASH_SOURCE[$i]} ${BASH_LINENO[${i}-1]} ${FUNCNAME[$i]}" )
+  done
   printf 'FAILED: %s\n' "${args[@]}" >&2
-	exit 1
+  exit 1
 }
 trap 'on_error' ERR
 

@@ -46,7 +46,7 @@
 
 
 
-source '{{ bash_aux_lib_basic_path }}' || {
+source -- '{{ bash_aux_lib_basic_path }}' || {
   printf 'Fatal Error.\n' >&2
   exit 1
 }
@@ -111,7 +111,7 @@ function on_exit()
   local tmpfile
   for tmpfile in "${tmpfiles[@]}"
   do
-    rm -f "$tmpfile"
+    rm -f -- "$tmpfile"
   done
 }
 
@@ -119,9 +119,9 @@ function on_exit()
 function log()
 {
   [[ $# -eq 2 ]]
-  local loglevel="$1"
-  local message="$2"
-  logger -t "$cfg_LOG_TAG" -p "${cfg_LOG_FACILITY}.${loglevel}" "$message"
+  local -r loglevel="$1"
+  local -r message="$2"
+  logger -t "$cfg_LOG_TAG" -p "${cfg_LOG_FACILITY}.${loglevel}" -- "$message"
 }
 
 
@@ -167,13 +167,13 @@ function identify_dirs_to_be_removed()
   for typ in db fs
   do
     tmpfiles["dirs-${typ}-sorted"]="$(umask 077; mktemp -t tmp.XXXXXX)"
-    sort --zero-terminated "${tmpfiles["dirs-${typ}-unsorted"]}" \
+    sort --zero-terminated -- "${tmpfiles["dirs-${typ}-unsorted"]}" \
       > "${tmpfiles["dirs-${typ}-sorted"]}"
   done
 
   tmpfiles["dirs-local-only"]="$(umask 077; mktemp -t tmp.XXXXXX)"
 
-  comm --zero-terminated -23 \
+  comm --zero-terminated -23 -- \
     "${tmpfiles["dirs-fs-sorted"]}" \
     "${tmpfiles["dirs-db-sorted"]}" \
     > "${tmpfiles["dirs-local-only"]}"
@@ -189,7 +189,7 @@ function delete_old_dirs()
     local dir
     for dir in "${dirs_to_be_removed[@]}"
     do
-      if rm -r "${cfg_DATA_BASE_DIR}/${dir}"
+      if rm -r -- "${cfg_DATA_BASE_DIR}/${dir}"
       then
         log notice "Deleted old data directory: ${dir}"
       else

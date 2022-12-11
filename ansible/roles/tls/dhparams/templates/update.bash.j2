@@ -3,7 +3,7 @@
 # (Re-)Generate DH parameters.  E.g., to be used by Postfix.
 
 
-source '{{ bash_aux_lib_basic_path }}' || {
+source -- '{{ bash_aux_lib_basic_path }}' || {
   printf 'Fatal Error.\n' >&2
   exit 1
 }
@@ -33,19 +33,19 @@ typeset -r filename_suffix_tmp='.tmp.pem'
 
 
 umask 022
-cd "$storage_dir"
+cd -- "$storage_dir"
 for size in "${sizes[@]}"
 do
   tmp="${filename_prefix}${size}${filename_suffix_tmp}"
   file="${filename_prefix}${size}${filename_suffix}"
 
   # Only print the output on failure.
-  if ! ret_str="$(openssl dhparam -out "$tmp" "$size" 2>&1)"
+  if ! ret_str="$(openssl dhparam -out "$tmp" -- "$size" 2>&1)"
   then
     # Print error and fail (`false').
     printf '%s\n' "$ret_str" 2>&1; false
   fi
 
-  mv "$tmp" "$file"
-  chmod 644 "$file"
+  mv -- "$tmp" "$file"
+  chmod 644 -- "$file"
 done

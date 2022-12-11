@@ -22,6 +22,6 @@ typeset -r tgt='/var/lib/unbound/root_key/root.key'
 
 if [[ ! -e "$src" || "$src" -nt "$tgt" ]]
 then
-	printf 'Installing/updating root trust anchor.\n'
-	install -m 0644 -o unbound -g unbound "$src" "$tgt"
+  printf 'Installing/updating root trust anchor.\n'
+  install -m 0644 -o unbound -g unbound -- "$src" "$tgt"
 fi
