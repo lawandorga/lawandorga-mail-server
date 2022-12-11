@@ -265,6 +265,11 @@ function parse_args()
       ;;
     --list-only)
       delete_old_data=false
+      ;;
+    *)
+      printf 'Invalid argument given: %s\n' "$1" >&2
+      exit 1
+      ;;
   esac
 }
 
