@@ -125,6 +125,16 @@ function log()
 }
 
 
+function error()
+{
+  [[ $# -eq 1 ]]
+  local -r message="$1"
+  log error "$message"
+  printf '%s\n' "$message" >&2
+  return 1
+}
+
+
 function get_dirs_from_db()
 {
   tmpfiles[dirs-db-unsorted]="$(umask 077; mktemp -t tmp.XXXXXX)"
@@ -193,8 +203,7 @@ function delete_old_dirs()
       then
         log notice "Deleted old data directory: ${dir}"
       else
-        log error "Failed to delete old data directory: ${dir}"
-        exit 1
+        error "Failed to delete old data directory: ${dir}"
       fi
     done
   else
