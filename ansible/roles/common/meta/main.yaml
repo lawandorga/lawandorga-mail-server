@@ -7,6 +7,8 @@
 #      - They may do so, however, to emphasize a particular dependency.
 #      - They should depend on a particular role, if that role is deemed
 #        actually-not-that-common (e.g., dnssec-resolver).
+#  - Common roles should
+#    - not depend on non-common roles.
 #  - There are some dependencies between the common roles, explicitly stated
 #    in their respective `meta/main.yaml`.
 
