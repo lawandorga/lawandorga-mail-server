@@ -1,5 +1,8 @@
 # Attempt update of ACME certificate, daily.
 #  - The called script only updates the certificate if it is near expiry.
 
+PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+MAILTO=root
+
 # m  h dom mon dow  user  command
  37  3   *   *   *  root  {{ tls_acme_script_path }} --production
