@@ -5,7 +5,7 @@
   [`secrets.yaml`](/ansible/host_vars/lawandorga-mail-server/secrets.yaml)
   file, that has to be filled manually.
     * Other locations for such a `secrets.yaml` file, such as within
-      `/ansible/group_vars/*` is fine.
+      `/ansible/group_vars/*`, are fine.
         * See `.gitignore` below.
 * A [`.gitignore`](/.gitignore) file provides a little protection against
   accidental publication of this file via git.
