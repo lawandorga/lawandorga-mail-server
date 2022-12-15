@@ -149,7 +149,7 @@ function get_dirs_from_db()
   tmpfiles[dirs-db-unsorted]="$(umask 077; mktemp -t tmp.XXXXXX)"
 
   # Note that giving the password in the environment is safe, at least due to
-  # our setting hidepid=2 on /proc.
+  # our setting hidepid=2 on /proc (see fstab configuration).
   #  - Even otherwise, `/proc/<pid>/environ` seems to have restrictive
   #    permissions.
   PGPASSWORD="$cfg_PGSQL_PASSWORD" psql \
