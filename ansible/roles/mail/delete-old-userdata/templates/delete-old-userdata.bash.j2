@@ -180,7 +180,7 @@ function get_dirs_from_db()
 #  - See also the corresponding note on the top of this file.
 function verify_format_of_dirs_from_db()
 {
-  if grep -Eq --null-data '^[a-z0-9-]+$' -- "${tmpfiles[dirs-db-unsorted]}"
+  if grep -Evq --null-data '^[a-z0-9-]+$' -- "${tmpfiles[dirs-db-unsorted]}"
   then
     error \
       "The database contains a directory name of invalid format" \
