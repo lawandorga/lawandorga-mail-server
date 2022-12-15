@@ -1,5 +1,6 @@
 # Ignore secrets.yaml; account for common variations.
 #  - Such files should usually only be present below `/ansible/`.
+#  - See `/doc/ansible/secrets.md`.
 secrets.yaml
 secrets.yml
 secret.yaml

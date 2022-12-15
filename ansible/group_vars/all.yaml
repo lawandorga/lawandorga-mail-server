@@ -13,7 +13,9 @@ debian_release_codename: bullseye
 # LVM needs a state directory that is writable.
 #  - default: /etc/lvm/
 #  - It also should not reside on LVM.
-#  - See also the fstab configuration.
+#  - See also
+#    - the fstab configuration
+#    - `/ansible/roles/backup/templates/config/lvm-state.conf.bash.j2`
 lvm_state_dir: /var/nolvm/lvm
 
 

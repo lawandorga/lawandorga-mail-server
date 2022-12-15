@@ -1,0 +1,4 @@
+---
+backup_restic_repository:
+  s3:https://s3.fr-par.scw.cloud/lawandorga-mail-server-backup
+...

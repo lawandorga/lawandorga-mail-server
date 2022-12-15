@@ -1,0 +1,17 @@
+# Backup cronjobs.
+#  * Create hourly backups.
+#    - This is expected by the main script.
+#    - They should not be created close to a full hour.
+#      - See the main script's check_backup().
+#  * Monthly, inform on the backup status.
+#    - This may be less often than individual backups are retained for.
+#    - This should be done relatively briefly before a regular backup run.
+#      - This is to give the previous backup run relatively much time to
+#        release its lock.
+
+PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+MAILTO=root
+
+# m  h dom mon dow  user  command
+ 46  *   *   *   *  root  {{ backup_wrapper_script_path }}
+ 41  3   8   *   *  root  {{ backup_main_script_path }} status

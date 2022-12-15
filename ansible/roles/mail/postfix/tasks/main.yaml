@@ -77,4 +77,13 @@
     name: postfix
     enabled: yes
     state: started
+
+
+- name: Configure backup
+  ansible.builtin.template:
+    src: backup.conf.bash.j2
+    dest: '{{ backup_config_dir }}/postfix-queue.conf.bash'
+    owner: root
+    group: root
+    mode: '0644'
 ...

@@ -1,0 +1,5 @@
+---
+dependencies:
+  - role: common/lvm
+  - role: bash-scripts-aux
+...

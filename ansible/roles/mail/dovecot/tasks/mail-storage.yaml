@@ -34,4 +34,13 @@
     - '{{ mail_dovecot_storage_base_dir }}'
     - '{{ mail_dovecot_storage_static_accounts_dir }}'
     - '{{ mail_dovecot_storage_dynamic_accounts_dir }}'
+
+
+- name: Configure backup
+  ansible.builtin.template:
+    src: backup.conf.bash.j2
+    dest: '{{ backup_config_dir }}/mail-storage.conf.bash'
+    owner: root
+    group: root
+    mode: '0644'
 ...

@@ -1,0 +1,58 @@
+#!/usr/bin/env bash
+
+# Wrapper for the main backup script.
+#  - Creates a backup for each configuration.
+#  - This script is mainly intended to be run as a cron job, but can also be
+#    run manually.
+
+# Copyright 2022 Einhard Leichtfuß
+
+
+
+source -- '{{ bash_aux_lib_basic_path }}' || {
+  printf 'Fatal Error.\n' >&2
+  exit 1
+}
+
+
+
+##################
+## Configuration
+
+typeset -r cfg_MAIN_SCRIPT_PATH='{{ backup_main_script_path }}'
+typeset -r cfg_SPECIFIC_CONFIGURATION_DIR='{{ backup_config_dir }}'
+
+
+
+##############
+## Main code
+
+{% raw %}
+
+
+function main()
+{
+  "$cfg_MAIN_SCRIPT_PATH" check-lvm-snapshots
+
+  # This should do nothing except on the first run.
+  "$cfg_MAIN_SCRIPT_PATH" init
+
+  local config_file
+  set +o noglob
+  for config_file in "$cfg_SPECIFIC_CONFIGURATION_DIR"/*.conf.bash
+  do
+    "$cfg_MAIN_SCRIPT_PATH" backup-and-forget-old "$config_file"
+  done
+  set -o noglob
+
+	# This is important, to actually delete old backup data.
+  "$cfg_MAIN_SCRIPT_PATH" prune
+
+  "$cfg_MAIN_SCRIPT_PATH" check-backups
+}
+
+
+main "$@"
+
+
+{% endraw %}

@@ -1,0 +1,25 @@
+# Backup the mail queue.
+#  - To simplify the backup, all queue items are moved to the hold queue,
+#    backed up from there, then moved back.
+#  - See also the fstab configuration.
+
+scfg_NAME=postfix-queue
+
+scfg_LVM_VG=main
+scfg_LVM_LV=var
+
+scfg_RETENTION_DAYS='{{ privacy_backup_retention_days_data }}'
+
+scfg_RELATIVE_PATHS=( 'spool/postfix/hold' )
+
+scfg_PRE()
+{
+  postsuper -h ALL >/dev/null 2>&1
+}
+
+# Note that this must be executed manually in case an error occurs in the
+# backup process prior to reaching the step of calling this function.
+scfg_POST()
+{
+  postsuper -H ALL >/dev/null 2>&1
+}

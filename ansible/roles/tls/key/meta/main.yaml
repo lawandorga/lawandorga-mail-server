@@ -1,4 +1,5 @@
 ---
 dependencies:
   - role: tls/openssl
+  - role: backup  # See `../vars/main.yaml#tls_key_dir`
 ...

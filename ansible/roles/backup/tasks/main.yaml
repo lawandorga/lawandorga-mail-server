@@ -1,0 +1,91 @@
+---
+# General backup configuration.
+#  - IMPORTANT: Many changes to any general or specific backup configuration
+#    require manual deletion of old backups--if these are no longer known to
+#    the new configuration.
+#  - For specific backup configuration, install a configuration file to
+#    `{{ backup_config_dir }}/CONFIG_NAME.conf.bash`.
+#    - See `../examples/sample.conf.bash` for an example.
+#  - Includes specific configuration for a default setup, assuming the `common`
+#    role to be run beforehand.
+
+
+- name: Install restic
+  ansible.builtin.apt:
+    name: restic
+    state: present
+
+
+# This is "Recommended" by the `restic` Debian package and necessary to mount
+# backups.
+- name: Install fuse
+  ansible.builtin.apt:
+    name: fuse
+    state: present
+
+
+- name: Create configuration directory
+  ansible.builtin.file:
+    path: '{{ backup_config_dir }}'
+    owner: root
+    group: root
+    mode: '0755'
+    state: directory
+    follow: no
+
+
+- name: Create script directory
+  ansible.builtin.file:
+    path: '{{ backup_script_dir }}'
+    owner: root
+    group: root
+    mode: '0755'
+    state: directory
+    follow: no
+
+
+- name: Install main script
+  ansible.builtin.template:
+    src: 'backup.bash.j2'
+    dest: '{{ backup_main_script_path }}'
+    owner: root
+    group: root
+    mode: '0700'  # Protect secrets
+
+
+- name: Install wrapper script
+  ansible.builtin.template:
+    src: 'wrapper.bash.j2'
+    dest: '{{ backup_wrapper_script_path }}'
+    owner: root
+    group: root
+    mode: '0755'
+
+
+- name: Configure cron jobs
+  ansible.builtin.template:
+    src: crontab.j2
+    dest: /etc/cron.d/restic-backup
+    owner: root
+    group: root
+    mode: '0644'
+
+
+# See also
+#  - the fstab configuration
+#  - the `common` role
+- name: Configure default backups
+  ansible.builtin.template:
+    src: 'config/{{ item }}.conf.bash.j2'
+    dest: '{{ backup_config_dir }}/{{ item }}.conf.bash'
+    owner: root
+    group: root
+    mode: '0644'
+  with_items:
+    - var-local
+    - var-log
+    - home
+    - static-data
+    - variable-data
+    - lvm-state
+...

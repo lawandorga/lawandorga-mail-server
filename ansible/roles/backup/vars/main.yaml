@@ -1,0 +1,18 @@
+---
+# See the main script on how to choose this.
+backup_lvm_snapshot_size: 1G
+
+backup_config_dir: /usr/local/etc/backup
+
+# Notes:
+#  * This path should be below one of updatedb's PRUNEPATHs.
+#  * The parent directory of this must be writable.
+#    * This directory itself is normally created at runtime.
+backup_mountpoints_dir: /tmp/backup-snapshots
+
+backup_restic_cache_dir: /var/cache/restic
+
+backup_script_dir: /usr/local/lib/backup
+backup_main_script_path: '{{ backup_script_dir }}/backup.bash'
+backup_wrapper_script_path: '{{ backup_script_dir }}/wrapper.bash'
+...

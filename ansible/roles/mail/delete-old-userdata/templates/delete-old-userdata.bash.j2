@@ -27,7 +27,8 @@
 #    - In practice, we cannot trust the underlying storage to guarantee secure
 #      deletion.
 #    - See also
-#      `/ansible/roles/common/base-packages/templates/logrotate.conf.j2`.
+#      - `/ansible/roles/common/base-packages/templates/logrotate.conf.j2`
+#      - `/ansible/roles/backup/templates/backup.bash.j2`
 #    - Note that regular mail deletion (initiated by a user) does not cause
 #      secure deletion either.
 #      - This seems not to be easily possible with Dovecot.
@@ -152,6 +153,7 @@ function get_dirs_from_db()
   # our setting hidepid=2 on /proc (see fstab configuration).
   #  - Even otherwise, `/proc/<pid>/environ` seems to have restrictive
   #    permissions.
+  #  - See also `/ansible/roles/backup/templates/backup.bash.j2`.
   PGPASSWORD="$cfg_PGSQL_PASSWORD" psql \
     --host="$cfg_PGSQL_HOST" \
     --port="$cfg_PGSQL_PORT" \

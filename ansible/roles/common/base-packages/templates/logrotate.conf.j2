@@ -132,7 +132,9 @@ dateformat .%Y-%m-%d
 #    - logrotate in particular handles rsyslog's log files; which are derived
 #      from the systemd journal.
 #    - See `/ansible/roles/common/systemd/templates/journald.conf.j2`.
-#  - See also `/ansible/roles/mail/delete-old-userdata/templates/delete-old-userdata.bash.j2`.
+#  - See also
+#    - `/ansible/roles/mail/delete-old-userdata/templates/delete-old-userdata.bash.j2`
+#    - `/ansible/roles/backup/templates/backup.bash.j2`
 shred
 
 # This is effectively the default.

@@ -4,6 +4,7 @@ dependencies:
   - role: database-access
   - role: tls/key
   - role: tls/acme
+  - role: backup
   - role: common/firewall
   - role: common/systemd    # We use a handler from there.
 

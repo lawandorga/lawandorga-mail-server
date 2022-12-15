@@ -1,0 +1,20 @@
+# Notes:
+#  * See also
+#    - the fstab configuration
+#  * This backup configuration is not part of the common/lvm role, because we
+#    already depend on that (i.e., to not create a circular dependency).
+#    - Also, common/lvm is part of the common role, which is not supposed to
+#      depend on non-common roles.
+#      - See `/ansible/roles/common/meta/main.yaml`.
+#  * The LVM state directory does not reside on LVM.
+#    - See
+#      - `/ansible/group_vars/all.yaml`
+#      - `/ansible/roles/common/lvm/tasks/main.yaml`
+
+scfg_NAME=lvm-state
+
+scfg_LVM=false
+
+scfg_NOLVM_BASE_PATH='{{ lvm_state_dir }}'
+
+scfg_RETENTION_DAYS='{{ privacy_backup_retention_days_data }}'

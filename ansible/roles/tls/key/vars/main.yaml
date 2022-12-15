@@ -5,6 +5,7 @@
 #  - Reason: DANE, persistent certificates.
 #    - These would otherwise need to be set up anew.
 #  - Thus, install to a persistent filesystem.
+#  - Note that /persistent is backed up by default by the backup role.
 tls_key_dir: /persistent/tls
 tls_key_rsa_path: '{{ tls_key_dir }}/rsa.key.pem'
 

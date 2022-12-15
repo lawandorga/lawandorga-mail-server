@@ -5,6 +5,7 @@ dependencies:
   - role: database-access
   - role: tls/dhparams
   - role: tls/acme
+  - role: backup
   - role: common/firewall
 
   # We want/need

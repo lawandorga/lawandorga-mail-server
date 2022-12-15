@@ -1,0 +1,521 @@
+#!/usr/bin/env bash
+
+# Backup script.
+
+# Copyright 2022 Einhard Leichtfuß
+
+# Usage:
+#  * Run this script without arguments to see the options.
+#    - Note that the accompanying wrapper script may be more suited.
+#  * Do not forget to call `$0 prune`.
+#  * To call specific restic commands (e.g., to examine the data of a backup,
+#    call `$0 debug-restic ...`.
+#    - Read the relevant restic documentation prior to doing anything
+#      nontrivial, such as restoring more than individual files from a backup.
+
+# Documentation:
+#  * restic:
+#    - <https://restic.readthedocs.io/>
+#    - restic(1) (relatively sparse, but fits the installed version)
+
+# Dependencies:
+#  * bash
+#  * lvm2 (`lvcreate`, `lvremove`, `lvs`)
+#  * restic
+#  * mount (`mount`, `umount`)
+#  * coreutils (`date`, `mkdir`)
+#  * util-linux (`findmnt`)
+
+# See also
+#  * `./wrapper.bash`.
+#  * `/doc/ansible/secrets/backup.md`
+
+# Notes:
+#  * This script should be installed with restrictive permissions.
+#    * It contains secrets.
+#  * Data below separate mountpoints are generally ignored.
+#    - I.e., if /this/path is backed up, and /this/path/mnt is a mountpoint,
+#      the data below the latter are not backed up.
+#    - For technical reasons, with non-LVM snapshots, distinct elements of
+#      ${scfg_RELATIVE_PATHS[@]} may reside on several file systems.
+#  * This script can cause problems when snapshots are not deleted prior to
+#    a reboot, AND labels or UUIDs are used in the fstab.
+#    * The OS would not know which LV to mount.
+#    * Our fstab uses paths using the lv names, so we are fine.
+#  * LVM snapshots are not "securely" deleted.
+#    * This seems not possible with LVM.
+#    * See also
+#      - `/ansible/roles/mail/delete-old-userdata/templates/delete-old-userdata.bash.j2`
+#      - `/ansible/roles/common/base-packages/templates/logrotate.conf.j2`
+#  * For backups based on LVM snapshots, the date reported by restic will be
+#    slightly later than that of the LVM snapshot.
+#    - We could add the LVM snapshot date as a tag, if we wanted.
+#    - The LVM snapshot creation and other operations that happen until
+#      `restic backup` is run should take very little time, however.
+
+# Technical notes:
+#  * Naming conventions:
+#    * Variables & Functions:
+#      * global variable: g_NAME
+#      * configuration: cfg_NAME
+#      * derived from configuration: cfg_drv_NAME
+#      * specific to single backup configuration: s_NAME
+#        * if combined with another prefix PREFIX: sPREFIX_NAME
+#      * auxiliary function: _NAME
+
+
+
+source -- '{{ bash_aux_lib_basic_path }}' || {
+  printf 'Fatal Error.\n' >&2
+  exit 1
+}
+
+
+
+##################
+## Configuration
+
+# The snapshot suffix (built from the following two variables) is appended to
+# the original LV name.
+#  - The appending must result in a valid LV name (see lvm(8)).
+#  - The suffix should make the snapshot name unique in most cases.
+#    - Nanoseconds are probably a little too much precision, but they do not
+#      harm (assuming the name does not become too long).
+typeset -r cfg_LVM_SNAPSHOT_SUFFIX=-snapshot
+typeset -r cfg_LVM_SNAPSHOT_DATESUFFIX_FORMAT='-%s.%N'
+
+# This should be somewhat large, to not break things if deletion of the
+# snapshot fails for some reason.
+#  - If the snapshot becomes full, it should normally be unmounted.
+#    - See the note on `--monitor` further below.
+#  - We might also consider to calculate this as a percentage of the original
+#    LV's size.
+#    - In that case, we might still want a minimum size.
+typeset -r cfg_LVM_SNAPSHOT_SIZE='{{ backup_lvm_snapshot_size }}'
+
+typeset -r cfg_LVM_SNAPSHOT_MOUNTPOINTS_DIR='{{ backup_mountpoints_dir }}'
+
+typeset -r cfg_RESTIC_REPOSITORY='{{ backup_restic_repository }}'
+typeset -r cfg_RESTIC_PASSWORD='{{ secret_backup_restic_password }}'
+typeset -r cfg_RESTIC_CACHEDIR='{{ backup_restic_cache_dir }}'
+
+typeset -r cfg_S3_ACCESS_KEY='{{ secret_s3_access_key }}'
+typeset -r cfg_S3_SECRET_KEY='{{ secret_s3_secret_key }}'
+
+
+
+##############
+## Main code
+
+{% raw %}
+
+
+typeset sg_LVM_SNAPSHOT_NAME
+typeset sg_LVM_SNAPSHOT_MOUNTED
+
+typeset sg_time_HOUR
+
+
+function s_get_config()
+{
+  [[ $# -eq 1 ]]
+  local -r config_file="$1"
+
+  typeset -g scfg_NAME
+  typeset -g scfg_LVM=true
+  typeset -g scfg_LVM_VG
+  typeset -g scfg_LVM_LV
+  typeset -g scfg_NOLVM_BASE_PATH
+  typeset -ga scfg_RELATIVE_PATHS=( '' )
+  scfg_PRE()
+  {
+    : NOP
+  }
+  scfg_POST()
+  {
+    : NOP
+  }
+
+  source -- "$config_file"
+
+  typeset -rg scfg_NAME
+  typeset -rg scfg_LVM
+  typeset -rg scfg_LVM_VG
+  typeset -rg scfg_LVM_LV
+  typeset -rg scfg_NOLVM_BASE_PATH
+  typeset -rga scfg_RELATIVE_PATHS
+  typeset -rf scfg_PRE
+  typeset -rf scfg_POST
+
+  typeset -rg scfg_drv_LVM_SNAPSHOT_MOUNTPOINT="${cfg_LVM_SNAPSHOT_MOUNTPOINTS_DIR}/${scfg_NAME}"
+}
+
+
+function on_exit()
+{
+  if [ -v sg_LVM_SNAPSHOT_MOUNTED ]
+  then
+    s_lvm_snapshot_unmount
+  fi
+
+  if [ -v sg_LVM_SNAPSHOT_NAME ]
+  then
+    s_lvm_snapshot_delete
+  fi
+}
+
+
+function helpmsg()
+{
+  [[ $# -eq 0 ]]
+
+  printf 'Syntax:\n'
+  printf ' %s\n' \
+    '$0 check-lvm-snapshots' \
+    '$0 init' \
+    '$0 status' \
+    '$0 backup-and-forget-old CONFIG_FILE' \
+    '$0 prune' \
+    '$0 check-backups' \
+    '$0 debug-restic [RESTIC_ARGS ...]'
+}
+
+
+function main()
+{
+  if [[ $# -lt 1 ]]
+  then
+    helpmsg >&2
+    exit 1
+  fi
+  local action="$1"
+  shift 1
+
+  sg_time_HOUR="$(date --utc +%H)"
+  sg_time_HOUR="${sg_time_HOUR#0}"
+
+  case "$action" in
+    check-lvm-snapshots|init|status|prune|check-backups)
+      if [[ $# -ne 0 ]]
+      then
+        helpmsg >&2
+        exit 1;
+      fi
+      ;;&
+    check-lvm-snapshots)
+      lvm_snapshot_warn_on_any_old_existing
+      ;;
+    init)
+      restic_initialize_repo
+      ;;
+    status)
+      restic_show_status
+      ;;
+    prune)
+      restic_prune
+      ;;
+    check-backups)
+      restic_check
+      ;;
+
+    backup-and-forget-old)
+      if [[ $# -ne 1 ]]
+      then
+        helpmsg >&2
+        exit 1;
+      fi
+      local -r config_file="$1"
+      s_get_config "$config_file"
+      s_backup
+      s_restic_forget_old_backups
+      ;;
+
+    debug-restic)
+      _restic --quiet=false "$@"
+      ;;
+
+    *)
+      helpmsg >&2
+      exit 1;
+      ;;
+  esac
+}
+
+
+function lvm_snapshot_warn_on_any_old_existing()
+{
+  [[ $# -eq 0 ]]
+
+  # Notes:
+  #  * VG and LV names cannot contain whitespace.
+  #    - Thus, the sed expression works as intended.
+  #  * grep(1) terminates with 1 iff no match occurs, but no actual error.
+  local -a snapshots
+  snapshots=( $(
+    set -o pipefail
+    lvs --options vg_name,lv_name --noheadings \
+      | { grep -F -- "$cfg_LVM_SNAPSHOT_SUFFIX" || [[ $? -eq 1 ]]; } \
+      | sed -E 's`^\s*(\S+)\s*(\S+)\s*$`\1/\2`'
+  ) )
+
+  if [[ ${#snapshots[@]} -gt 0 ]]
+  then
+    printf 'WARNING: Old snapshots found:\n' >&2
+    printf '  %s\n' "${snapshots[@]}" >&2
+    printf 'Administrator investigation required.\n\n' >&2
+  fi
+}
+
+
+function s_backup()
+{
+  [[ $# -eq 0 ]]
+
+  scfg_PRE
+
+  if "$scfg_LVM"
+  then
+    s_lvm_snapshot_create
+    s_lvm_snapshot_create_mountpoint
+    s_lvm_snapshot_mount
+    s_restic_backup_mounted_lv
+    s_lvm_snapshot_verify_still_mounted
+    s_lvm_snapshot_unmount
+    s_lvm_snapshot_delete
+  else
+    s_restic_backup_nolvm
+  fi
+
+  scfg_POST
+}
+
+
+function s_lvm_snapshot_create()
+{
+  [[ $# -eq 0 ]]
+
+  local datesuffix
+  datesuffix="$(date --utc "+${cfg_LVM_SNAPSHOT_DATESUFFIX_FORMAT}")"
+
+  sg_LVM_SNAPSHOT_NAME="${scfg_LVM_LV}${cfg_LVM_SNAPSHOT_SUFFIX}${datesuffix}"
+
+  # `--monitor` seems to be the default.
+  #  - See dmeventd(8) for what it does.
+  # `--permission r` - readonly
+  # `--quiet --quiet` - quiet, also: answer no to all prompts
+  lvcreate --snapshot --type snapshot \
+    --size "$cfg_LVM_SNAPSHOT_SIZE" \
+    --addtag temporary-snapshot \
+    --name "$sg_LVM_SNAPSHOT_NAME" \
+    --permission r \
+    --monitor y \
+    --autobackup y \
+    --quiet --quiet \
+    -- "${scfg_LVM_VG}/${scfg_LVM_LV}"
+}
+
+
+function s_lvm_snapshot_delete()
+{
+  [[ $# -eq 0 ]]
+
+  lvremove \
+		--autobackup y \
+    --force \
+    --quiet --quiet \
+    -- "${scfg_LVM_VG}/${sg_LVM_SNAPSHOT_NAME}"
+
+  unset sg_LVM_SNAPSHOT_NAME
+}
+
+
+# Note: Mountpoints do not need to be removed later.
+function s_lvm_snapshot_create_mountpoint()
+{
+  [[ $# -eq 0 ]]
+
+  # The directory holding all other mountpoints should have 0700 permissions
+  # s.t. the access to the snapshots is restricted.
+  #  - Restricting the access mode of the mountpoints themselves does not
+  #    matter.
+  mkdir -pm 0700 -- "$cfg_LVM_SNAPSHOT_MOUNTPOINTS_DIR"
+  
+  mkdir -pm 0700 -- "$scfg_drv_LVM_SNAPSHOT_MOUNTPOINT"
+}
+
+
+function s_lvm_snapshot_mount()
+{
+  [[ $# -eq 0 ]]
+
+  mount -o ro -- "/dev/${scfg_LVM_VG}/${sg_LVM_SNAPSHOT_NAME}" \
+    "$scfg_drv_LVM_SNAPSHOT_MOUNTPOINT"
+
+  sg_LVM_SNAPSHOT_MOUNTED=defined
+}
+
+
+function s_lvm_snapshot_verify_still_mounted()
+{
+  [[ $# -eq 0 ]]
+
+  if
+    ! findmnt \
+      --source "/dev/${scfg_LVM_VG}/${sg_LVM_SNAPSHOT_NAME}" \
+      --mountpoint "$scfg_drv_LVM_SNAPSHOT_MOUNTPOINT" \
+      > /dev/null
+  then
+    printf '%s\n' \
+      'LVM snapshot no longer mounted.' \
+      'Probably, the snapshot ran out of space.'
+      'The created backup is likely incomplete.' \
+      'Admin intervention required.' \
+      >&2
+    return 1
+  fi
+}
+
+
+function s_lvm_snapshot_unmount()
+{
+  [[ $# -eq 0 ]]
+
+  umount -- "$scfg_drv_LVM_SNAPSHOT_MOUNTPOINT"
+
+  unset sg_LVM_SNAPSHOT_MOUNTED
+}
+
+
+function _restic()
+{
+  # Note that giving the secrets in the environment is safe, at least due to
+  # our setting hidepid=2 on /proc (see fstab configuration).
+  #  - Even otherwise, `/proc/<pid>/environ` seems to have restrictive
+  #    permissions.
+  #  - See also `/ansible/roles/mail/delete-old-userdata/templates/delete-old-userdata.bash.j2`.
+  AWS_ACCESS_KEY_ID="$cfg_S3_ACCESS_KEY" \
+    AWS_SECRET_ACCESS_KEY="$cfg_S3_SECRET_KEY" \
+    RESTIC_PASSWORD="$cfg_RESTIC_PASSWORD" \
+    restic \
+    --cache-dir="$cfg_RESTIC_CACHEDIR" \
+    --repo="$cfg_RESTIC_REPOSITORY" \
+    --quiet \
+    "$@"
+
+  # This is redundant; but highlights our requirement to return the exit code
+  # of the above `restic` invocation.
+  return $?
+}
+
+
+function restic_initialize_repo()
+{
+  [[ $# -eq 0 ]]
+
+  # The restic documentation recommends to use `restic snapshots` to check
+  # if a repo has been initialized.
+  if ! _restic snapshots >/dev/null 2>&1
+  then
+    _restic init
+  fi
+}
+
+
+function restic_show_status()
+{
+  [[ $# -eq 0 ]]
+  _restic snapshots
+}
+
+
+# Check consistency and integrity.
+#  * This somewhat relies on this script being called not close to a full hour.
+#    - See crontab.
+#  * Checking the actual data requires fetching data.
+#    - This is expensive, so we only check ca. 1/24 of all data at once.
+function restic_check()
+{
+  [[ $# -eq 0 ]]
+
+  local data_subset
+  data_subset="$(( sg_time_HOUR + 1 ))"
+  _restic check --read-data-subset="${data_subset}/24"
+}
+
+
+function s_restic_backup_mounted_lv()
+{
+  [[ $# -eq 0 ]]
+
+  local -a paths
+  paths=( "${scfg_RELATIVE_PATHS[@]/#/"$scfg_drv_LVM_SNAPSHOT_MOUNTPOINT"\/}" )
+
+  _restic backup \
+    --tag="name=${scfg_NAME}" \
+    --tag="vg=${scfg_LVM_VG}" --tag="lv=${scfg_LVM_LV}" \
+    -- "${paths[@]}"
+}
+
+
+function s_restic_backup_nolvm()
+{
+  [[ $# -eq 0 ]]
+
+  local -a paths
+  paths=( "${scfg_RELATIVE_PATHS[@]/#/"$scfg_NOLVM_BASE_PATH"\/}" )
+
+  _restic backup \
+    --one-file-system \
+    --tag="name=${scfg_NAME}" \
+    --tag='nolvm' \
+    -- "${paths[@]}"
+}
+
+
+# This only "forgets" old backups and should be followed by a "prune".
+#  - See `./wrapper.bash`.
+function s_restic_forget_old_backups()
+{
+  [[ $# -eq 0 ]]
+
+  # Backups of which age to keep.
+  #  * Note: The age is in reference to the latest backup, not the current
+  #    time.
+  #    - The latest backup was, however, just created.
+  #    - We assume it took no longer than an hour to create.
+  #      - Otherwise, the next script run would give a warning.
+  #  * Let n be $scfg_RETENTION_DAYS.
+  #  * The backup is run hourly (see crontab).
+  #  * We want to keep all backups >= n*24 - 2 hours ago.
+  #    * -1 to cover the coming hour.
+  #    * -1 for the assumed maximum runtime of 1h of the just created backup.
+  #  * Because backups are not always run at exactly the same time, the number
+  #    of backups kept at a time may vary.
+  #    - We are OK with this.
+  #  * Note: We cannot use `--keep-hourly`.
+  #    - If the first hour in the period is missing a backup, it will keep the
+  #      last backup from before.
+  local keep_hours
+  keep_hours=$(( "$scfg_RETENTION_DAYS" * 24 - 2 ))
+
+  # Notes:
+  #  * `restic forget` never "forgets" the newest backup.
+  #    - This does not matter to us; the newest backup is the one just created.
+  _restic forget \
+    --tag="name=${scfg_NAME}" \
+    --keep-within="${keep_hours}h" \
+    --group-by="hosts,paths"
+}
+
+
+function restic_prune()
+{
+  [[ $# -eq 0 ]]
+  _restic prune
+}
+
+
+main "$@"
+
+
+{% endraw %}

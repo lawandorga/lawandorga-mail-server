@@ -20,10 +20,8 @@ The database is set up as follows, via Scaleway.
     2. Add the mail server to the private network.
     3. Adjust the Ansible configuration.
         1. Adjust the TCP port in [`hosts.yaml`](/ansible/hosts.yaml).
-        2. Set the `secret_database_password` variable in
-           [`secrets.yaml`](/ansible/host_vars/lawandorga-mail-server/secrets.yaml).
-            * This file is, for obvious reasons, not tracked via git.
-                * See also the [`.gitignore`](/.gitignore) file.
+        2. Configure the `secret_database_password` variable as a
+           [secret](/doc/ansible/secrets.md).
 
 
 See also
