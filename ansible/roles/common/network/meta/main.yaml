@@ -4,4 +4,5 @@ dependencies:
   - role: common/readonly-root
   - role: common/apt
   - role: common/systemd
+  - role: common/firewall
 ...

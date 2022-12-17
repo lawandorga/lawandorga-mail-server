@@ -14,6 +14,17 @@
     state: present
 
 
+- name: Configure firewall for DHCP
+  ansible.builtin.copy:
+    src: dhcp.nft
+    dest: '{{ nftables_custom_conf_dir }}/dhcp.nft'
+    owner: root
+    group: root
+    mode: '0644'
+  notify:
+    - 'common/firewall : Reload nftables'
+
+
 - name: Configure ifupdown
   ansible.builtin.template:
     src: interfaces.j2

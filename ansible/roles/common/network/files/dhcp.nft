@@ -1,0 +1,18 @@
+# Allow a DHCP client to operate; i.e., allow "outgoing" DHCP.
+#  - Statefulness does not help much here.
+
+table inet filter {
+	chain in_inbound {
+		ip saddr $addrs_ipv4_local \
+			udp sport $port_udp_dhcp_server \
+			udp dport $port_udp_dhcp_client \
+			accept
+	}
+
+	chain out_outbound {
+		ip daddr $addrs_ipv4_local \
+			udp sport $port_udp_dhcp_client \
+			udp dport $port_udp_dhcp_server \
+			accept
+	}
+}
