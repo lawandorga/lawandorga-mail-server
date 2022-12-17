@@ -37,15 +37,16 @@ connect = "hostaddr={{ database_server_address }} \
 #  - Note that we explicitly require our domain not to be a static one.
 #    - See also `/doc/mail/postfix/aliases/database.md`.
 password_query = \
-  SELECT usr.pw_hash AS password                                            \
-  FROM       core_mailaddress addr                                          \
-  INNER JOIN core_maildomain  d    ON addr.domain_id  = d.id                \
-  INNER JOIN core_mailaccount acc  ON addr.account_id = acc.id              \
-  INNER JOIN core_mailuser    usr  ON acc.user_id     = usr.id              \
-  WHERE '%Ld' NOT IN ({{ "'" + mail_static_domains | join("', '") + "'" }}) \
-  AND   addr.localpart = '%Ln'                                              \
-  AND   d.name         = '%Ld'                                              \
-  AND   addr.is_default                                                     \
+  SELECT usr.pw_hash AS password                                             \
+  FROM       core_mailaddress addr                                           \
+  INNER JOIN core_maildomain  d    ON addr.domain_id  = d.id                 \
+  INNER JOIN core_mailaccount acc  ON addr.account_id = acc.id               \
+  INNER JOIN core_mailuser    usr  ON acc.user_id     = usr.id               \
+  WHERE d.name NOT IN ({{ "'" + mail_static_domains | join("', '") + "'" }}) \
+  AND   d.is_active                                                          \
+  AND   addr.localpart = '%Ln'                                               \
+  AND   d.name         = '%Ld'                                               \
+  AND   addr.is_default                                                      \
   ;
 
 
@@ -54,16 +55,17 @@ password_query = \
 # See also
 #  - `/ansible/roles/mail/delete-old-userdata/templates/delete-old-userdata.bash.j2`
 user_query = \
-  SELECT '{{ mail_dovecot_storage_dynamic_accounts_dir }}/'                 \
-      || acc.relative_path                                                  \
-      AS home                                                               \
-  FROM       core_mailaddress addr                                          \
-  INNER JOIN core_maildomain  d    ON addr.domain_id  = d.id                \
-  INNER JOIN core_mailaccount acc  ON addr.account_id = acc.id              \
-  WHERE '%Ld' NOT IN ({{ "'" + mail_static_domains | join("', '") + "'" }}) \
-  AND   addr.localpart = '%Ln'                                              \
-  AND   d.name         = '%Ld'                                              \
-  AND   addr.is_default                                                     \
+  SELECT '{{ mail_dovecot_storage_dynamic_accounts_dir }}/'                  \
+      || acc.relative_path                                                   \
+      AS home                                                                \
+  FROM       core_mailaddress addr                                           \
+  INNER JOIN core_maildomain  d    ON addr.domain_id  = d.id                 \
+  INNER JOIN core_mailaccount acc  ON addr.account_id = acc.id               \
+  WHERE d.name NOT IN ({{ "'" + mail_static_domains | join("', '") + "'" }}) \
+  AND   d.is_active                                                          \
+  AND   addr.localpart = '%Ln'                                               \
+  AND   d.name         = '%Ld'                                               \
+  AND   addr.is_default                                                      \
   ;
 
 
@@ -75,5 +77,6 @@ iterate_query = \
   FROM       core_mailaddress addr                                           \
   INNER JOIN core_maildomain  d    ON addr.domain_id  = d.id                 \
   WHERE d.name NOT IN ({{ "'" + mail_static_domains | join("', '") + "'" }}) \
+  AND   d.is_active                                                          \
   AND   addr.is_default                                                      \
   ;

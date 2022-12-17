@@ -25,6 +25,7 @@ password_query = \
   INNER JOIN core_mailuser          usr  ON acc.user_id     = usr.id         \
   INNER JOIN core_mailadmin         adm  ON usr.id          = adm.user_id    \
   WHERE d.name NOT IN ({{ "'" + mail_static_domains | join("', '") + "'" }}) \
+  AND   d.is_active                                                          \
   AND   addr.localpart = '%Ln'                                               \
   AND   d.name         = '%Ld'                                               \
   AND   addr.is_default                                                      \

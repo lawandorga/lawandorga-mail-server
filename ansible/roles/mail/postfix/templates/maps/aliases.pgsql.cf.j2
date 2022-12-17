@@ -20,6 +20,8 @@ query =
   INNER JOIN core_maildomain  ud ON u.domain_id  = ud.id
   WHERE ad.name NOT IN ({{ "'" + mail_static_domains | join("', '") + "'" }})
   AND   ud.name NOT IN ({{ "'" + mail_static_domains | join("', '") + "'" }})
+  AND   ad.is_active
+  AND   ud.is_active
   AND   a.localpart = '%u'
   AND   ad.name     = '%d'
   AND   NOT a.is_default

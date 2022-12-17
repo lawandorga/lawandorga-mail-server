@@ -28,6 +28,8 @@ password_query = \
   INNER JOIN core_maildomain        gd    ON gaddr.domain_id  = gd.id         \
   WHERE ud.name NOT IN ({{ "'" + mail_static_domains | join("', '") + "'" }}) \
   AND   gd.name NOT IN ({{ "'" + mail_static_domains | join("', '") + "'" }}) \
+  AND   ud.is_active                                                          \
+  AND   gd.is_active                                                          \
   AND   uaddr.localpart = '%Ln'                                               \
   AND   ud.name         = '%Ld'                                               \
   AND   uaddr.is_default                                                      \

@@ -11,7 +11,8 @@ query =
   SELECT 1
   FROM       core_mailaddress addr
   INNER JOIN core_maildomain  d    ON addr.domain_id = d.id
-  WHERE '%d' NOT IN ({{ "'" + mail_static_domains | join("', '") + "'" }})
+  WHERE d.name NOT IN ({{ "'" + mail_static_domains | join("', '") + "'" }})
+  AND   d.is_active
   AND   addr.localpart = '%u'
   AND   d.name         = '%d'
   AND   addr.is_default

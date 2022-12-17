@@ -13,6 +13,7 @@ expansion_limit = 1
 query =
   SELECT 1
   FROM core_maildomain
-  WHERE '%s' NOT IN ({{ "'" + mail_static_domains | join("', '") + "'" }})
+  WHERE name NOT IN ({{ "'" + mail_static_domains | join("', '") + "'" }})
+  AND   is_active
   AND   name = '%s'
   ;

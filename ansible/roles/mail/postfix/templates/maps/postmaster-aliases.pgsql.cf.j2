@@ -14,7 +14,8 @@ expansion_limit = 1
 query =
   SELECT '{{ mail_admin_address }}'
   FROM core_maildomain
-  WHERE '%d' NOT IN ({{ "'" + mail_static_domains | join("', '") + "'" }})
+  WHERE name NOT IN ({{ "'" + mail_static_domains | join("', '") + "'" }})
+  AND   is_active
   AND   '%u' = 'postmaster'
   AND   name = '%d'
   ;
