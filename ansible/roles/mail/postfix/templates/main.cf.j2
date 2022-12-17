@@ -348,7 +348,7 @@ smtpd_sasl_authenticated_header = no
 # See TLS_README, FORWARD_SECRECY_README.
 
 # General note on crypto:
-#  * E-Mail is largely only optimistically encrypted (SMTP between servers).
+#  * E-Mail is largely only opportunistically encrypted (SMTP between servers).
 #    - We should thus allow all reasonably good crypto, not just the "best".
 #    - If possible, better crypto should be preferred in negotiations with
 #      servers.
@@ -626,34 +626,43 @@ smtpd_tls_mandatory_ciphers = high
 #  - All submission_ variables must be used in `master.cf' (as always).
 
 # (submission) Inbound "mandatory" TLS protocols and ciphers.
-#  - We can require as much as we want.
-#    - If users cannot work with these settings, they can complain to us.
-#  - We require TLSv1.3.
-#    - This enforces PFS.
-#  - We could alternatively rely on the ordinary smtpd_tls_mandatory_*
-#    variables, see above.
-#  - The settings below are the same as the generic (unused) "mandatory" TLS
-#    settings.
-submission_tls_mandatory_protocols = !SSLv2, !SSLv3, !TLSv1, !TLSv1.1, !TLSv1.2
+#  - Ideal scenario:
+#    - We can require as much as we want.
+#      - If users cannot work with these settings, they can complain to us.
+#    - We require TLSv1.3.
+#      - This enforces PFS.
+#  - Hurdles in practice:
+#    - Windows Mail, Microsoft Outlook do apparently not support TLS1.3.
+#  - Result:
+#    - Require TLS1.2 or later.
+#    - Enforce PFS (for TLS1.2) via the cipher list.
+#  - See also the generic (unused) "mandatory" TLS settings.
+submission_tls_mandatory_protocols = !SSLv2, !SSLv3, !TLSv1, !TLSv1.1
 submission_tls_mandatory_ciphers = high
 
 # (submission) Concrete ciphers to use.
+#  - See Dovecot's `ssl_cipher_list`.
 #  - See ${tls_high_cipherlist} above.
 #  - The below (commented) setting does not apply to TLSv1.3.
 #    - See ${tls_high_cipherlist} above.
-#  - See also Dovecot's `ssl_cipher_list`.
 #  - See also OpenSSH's `Ciphers`.
-#  - Note: This variable would need to be added to `master.cf` to have any
-#    effect.
-#submission_tls_high_cipherlist = ...
+submission_tls_high_cipherlist = HIGH+ECDHE+aRSA+CHACHA20:HIGH+ECDHE+aRSA+AESGCM:@STRENGTH
 
 # (submission) Elliptic curves to use for key exchange.
 #  - Relies on `smtpd_tls_eecdh_grade = auto' above.
 #  - See ${tls_eecdh_auto_curves} above.
 #  - See also Dovecot's `ssl_curve_list`.
 #  - See also OpenSSH's `KexAlgorithms`.
-#  - Allow the default minus the NIST curves.
-submission_tls_eecdh_auto_curves = X25519 X448
+#  - Ideal scenario:
+#    - Allow X25519, X448 (the default minus the NIST curves).
+#  - Hurdles in practice:
+#    - Mail clients on macOS apparently do not support X25519, X448.
+#      - Non EC DH is apparently not supported either.
+#  - Result:
+#    - Keep at default.
+#  - Note: This variable would need to be added to `master.cf` to have any
+#    effect.
+#submission_tls_eecdh_auto_curves = X25519 X448 prime256v1 secp521r1 secp384r1
 
 # (submission) Do not honor server cipher order.
 #  - This is the default.

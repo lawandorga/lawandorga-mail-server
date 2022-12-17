@@ -23,8 +23,8 @@ submission inet n       -       y       -       -       smtpd
   -o smtpd_tls_auth_only=yes
   -o smtpd_tls_mandatory_protocols=$submission_tls_mandatory_protocols
   -o smtpd_tls_mandatory_ciphers=$submission_tls_mandatory_ciphers
-#  -o tls_high_cipherlist=$submission_tls_high_cipherlist
-  -o tls_eecdh_auto_curves=$submission_tls_eecdh_auto_curves
+  -o tls_high_cipherlist=$submission_tls_high_cipherlist
+#  -o tls_eecdh_auto_curves=$submission_tls_eecdh_auto_curves
   -o tls_preempt_cipherlist=$submission_tls_preempt_cipherlist
   -o smtpd_helo_restrictions=$submission_helo_restrictions
   -o smtpd_relay_restrictions=$submission_relay_restrictions
