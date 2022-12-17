@@ -3,6 +3,9 @@
 #  - IMPORTANT: Many changes to any general or specific backup configuration
 #    require manual deletion of old backups--if these are no longer known to
 #    the new configuration.
+#  - IMPORTANT: Restoring.
+#    - Read the notes in the main backup script.
+#    - Read any notes in the relevant specific backup configurations.
 #  - For specific backup configuration, install a configuration file to
 #    `{{ backup_config_dir }}/CONFIG_NAME.conf.bash`.
 #    - See `../examples/sample.conf.bash` for an example.
