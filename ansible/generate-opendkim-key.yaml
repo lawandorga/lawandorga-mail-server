@@ -1,0 +1,74 @@
+---
+# Generation of OpenDKIM key.
+
+# Notes:
+#  - This must must be run prior to the main playbook.
+#    - See `/doc/ansible.md`.
+#  - This is a separate playbook, because if the OpenDKIM key is ever replaced,
+#    - the selector should change,
+#    - the DNS must be updated.
+#  - See also `/ansible/roles/mail/postfix/tasks/opendkim.yaml`.
+
+
+- name: Generate and install OpenDKIM signing key
+  hosts: mailservers
+  remote_user: root
+  gather_facts: false
+
+
+  tasks:
+    - name: Install OpenDKIM tools
+      ansible.builtin.apt:
+        name: opendkim-tools
+        state: present
+
+
+    - name: Create directory for OpenDKIM signing key
+      ansible.builtin.file:
+        path: '{{ mail_opendkim_key_dir }}'
+        owner: root
+        group: root
+        mode: '0755'
+        state: directory
+        follow: no
+
+
+    # Notes:
+    #  * This creates two files:
+    #    - The key,
+    #    - a corresponding TXT record.
+    #      - Many of the options below only influence the TXT record.
+    #    * Ansible does not allow several files in `creates`.
+    #      - The TXT record is not that important.
+    #        - We can always (deterministically) regenerate it from the key.
+    #  * Both files are created with 0600 permissions.
+    #  * docs:
+    #    - /usr/share/doc/opendkim/README.Debian.gz
+    #    - opendkim-genkey(1)
+    #    - /usr/share/doc/opendkim/README.opendkim.gz
+    #    - RFC 6367
+    - name: Generate OpenDKIM signing key
+      ansible.builtin.command:
+        argv:
+          - 'opendkim-genkey'
+          - '--bits={{ mail_opendkim_key_bits }}'
+          - '--directory={{ mail_opendkim_key_dir }}'
+          - '--hash-algorithms=sha256'
+          - '--restrict'                # s=email: for email signing only
+          - '--selector={{ mail_opendkim_key_selector }}'
+          - '--no-subdomains'           # t=s
+          - '--verbose'
+        creates: '{{ mail_opendkim_key_path }}'
+
+
+  vars:
+    # RFC 6376 only requires verifiers to be able to work with 2048 bit keys.
+    #  - RFC 8301 (proposed standard): 4096
+    mail_opendkim_key_bits: 2048
+
+
+  pre_tasks:
+    - ansible.builtin.include_tasks: tasks/remount-rw.yaml
+  post_tasks:
+    - ansible.builtin.include_tasks: tasks/remount-ro.yaml
+...

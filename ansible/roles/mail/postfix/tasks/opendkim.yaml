@@ -1,0 +1,139 @@
+---
+# DKIM signing and verification.
+#  - This is not its own role due to a mutual dependency between this and the
+#    Postfix configuration.
+#  - The OpenDKIM signing key is assumed to already have been generated and
+#    installed via the `/ansible/generate-opendkim-key.yaml` playbook.
+#  - docs:
+#    - `/usr/share/doc/opendkim/README.Debian.gz`
+#    - `/usr/share/doc/opendkim/README.opendkim.gz`
+#    - RFC 6376
+#    - <https://wiki.debian.org/opendkim>
+#  - See also:
+#    - `/docs/dns/dkim.md`
+#    - `../templates/opendkim/opendkim.conf.j2`
+
+
+
+- name: Prevent OpenDKIM from starting on installation
+  ansible.builtin.include_tasks: apt-systemd-noautostart/pre.yaml
+  vars:
+    mask_package_name: opendkim
+    mask_systemd_units:
+      - opendkim.service
+
+
+- name: Install OpenDKIM
+  ansible.builtin.apt:
+    name:
+      - opendkim
+      - opendkim-tools
+    state: present
+
+
+# Required for `../templates/opendkim/domains.lua.j2`.
+- name: Install Lua for OpenDKIM
+  ansible.builtin.apt:
+    name:
+      - lua5.3
+      - lua-sql-postgres    # Requires lua <= 5.3, as of version 2.3.4-1.1.
+    state: present
+
+
+- name: Install OpenDKIM configuration file
+  ansible.builtin.template:
+    src: opendkim/opendkim.conf.j2
+    dest: /etc/opendkim.conf
+    owner: root
+    group: root
+    mode: '0644'
+  notify:
+    - 'mail/postfix : Reload OpenDKIM'
+
+
+- name: Create OpenDKIM configuration directory
+  ansible.builtin.file:
+    path: '{{ mail_opendkim_config_dir }}'
+    owner: root
+    group: root
+    mode: '0755'
+    state: directory
+    follow: no
+
+
+- name: Install OpenDKIM domains configuration
+  ansible.builtin.template:
+    src: opendkim/domains.lua.j2
+    dest: '{{ mail_opendkim_domains_script }}'
+    owner: opendkim   # OpenDKIM needs read access (for `systemctl reload`).
+    group: opendkim
+    mode: '0400'      # Protect database password.
+  notify:
+    - 'mail/postfix : Reload OpenDKIM'
+
+
+# See `/ansible/generate-opendkim-key.yaml`.
+- name: Verify existence of OpenDKIM signing key
+  ansible.builtin.stat:
+    path: '{{ mail_opendkim_key_path }}'
+    follow: no
+    get_attributes: no
+    get_checksum: no
+    get_mime: no
+  register: dkimkey_stat
+  failed_when: 'not (dkimkey_stat.stat.exists and dkimkey_stat.stat.isreg)'
+
+
+# Notes:
+#  * Upon reinstallation, the UID / GID of `opendkim` may be different.
+#    - I.e., in the time until this task is executed, another user might have
+#      access to the signing key.
+#  * `/ansible/generate-opendkim-key.yaml` / `ansible-genkey` creates the key
+#    with `0600` permissions, owned by `root:root`.
+- name: Set ownership and permissions of OpenDKIM signing key
+  ansible.builtin.file:
+    path: '{{ mail_opendkim_key_path }}'
+    owner: opendkim
+    group: opendkim
+    mode: '0400'
+    state: file
+    follow: no
+
+
+# This file must be within Postfix' chroot.
+#  - See <https://wiki.debian.org/opendkim>.
+- name: Create directory for OpenDKIM socket
+  ansible.builtin.file:
+    path: /var/spool/postfix/opendkim
+    owner: opendkim
+    group: opendkim
+    mode: '0750'
+    state: directory
+    follow: no
+
+
+# Give Postfix access to the OpenDKIM socket.
+#  - See
+#    - <https://wiki.debian.org/opendkim>
+#    - `/usr/share/doc/opendkim/README.Debian.gz`
+- name: Add postfix to group opendkim
+  ansible.builtin.user:
+    name: postfix
+    groups: opendkim
+    append: yes
+
+
+- name: Unmask opendkim.service
+  ansible.builtin.include_tasks: apt-systemd-noautostart/post.yaml
+  vars:
+    mask_package_name: opendkim
+    mask_systemd_units:
+      - opendkim.service
+
+
+- name: Start and enable OpenDKIM
+  ansible.builtin.service:
+    name: opendkim
+    enabled: yes
+    state: started
+...

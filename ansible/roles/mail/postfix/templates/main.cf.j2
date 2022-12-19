@@ -1121,10 +1121,9 @@ milter_header_checks =
 milter_default_action = accept
 submission_milter_default_action = reject
 
-# TODO: Install and configure OpenDKIM, then uncomment the below.
 # See `/etc/opendkim.conf`.
-#smtpd_milters = unix:opendkim/opendkim.sock
-#non_smtpd_milters = unix:opendkim/opendkim.sock
+smtpd_milters = unix:opendkim/opendkim.sock
+non_smtpd_milters = unix:opendkim/opendkim.sock
 
 
 

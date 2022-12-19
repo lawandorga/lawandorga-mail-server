@@ -1,0 +1,22 @@
+---
+# OpenDKIM settings.
+#  - These variables are given here due to being needed by both the default
+#    playbook and the generate-opendkim-key playbook.
+#    - See
+#      - `/ansible/roles/mail/postfix/tasks/opendkim.yaml`
+#      - `/ansible/generate-opendkim-key.yaml`
+
+
+# The TLS key should survive a re-installation.
+#  - Reason: The public key is stored in the DNS.
+#  - Thus, install to a persistent filesystem.
+#  - This depends on the fstab configuration (`/persistent`).
+#  - Note that `/persistent` is backed up by default by the backup role.
+mail_opendkim_key_dir: /persistent/opendkim
+
+
+# This cannot be changed.
+#  - This is just how `opendkim-genkey` determines its output location.
+mail_opendkim_key_path:
+  '{{ mail_opendkim_key_dir }}/{{ mail_opendkim_key_selector }}.private'
+...

@@ -15,4 +15,8 @@ mail_dovecot_auth_memory_limit: 2G
 #    - Note, however, that the {{ mail_postfix_myhostname }} is by default
 #      defined as {{ fqdn }}.
 mail_default_domain: mail.law-orga.de
+
+
+# See `/doc/dns/dkim.md`.
+mail_opendkim_key_selector: 2022-12.law-orga
 ...

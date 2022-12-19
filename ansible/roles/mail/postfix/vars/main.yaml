@@ -4,4 +4,10 @@ mail_postfix_spf_authserv_id: 'spf.{{ fqdn }}'
 mail_postfix_header_checks_dir: /etc/postfix/header-checks
 mail_postfix_maps_dir: /etc/postfix/maps
 mail_postfix_sets_dir: /etc/postfix/sets
+
+
+mail_opendkim_authserv_id: 'dkim.{{ fqdn }}'
+
+mail_opendkim_config_dir: /etc/opendkim
+mail_opendkim_domains_script: '{{ mail_opendkim_config_dir }}/domains.lua'
 ...

@@ -15,4 +15,10 @@
     argv:
       - postmap
       - 'hash:{{ mail_postfix_maps_dir }}/id_static-users'
+
+
+- name: Reload OpenDKIM
+  ansible.builtin.service:
+    name: opendkim
+    state: reloaded
 ...

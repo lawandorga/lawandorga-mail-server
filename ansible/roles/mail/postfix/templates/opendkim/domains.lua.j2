@@ -1,0 +1,111 @@
+-- Identify domains that are to be signed.
+
+-- Copyright 2022 Einhard Leichtfuß
+
+
+-- Notes:
+--  - Reason for a custom script:
+--    - OpenDKIM's builtin database queries are very limited.
+--      - In particular, we cannot
+--        - check the is_active flag,
+--        - combine our static and dynamic domains.
+--  - This file contains secrets and must be installed with restrictive
+--    permissions.
+
+-- Technical notes:
+--  - We get the domain name to check passed in the global variable `query`.
+--  - It is a little unclear what we have to return.
+--    - What works:
+--      - In the positive case, return the input name.
+--      - In the negative case, return nothing.
+--    - What does not work (as expected):
+--      - Booleans,
+--      - nil.
+
+-- Dependencies:
+--  - lua
+--    - doc: <https://www.lua.org/pil/>
+--  - lua-sql-postgres (requires lua <= 5.3)
+--    - doc: <https://github.com/lunarmodules/luasql/blob/master/doc/us/>
+
+
+
+function is_static_domain (name)
+
+{% for domain in mail_static_domains %}
+  if name == "{{ domain }}" then
+    return true
+  end
+{% endfor %}
+
+  return false
+
+end
+
+
+-- Note:
+--  * If a static domain is also configured in the database, this function will
+--    return true regardless.
+--    - This function is only used together with is_static_domain().
+--    - See notes on the SQL query below.
+function is_dynamic_domain (name)
+
+  -- name may be nil, for some reason.
+  if not name then
+    return false
+  end
+
+  -- Validate domain name format, for use in SQL query.
+  if not string.find(name, "^[a-z0-9.-]+$") then
+    return false
+  end
+
+  -- Connect to database.
+  local driver = require "luasql.postgres"
+  local env    = assert (driver.postgres())
+  local con    = assert (env:connect(
+      "{{ database_name }}"
+    , "{{ database_user }}"
+    , "{{ database_password }}"
+    , "{{ database_server_address }}"
+    , "{{ database_server_port }}"
+    ))
+
+  -- SQL query.
+  --  - On SQL injections:
+  --    - There is no con:prepare() function.
+  --      - We might consider to use <https://github.com/arcapos/luapgsql>
+  --        instead.
+  --    - We verified the `name` above.
+  --    - Note the single quotes around `name` in the query.
+  --  - Note the checking of the `is_active` flag.
+  --  - Note that unlike with all our other SQL queries, we do not check the
+  --    domain not to be a static domain.
+  --    - See the note above the function declaration.
+  local cur = assert (
+    con:execute (
+      "SELECT 1 FROM core_maildomain"
+      .. " WHERE name = '" .. name .. "'"
+      .. " AND   is_active"
+    ))
+
+  -- cur:fetch() returns nil iff the query returned no results.
+  local success
+  if cur:fetch () then
+    success = true
+  else
+    success = false
+  end
+
+  cur:close()
+  con:close()
+  env:close()
+
+  return success
+
+end
+
+
+if is_static_domain (query) or is_dynamic_domain (query) then
+  return query
+end

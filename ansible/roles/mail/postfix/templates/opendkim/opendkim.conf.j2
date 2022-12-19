@@ -1,0 +1,246 @@
+# OpenDKIM configuration.
+#
+#  - Written
+#    - 2022-04-07, 2022-12,
+#    - for opendkim debver 2.11.0~beta2-4 (Debian bullseye)
+#  - Documentation et al.
+#    - opendkim.conf(5)
+#    - opendkim(8)
+#    - `/usr/share/doc/opendkim/README.Debian.gz`
+#    - `/usr/share/doc/opendkim/README.opendkim.gz`
+#    - Debian Wiki: <https://wiki.debian.org/opendkim>
+#    - `/usr/share/doc/opendkim/examples/opendkim.conf.sample`
+#      (sparsely consulted)
+#    - RFC 6367
+#    - (RFC 8301)
+
+
+
+###################
+## Basic settings
+
+# This should probably not be changed.
+#  - Present in the Debian-provided config file.
+UserID			opendkim
+
+# Present in the default Debian configuration file.
+PidFile			/run/opendkim/opendkim.pid
+
+# Socket; in Postfix' chroot.
+#  - The umask allows access to postfix (belonging to the opendkim group).
+#    - The umask additionally applies to PidFile.
+#      - We can live with that.
+#  - The containing directory must be writable by opendkim.
+Socket			local:/var/spool/postfix/opendkim/opendkim.sock
+UMask			007
+
+# See also `/etc/postfix-policyd-spf-python/policyd-spf.conf'.
+AuthservID		{{ mail_opendkim_authserv_id }}
+
+# Sign and verify (default).
+#Mode			sv
+
+
+
+############
+## Logging
+
+Syslog			yes
+#SyslogFacility		mail  -- default
+#SyslogName		<default: name of executable (opendkim)>
+
+# Log successful signing and verification.
+#  - Enabled in the Debian-provided config file.
+SyslogSuccess		yes
+
+
+
+########
+## DNS
+
+# DNSSEC root key.
+#  - OpenDKIM on Debian is apparently compiled with libunbound.
+#    - The below enables DNSSEC via that.
+#      - We use Unbound's root key which it frequently updates.
+#        - See `/ansible/roles/common/dnssec-resolver/files/unbound.conf`.
+#        - The common choice would be `/usr/share/dns/root.key` from the
+#          `dns-root-data` package.
+#          - This is what the default Debian configuration uses.
+#  - Not sure if necessary, given that the local unbound resolver already does
+#    DNSSEC validation.
+#  - See also the Debian Wiki.
+#  - See the Unbound configuration.
+#    - TODO: This should not be hardcoded here.
+TrustAnchorFile		/var/lib/unbound/root_key/root.key
+
+# OpenDKIM/libunbound does not honor `/etc/resolv.conf'.
+#  - Note that this settings should not be needed for DNSSEC; but due to our
+#    having a local Unbound server anyways, this should make things faster.
+Nameservers		127.0.0.1
+
+# Our local Unbound server already does caching.
+QueryCache		no
+
+
+
+############
+## Signing
+
+# Require SHA256 for signing (alternatives include rsa-sha1).
+#  - Our DNS DKIM TXT record also requires this.
+#  - Another alternative is ed25519-sha256, but our keys are RSA, so...
+SignatureAlgorithm	rsa-sha256
+
+# Reject mail upon failing to sign (default).
+On-SignatureError	reject
+
+# For which unauthenticated client hosts to sign rather than verify.
+#  - See also opendkim(8)#OPERATION.
+#  - Default:
+InternalHosts		127.0.0.1
+
+# Which domains to sign for, and with which key.
+#  - See also opendkim(8)#OPERATION.
+#  - See the lua script on why we cannot use OpenDKIM's builtin SQL queries.
+#    - If we wanted them, we'd also need the `libopendbx1-pgsql` package.
+Domain			lua:{{ mail_opendkim_domains_script }}
+
+# We use one key and one selector for all domains.
+#  - This is much simpler then per-domain settings.
+#  - Otherwise, we'd want to use `SigningTable` and `KeyTable`.
+KeyFile			{{ mail_opendkim_key_path }}
+Selector		{{ mail_opendkim_key_selector }}
+
+# Do not sign subdomains.
+#  - This should also be forbidden in the DNS DKIM entries.
+SubDomains		no
+
+# The Debian Wiki suggests always specifying the length (l=).
+#  - RFC 6376 (8.2) warns of using the "l=" tag.
+#  - opendkim.conf(8) also warns against this.
+#  - The below would do what the Debian Wiki suggests.
+#    - The file would need to contain `*` on a single line.
+#BodyLengthDB		refile:/etc/opendkim/sets/universe.re
+
+# Allow relaxed canonicalization in the header only.
+#  - Default in the Debian-provided config file.
+#  - The Debian Wiki notes that this setting may in particular be helpful with
+#    mailing lists.
+Canonicalization	relaxed/simple
+
+
+
+###################
+## Header signing
+
+# As per opendkim.conf(5), by default, opendkim signs fields that "'SHOULD'
+# be signed (RFC 6376, Section 5.4)".
+#  - They seem to mean the "common examples of fields with addresses [...]" in
+#    section 5.4.1.
+#    - Matches with the actual list in `src:libopendkim/dkim.c'.
+#  - For reference, the list from the RFC:
+#    * From (REQUIRED; see Section 5.4)
+#    * Reply-To
+#    * Subject
+#    * Date
+#    * To, Cc
+#    * Resent-Date, Resent-From, Resent-To, Resent-Cc
+#    * In-Reply-To, References
+#    * List-Id, List-Help, List-Unsubscribe, List-Subscribe, List-Post,
+#      List-Owner, List-Archive
+#  - These must/should (?) not contain any header field removed by
+#    ${header_checks} or ${smtp_header_checks}.
+#    - See `main.cf' (-> `privacy.re').
+#SignHeaders		<kept at default>
+
+# Headers to be signed one more time than present.
+#  - Explicitly allowed by the RFC (section 5.4); last "header" empty.
+#  - Debian's default configuration file has "From" specified here.
+#  - The below are common user-visible fields.
+#  - opendkim.conf(5) says that headers listed here should also be specified
+#    in SignHeaders.
+#    - I assume we can rely on the default and do not need to specify those
+#      explicitly.
+OversignHeaders		From,Reply-To,Subject,Date,To,Cc
+
+
+
+#################
+## Verification
+
+# Require that not only SHA1 is supported for verification (default).
+AllowSHA1Only 		no
+
+# Reaction on a bad signature.
+#  - RFC 6367 specifies that a message with bad signatures SHOULD NOT be
+#    treated differently than a message without any signature.
+#  - The default setting is to accept such mail.
+#  - One may want to set the below, in spite of the RFC recommendation.
+#    - The Debian Wiki suggests this.
+#    - See also the other On-* settings.
+#    - (CONSIDER)
+#  - See also DMARC.
+#On-BadSignature	reject
+
+
+
+###############################
+## CONSIDER: Further settings
+
+# The following settings may be considered useful to change from their
+# defaults.
+#  - They have been kept at their default for now.
+
+
+# See also `/usr/share/doc/opendkim/chroot`.
+#ChangeRootDirectory	<path>
+
+#SoftwareHeader		yes
+
+# Note: /etc/unbound/unbound.cond does not seem to work.
+#ResolverConfiguration
+
+#CaptureUnknownErrors
+
+# "experimental"
+#Statistics*
+
+#LogResults
+
+#AlwaysAddARHeader	yes
+
+# Honor reporting requests when signature verification fails.
+#  - This may be a privacy issue.
+#SendReports		yes
+#ReportAddress		<addr>
+
+# This may be a privacy issue.
+#RequestReports		yes
+
+# This would probably be a privacy issue.
+#RedirectFailuresTo	<addr>
+
+# Being strict.
+#RequiredHeaders
+#StrictHeaders		yes
+#StrictTestMode		yes
+
+#Minimum
+
+# Default 1024
+#MinimumKeyBits
+
+# Whether to trust keys not signed by DNSSEC.
+#  - Unfortunately, DNSSEC is not very widely used.
+#  - This might cause DMARC validation to fail.
+#    - This assumes we have a local DMARC checker that relies on OpenDKIM's
+#      result.
+#UnprotectedKey		neutral
+
+#On-*
+
+#SignatureTTL
+
+# RFC 6376 says that signers must sign the "From" field.
+#  - Thus, it should be safe to require that to be signed..
+#MustBeSigned		From

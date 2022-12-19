@@ -53,6 +53,10 @@
   ansible.builtin.include_tasks: spf-checker.yaml
 
 
+- name: Configure OpenDKIM
+  ansible.builtin.include_tasks: opendkim.yaml
+
+
 - name: Configure firewall
   ansible.builtin.copy:
     src: ports.nft
