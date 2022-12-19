@@ -26,4 +26,4 @@ To be able to use this mail server, several records need to be set in the DNS.
         * [MX](/doc/dns/mx.md),
         * [SPF](/doc/dns/spf.md),
         * [DKIM](/doc/dns/dkim.md),
-        * [DMARC](/doc/dns/dmarc.md),
+        * [DMARC](/doc/dns/dmarc.md).
