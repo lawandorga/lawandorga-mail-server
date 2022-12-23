@@ -2,8 +2,7 @@
 
 * `TXT` record:
     * key: `dmarc.<MAILSERVER_DOMAIN>`
-    * value: `v=DMARC1; adkim=s; aspf=s; p=none`
-        * TODO: Change policy to `reject`.
+    * value: `v=DMARC1; adkim=s; aspf=s; p=reject`
 * `CNAME` record:
     * key: `_dmarc.<CLIENT_DOMAIN>`
     * value: `dmarc.<MAILSERVER_DOMAIN>`
