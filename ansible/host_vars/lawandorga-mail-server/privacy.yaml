@@ -2,7 +2,7 @@
 # Note that under unnormal conditions (notably, extended downtime), log data
 # may be kept a little longer.
 #  - See also {{ privacy_backup_retention_days_logs }}.
-privacy_log_retention_days: 7
+privacy_log_retention_days: 28
 
 # This is the default as of Postfix 3.5.13-0+deb11u1.
 privacy_mail_postfix_queue_max_lifetime_days: 5
@@ -10,6 +10,6 @@ privacy_mail_postfix_queue_max_lifetime_days: 5
 # This is the default as of Dovecot 1:2.3.13+dfsg1-2+deb11u1.
 privacy_mail_dovecot_tmp_cleanup_frequency_days: 7
 
-privacy_backup_retention_days_logs: 3
-privacy_backup_retention_days_data: 7
+privacy_backup_retention_days_logs: 14
+privacy_backup_retention_days_data: 42
 ...
