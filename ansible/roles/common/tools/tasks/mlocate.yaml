@@ -10,5 +10,5 @@
   ansible.builtin.lineinfile:
     path: /etc/updatedb.conf
     regexp: '^PRUNEPATHS=.*'
-    line: 'PRUNEPATHS={{ mlocate_prunepaths }}'
+    line: 'PRUNEPATHS="{{ mlocate_prunepaths }}"'
 ...
