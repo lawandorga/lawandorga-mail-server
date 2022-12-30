@@ -443,6 +443,22 @@ function restic_check()
 }
 
 
+# Run `restic backup`, but print output only if the return code is non-zero.
+#  - `restic` tends to print information on non-fatal errors, which happen
+#    sufficiently often to be annoying (much cron mail).
+function _restic_backup_verysilent()
+{
+	local -a args=( "$@" )
+
+	local out
+	if ! out="$(_restic backup "$@" 2>&1)"
+	then
+		printf '%s\n' "$out"
+		return 1
+	fi
+}
+
+
 function s_restic_backup_mounted_lv()
 {
   [[ $# -eq 0 ]]
@@ -450,7 +466,7 @@ function s_restic_backup_mounted_lv()
   local -a paths
   paths=( "${scfg_RELATIVE_PATHS[@]/#/"$scfg_drv_LVM_SNAPSHOT_MOUNTPOINT"\/}" )
 
-  _restic backup \
+  _restic_backup_verysilent \
     --tag="name=${scfg_NAME}" \
     --tag="vg=${scfg_LVM_VG}" --tag="lv=${scfg_LVM_LV}" \
     -- "${paths[@]}"
@@ -464,7 +480,7 @@ function s_restic_backup_nolvm()
   local -a paths
   paths=( "${scfg_RELATIVE_PATHS[@]/#/"$scfg_NOLVM_BASE_PATH"\/}" )
 
-  _restic backup \
+  _restic_backup_verysilent \
     --one-file-system \
     --tag="name=${scfg_NAME}" \
     --tag='nolvm' \
