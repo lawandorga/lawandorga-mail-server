@@ -1,0 +1,7 @@
+---
+dependencies:
+  - role: web/core/http
+  - role: tls/key
+  - role: tls/acme
+  - role: common/firewall
+...

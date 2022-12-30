@@ -1,0 +1,47 @@
+---
+# HTTPS server (nginx).
+
+
+- name: Configure TLS settings
+  ansible.builtin.template:
+    src: tls.conf.j2
+    dest: '{{ web_core_http_confdir_implicit_general }}/tls.conf'
+    owner: root
+    group: root
+    mode: '0644'
+  notify:
+    - 'web/core/http : Reload nginx'
+
+
+- name: Configure default HTTPS server
+  ansible.builtin.copy:
+    src: default-https.server.conf
+    dest: '{{ web_core_http_confdir_implicit_servers_early }}/default-https.server.conf'
+    owner: root
+    group: root
+    mode: '0644'
+  notify:
+    - 'web/core/http : Reload nginx'
+
+
+- name: Install mandatory TLS header configuration
+  ansible.builtin.copy:
+    src: mandatory-tls.headers.conf
+    dest: '{{ web_core_http_confpath_headers_mandatory_tls }}'
+    owner: root
+    group: root
+    mode: '0644'
+  notify:
+    - 'web/core/http : Reload nginx'
+
+
+- name: Open HTTPS ports
+  ansible.builtin.copy:
+    src: ports.nft
+    dest: '{{ nftables_custom_conf_dir }}/ports-https.nft'
+    owner: root
+    group: root
+    mode: '0644'
+  notify:
+    - 'common/firewall : Reload nftables'
+...

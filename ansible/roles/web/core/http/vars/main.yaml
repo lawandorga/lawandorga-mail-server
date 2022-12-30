@@ -1,0 +1,44 @@
+---
+web_core_http_confdir_root: /etc/nginx/conf.d
+
+
+web_core_http_confdir_explicit:
+  '{{ web_core_http_confdir_root }}/explicit'
+
+web_core_http_confpath_headers_security:
+  '{{ web_core_http_confdir_explicit }}/security.headers.conf'
+
+
+web_core_http_confdir_implicit_root:
+  '{{ web_core_http_confdir_root }}/implicit'
+
+web_core_http_confdir_implicit_general:
+  '{{ web_core_http_confdir_implicit_root }}/general'
+
+web_core_http_confdir_implicit_servers_root:
+  '{{ web_core_http_confdir_implicit_root }}/servers'
+
+web_core_http_confdir_implicit_servers_early:
+  '{{ web_core_http_confdir_implicit_servers_root }}/early'
+
+web_core_http_confdir_implicit_servers_regular:
+  '{{ web_core_http_confdir_implicit_servers_root }}/regular'
+
+web_core_http_confdir_implicit_servers_late:
+  '{{ web_core_http_confdir_implicit_servers_root }}/late'
+
+
+web_core_http_empty_webroot_dir: /srv/http/empty
+
+
+web_core_http_dirs:
+  - '{{ web_core_http_confdir_root }}'
+  - '{{ web_core_http_confdir_explicit }}'
+  - '{{ web_core_http_confdir_implicit_root }}'
+  - '{{ web_core_http_confdir_implicit_general }}'
+  - '{{ web_core_http_confdir_implicit_servers_root }}'
+  - '{{ web_core_http_confdir_implicit_servers_early }}'
+  - '{{ web_core_http_confdir_implicit_servers_regular }}'
+  - '{{ web_core_http_confdir_implicit_servers_late }}'
+  - '{{ web_core_http_empty_webroot_dir }}'
+...

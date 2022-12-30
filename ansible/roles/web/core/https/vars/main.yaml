@@ -1,0 +1,4 @@
+---
+web_core_http_confpath_headers_mandatory_tls:
+  '{{ web_core_http_confdir_explicit }}/mandatory-tls.headers.conf'
+...

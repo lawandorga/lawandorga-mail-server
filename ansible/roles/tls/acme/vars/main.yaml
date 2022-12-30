@@ -13,4 +13,7 @@ tls_acme_data_dir: /var/local/tls-acme
 tls_acme_data_staging_dir: '{{ tls_acme_data_dir }}/staging'
 
 tls_acme_challenge_dir: /var/www/acme-challenges
+
+tls_acme_nginx_location_config_path:
+  '{{ web_core_http_confdir_explicit }}/acme.location.conf'
 ...

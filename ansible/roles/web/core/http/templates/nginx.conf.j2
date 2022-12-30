@@ -1,0 +1,96 @@
+# Basic nginx configuration (HTTP only, no HTTPS).
+#  - Configuration items largely considered as relevant by occurrence in
+#    example files.
+#  - Documentation:
+#    - /usr/share/doc/nginx/examples/
+#    - https://nginx.org/en/docs/
+#    - https://www.nginx.com/resources/wiki/start/topics/tutorials/config_pitfalls/
+
+
+# Should probably be the same as in nginx.service.
+#  - Set like this in Debian-provided configuration.
+pid /run/nginx.pid;
+
+# Default error log.
+#  - This is relevant to privacy.
+#  - The error log format cannot be customized.
+#  - Can be customized in the `http` or `server` blocks.
+#  - Log to syslog.
+#    - See <https://nginx.org/en/docs/syslog.html>.
+#    - For some reason, the common log file `/var/log/nginx/error.log` is
+#      created anyways, but remains empty.
+error_log syslog:server=unix:/dev/log,tag=nginx,nohostname error;
+
+# Worker user (and optionally group - default same as user).
+#  - `www-data' is Debian's standard webserver user, created upon installation
+#    of nginx.
+#  - Set like this in Debian-provided configuration.
+user www-data;
+
+worker_processes auto;
+worker_cpu_affinity auto;
+
+
+# This block directive needs to be present, but can be empty.
+events {
+	# Seen in `examples/nginx.conf'.
+	worker_connections 1024;
+
+	multi_accept on;
+}
+
+
+http
+{
+	# Custom log format.
+	#  - This is relevant to privacy.
+	#  - We log to syslog, so not timestamp needed.
+	#  - Based on the default "combined" format.
+	#    - Added $host, removed $time_local.
+	#  - We'd also like to log $ssl_cipher, but this is only supported since
+	#    nginx version 1.21.5.
+	log_format custom_syslog
+		'$host $remote_addr $remote_user '
+		'$ssl_protocol/$ssl_cipher '
+		'"$request" $status $body_bytes_sent '
+		'"$http_referer" "$http_user_agent"';
+
+	# Access log.
+	#  - As per documentation on `access_log', this directive should be on
+	#    the same level as `root'.
+	#  - Log to syslog.
+	#    - See <https://nginx.org/en/docs/syslog.html>.
+	access_log syslog:server=unix:/dev/log,tag=nginx,nohostname custom_syslog;
+
+	# Hide version (see e.g., `curl -I` or error pages).
+	server_tokens off;
+
+	default_type text/plain;  # default
+	charset utf-8;
+
+	include /etc/nginx/mime.types;
+
+	# Do not serve anything at `/`, by default.
+	#  - This can be customized in `server` blocks.
+	#  - Without a `root' directive, `/` will serve a default
+	#    "welcome to nginx" page.
+	#  - The below path should point to an empty directory.
+	#  - See also `access_log' above.
+	root {{ web_core_http_empty_webroot_dir }};
+
+
+	include {{ web_core_http_confdir_implicit_general }}/*.conf;
+
+
+	# Note on precedence (w.r.t. `server_name`).
+	#  * Primarily, the kind of match is deciding.
+	#    - An exact name has highest precedence.
+	#    - There are different precedences for different classes of
+	#      wildcard matches.
+	#  * Secondarily, the order of matches matters.
+	#    - Notably, for exact names, only the order matters.
+	#  * See the documentation on `server_name`.
+	include {{ web_core_http_confdir_implicit_servers_early }}/*.conf;
+	include {{ web_core_http_confdir_implicit_servers_regular }}/*.conf;
+	include {{ web_core_http_confdir_implicit_servers_late }}/*.conf;
+}

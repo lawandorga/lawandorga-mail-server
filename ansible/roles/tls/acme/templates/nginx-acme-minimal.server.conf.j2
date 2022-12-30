@@ -1,0 +1,7 @@
+server
+{
+	listen 80;
+	server_name {{ tls_acme_domain_names | join(' ') }};
+
+	include {{ tls_acme_nginx_location_config_path }};
+}

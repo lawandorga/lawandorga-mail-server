@@ -32,15 +32,29 @@
     - '{{ tls_acme_challenge_dir }}'
 
 
-- name: Configure nginx for ACME http-01 challenge
+- name: Install auxiliary configuration file for nginx
   ansible.builtin.template:
-    src: nginx-acme-minimal.conf.j2
-    dest: /etc/nginx/conf.d/acme-minimal.conf
+    src: nginx-acme.location.conf.j2
+    dest: '{{ tls_acme_nginx_location_config_path }}'
     owner: root
     group: root
     mode: '0644'
   notify:
-    - 'http-server : Reload nginx'
+    - 'web/core/http : Reload nginx'
+
+
+# Note that the configuration is put "last", s.t. other server blocks can
+# take precedence.
+#  - See `/ansible/roles/web/core/http/templates/nginx.conf.j2`.
+- name: Configure nginx for ACME http-01 challenge
+  ansible.builtin.template:
+    src: nginx-acme-minimal.server.conf.j2
+    dest: '{{ web_core_http_confdir_implicit_servers_late }}/acme-minimal.server.conf'
+    owner: root
+    group: root
+    mode: '0644'
+  notify:
+    - 'web/core/http : Reload nginx'
 
 
 - name: Create RSA account key

@@ -3,5 +3,5 @@ dependencies:
   - role: tls/openssl
   - role: bash-scripts-aux
   - role: tls/key
-  - role: http-server
+  - role: web/core/http
 ...

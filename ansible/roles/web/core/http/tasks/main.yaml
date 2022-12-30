@@ -1,0 +1,92 @@
+---
+# Install and configure a simple HTTP server (nginx).
+
+
+- name: Prevent Nginx from starting on installation
+  ansible.builtin.include_tasks: apt-systemd-noautostart/pre.yaml
+  vars:
+    mask_package_name: nginx-light
+    mask_systemd_units:
+      - nginx.service
+
+
+- name: Install nginx
+  ansible.builtin.apt:
+    name:
+      - nginx-light
+      - nginx-doc
+
+
+- name: Create directories
+  ansible.builtin.file:
+    path: '{{ item }}'
+    owner: root
+    group: root
+    mode: '0755'
+    state: directory
+    follow: no
+  with_items: '{{ web_core_http_dirs }}'
+
+
+# Notes:
+#  * Validation does not work if relative paths are used anywhere.
+#    - `/etc/nginx/snippets/fastcgi-php.conf` contains relative paths.
+- name: Install main nginx configuration file
+  ansible.builtin.template:
+    src: nginx.conf.j2
+    dest: /etc/nginx/nginx.conf
+    owner: root
+    group: root
+    mode: '0644'
+    #validate: "nginx -tc '%s'"
+  notify:
+    - 'web/core/http : Restart nginx'
+
+
+- name: Configure default HTTP server
+  ansible.builtin.copy:
+    src: default-http.server.conf
+    dest: '{{ web_core_http_confdir_implicit_servers_early }}/default-http.server.conf'
+    owner: root
+    group: root
+    mode: '0644'
+  notify:
+    - 'web/core/http : Reload nginx'
+
+
+- name: Install security header configuration
+  ansible.builtin.copy:
+    src: security.headers.conf
+    dest: '{{ web_core_http_confpath_headers_security }}'
+    owner: root
+    group: root
+    mode: '0644'
+  notify:
+    - 'web/core/http : Reload nginx'
+
+
+- name: Open HTTP ports
+  ansible.builtin.copy:
+    src: ports.nft
+    dest: '{{ nftables_custom_conf_dir }}/ports-http.nft'
+    owner: root
+    group: root
+    mode: '0644'
+  notify:
+    - 'common/firewall : Reload nftables'
+
+
+- name: Unmask nginx.service
+  ansible.builtin.include_tasks: apt-systemd-noautostart/post.yaml
+  vars:
+    mask_package_name: nginx-light
+    mask_systemd_units:
+      - nginx.service
+
+
+- name: Start and enable Nginx
+  ansible.builtin.service:
+    name: nginx
+    enabled: yes
+    state: started
+...

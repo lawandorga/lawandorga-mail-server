@@ -1,0 +1,6 @@
+# See `/usr/share/doc/acme-tiny/README.md.gz'.
+location /.well-known/acme-challenge/
+{
+	alias {{ tls_acme_challenge_dir }}/;
+	try_files $uri =404;
+}
