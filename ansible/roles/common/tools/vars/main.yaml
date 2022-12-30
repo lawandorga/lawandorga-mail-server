@@ -30,6 +30,11 @@ pkgs_tools_standard:
   - vim
   - vim-scripts
 
+  # Partitioning
+  - parted
+  - fdisk
+  - gdisk
+
   # Miscellaneous tools.
   - bash-completion
   - screen
