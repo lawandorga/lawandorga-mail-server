@@ -6,8 +6,9 @@ fqdn: mail.law-orga.de
 #    - Problem: We also need the fstab at setup time.
 fstab_file: ../conf/fstab
 
+# See `./mail.yaml#mail_admin_alias_localparts_extra`.
 tls_acme_contacts:
-  - 'mailto:work-laworga-acme@respiranto.de'    # TODO: Change this.
+  - 'mailto:acme@{{ mail_default_domain }}'
 
 tls_acme_domain_names: '{{ [ fqdn, mail_default_domain ] | unique }}'
 ...

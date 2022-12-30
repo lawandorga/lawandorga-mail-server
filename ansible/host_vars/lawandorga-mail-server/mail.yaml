@@ -19,4 +19,9 @@ mail_default_domain: mail.law-orga.de
 
 # See `/doc/dns/dkim.md`.
 mail_opendkim_key_selector: 2022-12.law-orga
+
+
+# See `./general.yaml#tls_acme_contacts`.
+mail_admin_alias_localparts_extra:
+  - acme
 ...
