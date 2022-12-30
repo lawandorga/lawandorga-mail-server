@@ -1,4 +1,15 @@
-# DNS configuration
+# DNS
+
+## Security (DNSSEC)
+
+* All domains should use DNSSEC.
+    * Notably, our mail server's domain, and all domains served by our mail
+      server.
+    * See also [DANE](/doc/dns/dane.md).
+* See [DNSSEC](/doc/dns/dnssec.md).
+
+
+## DNS configuration
 
 To be able to use this mail server, several records need to be set in the DNS.
 
@@ -17,8 +28,7 @@ To be able to use this mail server, several records need to be set in the DNS.
     * `PTR` (reverse DNS) record:
         * key: reverse DNS key for our mail server's IP address.
         * value: `<MAILSERVER_DOMAIN>`
-    * DANE (TODO).
-        * We need our domain to be secured by DNSSEC for this.
+    * [DANE](/doc/dns/dane.md).
 * For each domain using our mail server:
     * We generally prefer to use indirection, to not duplicate information
       that generally only ever changes globally.
