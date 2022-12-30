@@ -8,4 +8,5 @@ database_user: lawandorga-mail-server
 database_password: '{{ secret_database_password }}'
 
 database_name_mail: lawandorga-backend
+database_name_webmail: lawandorga-mail-server-roundcube
 ...

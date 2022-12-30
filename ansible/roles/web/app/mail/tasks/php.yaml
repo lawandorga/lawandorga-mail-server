@@ -1,0 +1,133 @@
+---
+# Configuration of php[-fpm] for Roundcube.
+
+
+# Documentation/References:
+#  * [0] <https://www.php.net/manual/en/install.unix.nginx.php>
+#  * [1] <https://www.php.net/security-note.php>
+#  * [2] `/usr/share/doc/php7.4-fpm/README.Debian.security`
+#  * [3] <https://www.nginx.com/resources/wiki/start/topics/examples/phpfcgi/>
+#  * [4] <https://www.php.net/manual/en/session.security.ini.php>
+#  * [5] <https://www.nginx.com/resources/wiki/start/topics/tutorials/config_pitfalls/#passing-uncontrolled-requests-to-php>
+
+
+# Notes:
+#  * We cannot (easily) prevent autostart before installation, due to needing
+#    the package version for that.
+
+
+
+- name: Install php-fpm
+  ansible.builtin.apt:
+    name: php-fpm
+    state: present
+
+
+
+# This allows to use the {{ web_app_mail_php_version }} variable.
+- name: Determine PHP version
+  ansible.builtin.shell:
+    cmd: dpkg-query -Wf '${Version}' php-fpm | sed -E 's/^([0-9]+:)?([0-9]+\.[0-9]+).*$/\2/'
+  register: web_app_mail_php_version_command
+  changed_when: no
+
+
+
+- name: Configure php-fpm to log to syslog
+  ansible.builtin.lineinfile:
+    path: '/etc/php/{{ web_app_mail_php_version }}/fpm/php-fpm.conf'
+    regexp: '^;?error_log *='
+    line: 'error_log = syslog'
+  notify:
+    - 'web/app/mail : Reload php-fpm'
+
+
+
+- name: Configure tmpdir for uploads
+  ansible.builtin.template:
+    src: upload-tmpdir.tmpfiles.conf.j2
+    dest: /etc/tmpfiles.d/php-upload-tmpdir.conf
+    owner: root
+    group: root
+    mode: '0644'
+  notify:
+    - 'common/systemd : Create tmpfiles'
+
+
+
+# php.ini configuration.
+#  * For documentation on the settings, see
+#    - `/etc/php/7.4/fpm/php.ini`
+#      - also: references therein to PHP online docs.
+#  * Not all settings rigorously considered.
+#  * Settings with an [importantly] good default not explicitly set.
+#    - These should generally not change for the worse.
+#    - Still, on upgrades, we should check for changed defaults.
+- name: Configure php.ini for php-fpm
+  ansible.builtin.lineinfile:
+    path: '/etc/php/{{ web_app_mail_php_version }}/fpm/php.ini'
+    regexp: '^;?{{ item.key }} *='
+    line: '{{ item.key }} = {{ item.value }}'
+
+  with_items:
+
+    # Notes:
+    #  * This should not be relied upon too much.  [1, 2]
+    #  * `/var/log/roundcube` should not be actually used (but rather the
+    #    syslog), but PHP complains anyways, if it is not included in
+    #    `open_basedir`.
+    #  * Partially determined by trial and error.
+    - key: open_basedir
+      value: '"/usr/share/php:/usr/lib/php:/var/lib/php:{{ web_app_mail_upload_tmp_dir }}:/usr/share/javascript:/usr/share/nodejs:/usr/share/roundcube:/usr/local/share/roundcube:/var/lib/roundcube:/etc/roundcube:/var/log/roundcube"'
+
+    # `cgi.fix_pathinfo`
+    #   - kept at default
+    #     - See [3] (!), [0], [5].
+    #     - See also `../templates/nginx-roundcube.server.conf.j2`.
+
+    # The default is due to / for Apache.
+    - key: cgi.rfc2616_headers
+      value: 1
+
+    - key: upload_tmp_dir
+      value: '{{ web_app_mail_upload_tmp_dir }}'
+
+    - key: upload_max_filesize
+      value: '{{ web_app_mail_attachment_size_limit }}'
+
+    # See also
+    #  - `../templates/nginx-roundcube.server.conf.j2#client_max_body_size`
+    - key: post_max_size
+      value: '{{ web_app_mail_attachment_size_limit_plus_margin }}'
+
+    - key: max_execution_time
+      value: '{{ web_app_mail_php_max_execution_time_seconds }}'
+    - key: date.timezone
+      value: '{{ timezone }}'
+
+
+    # Session security [4]:
+
+    - key: session.save_path
+      value: '"/var/lib/php/sessions"'
+    - key: session.use_strict_mode
+      value: True
+    - key: session.cookie_secure
+      value: True
+    - key: session.cookie_httponly
+      value: True
+    - key: session.cookie_samesite
+      value: Strict
+    - key: session.gc_probability
+      value: 1
+    - key: session.gc_divisor
+      value: 100
+    - key: session.sid_length
+      value: 64
+    - key: session.sid_bits_per_character
+      value: 6
+
+
+  notify:
+    - 'web/app/mail : Reload php-fpm'
+...

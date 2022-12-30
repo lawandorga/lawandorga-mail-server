@@ -19,6 +19,8 @@ namespace inbox {
   # Default mailboxes.
   #  - All below mailboxes are created and subscribed to by default.
   #    - (`auto = subscribe`)
+  #  - To be kept in sync with Roundcube's configuration.
+  #    - `/ansible/roles/web/app/mail/templates/roundcube.conf.php.j2`
 
   mailbox Drafts {
     special_use = \Drafts

@@ -1,0 +1,34 @@
+---
+web_app_mail_keyconfig_path: /etc/roundcube/key.conf.php
+
+# Attachment/upload size limit.
+#  - This is related to the message size limit.
+#  - Due to base64 encoding and metadata, attachments must be notably
+#    smaller than the message size limit.
+#  - For simplicity, we use half of the message size limit.
+#    - This should safely avoid the case were a single max-size attachment
+#      causes the message size limit to be broken, while remaining reasonably
+#      high.
+web_app_mail_attachment_size_limit:
+  '{{ ((mail_postfix_message_size_limit | int) / 2) | int }}'
+
+# In some cases, we need to allow a little more than the attachment size limit.
+#  - Choose 1 MiB.
+web_app_mail_attachment_size_limit_plus_margin:
+  '{{ (web_app_mail_attachment_size_limit | int) + (2 | pow(20) | int) }}'
+
+# This should be set sufficiently high to allow for big uploads over slow
+# connections.
+web_app_mail_php_max_execution_time_seconds: 120
+
+web_app_mail_php_version:
+  '{{ web_app_mail_php_version_command.stdout }}'
+
+# Note:
+#  * This directory is managed by tempfiles.d(5).
+#    - See `../templates/upload-tmpdir.tmpfiles.conf.j2`.
+#    - It is regularly cleaned by tmpfiles.d(5), so does not need to be below
+#      a common tmpdir, such as `/tmp`.
+web_app_mail_upload_tmp_dir:
+  '/tmp/php-upload'
+...

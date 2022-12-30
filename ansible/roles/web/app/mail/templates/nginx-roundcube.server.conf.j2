@@ -1,0 +1,91 @@
+# Nginx server blocks for Roundcube.
+
+
+# Note that this server block overrides the default ACME server block for this
+# `server_name`.
+#  - This requires this file being `include`d before the ACME configuration.
+#    - See `/ansible/roles/web/core/http/templates/nginx.conf.j2`.
+#  - This block only differs in redirecting to HTTPS.
+server
+{
+	listen 80;
+	server_name {{ webmail_domain }};
+
+	location /
+	{
+		# Redirect HTTP -> HTTPS (301 Moved Permanently).
+		return 301 https://$host$request_uri;
+	}
+	
+	include {{ tls_acme_nginx_location_config_path }};
+}
+
+
+server
+{
+	listen 443 ssl;
+	server_name {{ webmail_domain }};
+
+	include {{ web_core_http_confpath_headers_mandatory_tls }};
+
+
+	# Security headers.
+	#  - See `/ansible/roles/web/core/http/files/security.headers.conf`.
+
+	include {{ web_core_http_confpath_headers_security }};
+
+	# Largely determined by trial and error.
+	add_header
+		Content-Security-Policy
+		"default-src 'none'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self'; font-src 'self'; media-src data:; frame-src 'self'; base-uri 'self'; form-action 'self'; frame-ancestors 'self'"
+		always;
+
+	add_header X-Frame-Options "SAMEORIGIN" always;
+
+
+	root /var/lib/roundcube/public_html;
+	index index.php index.html;
+
+	# See also `../tasks/php.yaml#post_max_size`.
+	client_max_body_size
+		{{ web_app_mail_attachment_size_limit_plus_margin }};
+
+	location /
+	{
+		try_files $uri $uri/ /index.php;
+	}
+
+
+	# PHP.
+	#  - See [0], also [1].
+	#  - Note: We do not allow a path after ".php".
+	#    - See also `/etc/nginx/snippets/fastcgi-php.conf`, [0], [1].
+	location ~ [^/]\.php$
+	{
+		# See [0].
+		# See also `../tasks/php.yaml`, [2.1].
+		if (!-f $document_root$fastcgi_script_name)
+		{
+			return 404;
+		}
+
+		# This was compared with the suggestions given in [0].
+		#  - Note: This would conflict with `alias`.  [2.2, 2.3]
+		include /etc/nginx/snippets/fastcgi-php.conf;
+
+		# "Mitigate https://httproxy.org/ vulnerabilities" [0].
+		fastcgi_param HTTP_PROXY "";
+
+		# See `/etc/php/7.4/fpm/pool.d/www.conf`, [0].
+		fastcgi_pass unix:/run/php/php7.4-fpm.sock;
+	}
+}
+
+
+# References.
+#  * [0] https://www.nginx.com/resources/wiki/start/topics/examples/phpfcgi/
+#  * [1] https://www.php.net/manual/en/install.unix.nginx.php
+#  * [2] https://www.nginx.com/resources/wiki/start/topics/tutorials/config_pitfalls/
+#  * [2.1] https://www.nginx.com/resources/wiki/start/topics/tutorials/config_pitfalls/#passing-uncontrolled-requests-to-php
+#  * [2.2] https://www.nginx.com/resources/wiki/start/topics/tutorials/config_pitfalls/#use-request-filename-for-script-filename
+#  * [2.3] https://www.nginx.com/resources/wiki/start/topics/tutorials/config_pitfalls/#using-the-try-files-uri-directive-with-alias

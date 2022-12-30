@@ -1,0 +1,95 @@
+---
+# Roundcube Webmail.
+
+
+- name: Install Roundcube
+  ansible.builtin.apt:
+    name:
+      - roundcube
+
+      # Install at the same time to avoid pulling the default dependency
+      # roundcube-mysql (dependency of roundcube-core).
+      - roundcube-pgsql
+
+      # This notably contains the dovecot_impersonate plugin.
+      - roundcube-plugins-extra
+
+    state: present
+
+
+- name: Install spelling software
+  ansible.builtin.apt:
+    name: '{{ [ "php-pspell" ] + aspell_packages }}'
+  vars:
+    aspell_packages:
+      "{{ web_app_mail_aspell_languages | map('regex_replace', '^', 'aspell-') | list }}"
+
+
+- name: Configure Roundcube
+  ansible.builtin.template:
+    src: roundcube.conf.php.j2
+    dest: /etc/roundcube/config.inc.php
+    owner: root
+    group: root
+    mode: '0644'
+  notify:
+    - 'web/app/mail : Reload php-fpm'
+
+
+- name: Configure random key
+  ansible.builtin.shell:
+    # The string must be 24 characters long (6 * 24 = 8 * 18).
+    cmd: umask 077;
+      printf "<?php\\n\$config['des_key'] = '%s';\\n"
+      "$(head -c 18 /dev/urandom | base64)"
+      > '{{ web_app_mail_keyconfig_path }}'
+    creates: '{{ web_app_mail_keyconfig_path }}'
+  notify:
+    - 'web/app/mail : Reload php-fpm'
+
+
+- name: Restrict access to key
+  ansible.builtin.file:
+    path: '{{ web_app_mail_keyconfig_path }}'
+    owner: www-data
+    group: www-data
+    mode: '0400'
+    state: file
+    follow: no
+
+
+- name: Configure dovecot_impersonate plugin
+  ansible.builtin.template:
+    src: plugins/dovecot_impersonate.conf.php.j2
+    dest: /etc/roundcube/plugins/dovecot_impersonate/config.inc.php
+    owner: root
+    group: root
+    mode: '0644'
+  notify:
+    - 'web/app/mail : Reload php-fpm'
+
+
+- name: Configure PHP for Roundcube
+  ansible.builtin.include_tasks: php.yaml
+
+
+- name: Configure Nginx for Roundcube
+  ansible.builtin.template:
+    src: nginx-roundcube.server.conf.j2
+    dest: '{{ web_core_http_confdir_implicit_servers_regular }}/roundcube.server.conf'
+    owner: root
+    group: root
+    mode: '0644'
+  notify:
+    - 'web/core/http : Reload nginx'
+
+
+# See crontab(5) for crontab syntax.
+- name: Configure cron to send mail to root
+  ansible.builtin.lineinfile:
+    path: /etc/cron.d/roundcube-core
+    regexp: '^MAILTO *='
+    insertbefore: '^[ \t]*[0-9@]'  # "cron commands"
+    firstmatch: yes                # insert before first match
+    line: 'MAILTO=root'
+...

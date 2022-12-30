@@ -241,9 +241,9 @@ notify_classes = 2bounce, data, resource, software
 # Note: Dovecot (importantly) sets the same recipient delimiter.
 recipient_delimiter = {{ mail_recipient_delimiter }}
 
-# Message size limit of 32 MiB.
+# Message size limit.
 #  - Default: 10000 KiB.
-message_size_limit = 33554432
+message_size_limit = {{ mail_postfix_message_size_limit }}
 
 # Default; debatable.
 #allow_min_user = no

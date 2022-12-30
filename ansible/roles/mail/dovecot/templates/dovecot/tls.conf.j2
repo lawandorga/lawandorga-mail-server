@@ -63,7 +63,9 @@ ssl_min_protocol = TLSv1.2
 #    -> HIGH
 #  - Order by strength.
 #    -> @STRENGTH
-#  - See also Postfix's `main.cf#tls_high_cipherlist`.
+#  - See also
+#    - Postfix' `main.cf#tls_high_cipherlist`.
+#    - Roundcube's `$config['imap_conn_options']`.
 ssl_cipher_list = HIGH+ECDHE+aRSA+CHACHA20:HIGH+ECDHE+aRSA+AESGCM:@STRENGTH
 
 # Do not prefer the server's order of ciphers over client's.

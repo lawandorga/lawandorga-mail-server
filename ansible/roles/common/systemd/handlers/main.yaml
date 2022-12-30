@@ -7,4 +7,10 @@
 - name: daemon-reload
   ansible.builtin.service:
     daemon_reload: yes
+
+- name: Create tmpfiles
+  ansible.builtin.command:
+    argv:
+      - systemd-tmpfiles
+      - '--create'
 ...

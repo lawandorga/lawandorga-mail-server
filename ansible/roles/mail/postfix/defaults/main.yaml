@@ -1,3 +1,6 @@
 ---
 mail_postfix_myhostname: '{{ fqdn }}'
+
+# 32 MiB
+mail_postfix_message_size_limit: 33554432
 ...

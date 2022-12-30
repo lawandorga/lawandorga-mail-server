@@ -18,6 +18,9 @@ mail_dovecot_storage_dynamic_accounts_dir:
 
 mail_dovecot_admin_address: 'postmaster@{{ mail_default_domain }}'
 
+# See `/ansible/roles/mail/dovecot/templates/dovecot/auth.conf.j2`.
+mail_dovecot_group_account_separator: '*'
+
 
 mail_dovecot_conf_aux_dir: /etc/dovecot/extra
 
