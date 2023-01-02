@@ -32,8 +32,6 @@
     owner: www-data
     group: www-data
     mode: '0400'    # Protect database password.
-  notify:
-    - 'web/app/mail : Reload php-fpm'
 
 
 - name: Configure random key
@@ -44,8 +42,6 @@
       "$(head -c 18 /dev/urandom | base64)"
       > '{{ web_app_mail_keyconfig_path }}'
     creates: '{{ web_app_mail_keyconfig_path }}'
-  notify:
-    - 'web/app/mail : Reload php-fpm'
 
 
 - name: Restrict access to key
@@ -65,8 +61,6 @@
     owner: root
     group: root
     mode: '0644'
-  notify:
-    - 'web/app/mail : Reload php-fpm'
 
 
 - name: Configure PHP for Roundcube
