@@ -320,7 +320,7 @@ function s_lvm_snapshot_delete()
   [[ $# -eq 0 ]]
 
   lvremove \
-		--autobackup y \
+    --autobackup y \
     --force \
     --quiet --quiet \
     -- "${scfg_LVM_VG}/${sg_LVM_SNAPSHOT_NAME}"
@@ -448,14 +448,14 @@ function restic_check()
 #    sufficiently often to be annoying (much cron mail).
 function _restic_backup_verysilent()
 {
-	local -a args=( "$@" )
+  local -a args=( "$@" )
 
-	local out
-	if ! out="$(_restic backup "$@" 2>&1)"
-	then
-		printf '%s\n' "$out"
-		return 1
-	fi
+  local out
+  if ! out="$(_restic backup "$@" 2>&1)"
+  then
+    printf '%s\n' "$out"
+    return 1
+  fi
 }
 
 

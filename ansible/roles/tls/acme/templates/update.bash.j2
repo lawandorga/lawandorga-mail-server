@@ -65,7 +65,7 @@ function main()
   else
     certdir="$certdir_production"
   fi
-	local -r certdir
+  local -r certdir
 
   certchain_new="${certdir}/${certchain_name_tmp}"
   certchain="${certdir}/${certchain_name}"
@@ -97,7 +97,7 @@ function main()
 
 function parse_args()
 {
-	local arg
+  local arg
   for arg
   do
     case "$arg" in
@@ -154,7 +154,7 @@ function create_csr()
 {
   # Note that the CN should be included in the subjectAltName.
   local subject_alt_names
-	subject_alt_names="${domains[*]/#/DNS:}"
+  subject_alt_names="${domains[*]/#/DNS:}"
   subject_alt_names="${subject_alt_names// /,}"
 
   openssl req -sha256 -new \
@@ -172,7 +172,7 @@ function request_certificate()
   then
     directory_url_args=( --directory-url "$staging_url" )
   fi
-	local -ra directory_url_args
+  local -ra directory_url_args
 
   acme-tiny --quiet \
     --account-key "$account_key" \
@@ -188,7 +188,7 @@ function reload_services()
 {
   $staging && return 0
 
-	local service
+  local service
   for service in "${services_to_reload_on_update[@]}"
   do
     if systemctl -q is-active -- "$service"

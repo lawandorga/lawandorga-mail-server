@@ -45,7 +45,7 @@ function main()
   done
   set -o noglob
 
-	# This is important, to actually delete old backup data.
+  # This is important, to actually delete old backup data.
   "$cfg_MAIN_SCRIPT_PATH" prune
 
   "$cfg_MAIN_SCRIPT_PATH" check-backups
