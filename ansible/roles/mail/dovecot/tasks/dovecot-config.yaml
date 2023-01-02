@@ -56,7 +56,7 @@
     dest: '{{ mail_dovecot_conf_aux_dir }}/static-users.passwd'
     owner: dovecot
     group: dovecot
-    mode: '0600'
+    mode: '0400'
   notify:
     - 'mail/dovecot : Reload Dovecot'
 

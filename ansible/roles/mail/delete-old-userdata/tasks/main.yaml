@@ -26,7 +26,7 @@
     dest: '{{ mail_delete_old_userdata_script_path }}'
     owner: '{{ mail_dovecot_storage_user }}'
     group: '{{ mail_dovecot_storage_group }}'
-    mode: '0700'
+    mode: '0500'
 
 
 - name: Install crontab

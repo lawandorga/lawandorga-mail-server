@@ -29,9 +29,9 @@
   ansible.builtin.template:
     src: roundcube.conf.php.j2
     dest: /etc/roundcube/config.inc.php
-    owner: root
-    group: root
-    mode: '0644'
+    owner: www-data
+    group: www-data
+    mode: '0400'    # Protect database password.
   notify:
     - 'web/app/mail : Reload php-fpm'
 
