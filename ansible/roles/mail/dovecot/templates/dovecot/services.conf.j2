@@ -66,20 +66,15 @@ service auth-worker {
 #  - <https://doc.dovecot.org/admin_manual/login_processes/#login-processes>
 service imap-login {
 
-  # Connection via IMAP+STARTTLS (explicit TLS).
   inet_listener imap {
     # Default.
     #port = 143
   }
 
-  # Connection via implicit TLS.
-  #  * Ideally, we'd like to support only one method (explicit TLS).
-  #  * Problem: Outlook on macOS does not seem to support explicit TLS.
   inet_listener imaps {
-    # Default.
-    #  - To disable, set port = 0.
-    #port = 993
-    #ssl = yes
+    # Disable IMAPS.
+    #  - We use STARTTLS instead.
+    port = 0
   }
 
   # "High security mode".  Default.
