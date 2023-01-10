@@ -3,7 +3,6 @@ table inet filter {
 		type inet_proto . inet_service
 		elements = \
 			{ tcp . $port_tcp_imap
-			, tcp . $port_tcp_imaps
 			}
 	}
 }
