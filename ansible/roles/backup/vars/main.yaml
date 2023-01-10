@@ -10,6 +10,9 @@ backup_config_dir: /usr/local/etc/backup
 #    * This directory itself is normally created at runtime.
 backup_mountpoints_dir: /tmp/backup-snapshots
 
+# Notes:
+#  * This requires quite much space.
+#    - See also `/doc/disks.md`.
 backup_restic_cache_dir: /var/cache/restic
 
 backup_script_dir: /usr/local/lib/backup

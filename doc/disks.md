@@ -20,6 +20,9 @@ on this disk.
 This disk should contain all valuable state.  Notably, the email data, but also
 secrets that are to persist a reinstallation and are not managed via Ansible.
 
+This may additionally contain other data that does not fit on the system disk,
+which (assuming the below *Scaleway-specific* setup) is limited in size.
+
 
 ## Disk layout
 
@@ -27,6 +30,8 @@ secrets that are to persist a reinstallation and are not managed via Ansible.
 
 *Scaleway-specific:* This disk is based on *local storage* and should be
 visible as `/dev/vda` on the machine.
+    - *Local storage* is apparently limited to 20GB (< 20GiB) and cannot be
+      resized post creation.
 
 We assume an EFI setup.
 
@@ -50,7 +55,7 @@ We assume an EFI setup.
 *Scaleway-specific:* This disk is based on *block storage* and should be
 visible as `/dev/sda` on the machine.
 
-* size: 10G
+* size: 16G
     - This is just an initial size and should be expanded once the need arises.
     - As for the system disk, this should be a little more than needed to allow
       for LV snapshots.
@@ -59,9 +64,13 @@ visible as `/dev/sda` on the machine.
         * "mail-data"     - 5G - ext4 - /var/mail
         * "static-data"   - 4M - ext4 - /persistent
         * "variable-data" - 4M - ext4 - /persistent/var
+        * "var-cache"     - 8G - ext4 - /var/cache
 * Notes:
     - We could also skip the partition table layer, given that there is only
       one partition (and no need for an MBR to boot from).
+    - The large size of the LV mounted at `/var/cache` is due to `restic`'s
+      need for a large cache.
+      See [here](/ansible/roles/backup/vars/main.yaml).
 
 
 ## Setup
