@@ -327,10 +327,17 @@ $config['show_images'] = 0;       // Relevant to security/privacy.
 $config['message_extwin'] = false;
 $config['compose_extwin'] = false;
 
-// Use HTML editor by default iff forwarding or replying to an HTML message.
-//  - Otherwise, people would likely complain about broken formatting.
+// Always use HTML editor by default.
+//  - Notable alternative: '3'
+//    - Use HTML editor by default iff forwarding or replying to an HTML
+//      message.
+//    - A more strict setting would likely cause people to complain about
+//      broken formatting.
+//  - Reasoning: People expect all the fancy formatting they are likely used
+//    to to just work.
+//  - This is debatable.
 //  - See also $config['prefer_html'].
-$config['htmleditor'] = 3;
+$config['htmleditor'] = 1;
 
 // Defaults.
 $config['compose_save_localstorage'] = true;
