@@ -1,0 +1,7 @@
+# Check available diskspace, once a day.
+
+PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+MAILTO=root
+
+# m  h dom mon dow  user    command
+ 39  4   *   *   *  nobody  {{ monitor_diskspace_script_path }}

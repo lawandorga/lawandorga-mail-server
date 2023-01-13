@@ -1,0 +1,31 @@
+---
+# Monitor available disk space.
+
+
+- name: Create script's directory
+  ansible.builtin.file:
+    path: '{{ monitor_diskspace_script_dir }}'
+    owner: root
+    group: root
+    mode: '0755'
+    state: directory
+    follow: no
+
+
+- name: Install script
+  ansible.builtin.template:
+    src: check-diskspace.bash.j2
+    dest: '{{ monitor_diskspace_script_path }}'
+    owner: root
+    group: root
+    mode: '0755'
+
+
+- name: Install crontab
+  ansible.builtin.template:
+    src: crontab.j2
+    dest: /etc/cron.d/monitor-diskspace
+    owner: root
+    group: root
+    mode: '0644'
+...

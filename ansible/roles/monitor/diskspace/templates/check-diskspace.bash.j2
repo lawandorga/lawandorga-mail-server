@@ -1,0 +1,51 @@
+#!/usr/bin/env bash
+
+# Check available diskspace, for each partition.
+
+
+
+source -- '{{ bash_aux_lib_basic_path }}' || {
+  printf 'Fatal Error.\n' >&2
+  exit 1
+}
+
+
+
+##################
+## Configuration
+
+typeset -r cfg_SPACE_THRESHOLD_REGEX='([7-9][0-9]|100)%'
+typeset -r cfg_INODES_THRESHOLD_REGEX='([7-9][0-9]|100)%'
+
+
+
+##############
+## Main code
+
+{% raw %}
+
+
+function main()
+{
+  local df_output
+  df_output="$(
+    df --human-readable --output=source,target,size,used,avail,pcent,ipcent
+  )"
+
+  local regex_space regex_inodes
+  regex_space="(${cfg_SPACE_THRESHOLD_REGEX}) +([0-9]+%|-) *\$"
+  regex_inodes="(${cfg_INODES_THRESHOLD_REGEX}) *\$"
+
+  if grep -qE "(${regex_space})|(${regex_inodes})" <<< "$df_output"
+  then
+    printf 'A filesystem is near full.\n'
+    printf '\n'
+    printf '%s\n' "$df_output"
+  fi
+}
+
+
+main "$@"
+
+
+{% endraw %}

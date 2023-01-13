@@ -1,0 +1,6 @@
+---
+monitor_diskspace_script_dir: /usr/local/lib/monitor-diskspace
+
+monitor_diskspace_script_path:
+  '{{ monitor_diskspace_script_dir }}/check-diskspace.bash'
+...

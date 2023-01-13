@@ -1,0 +1,4 @@
+---
+dependencies:
+  - role: bash-scripts-aux
+...
