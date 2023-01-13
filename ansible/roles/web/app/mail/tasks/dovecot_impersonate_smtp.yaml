@@ -1,0 +1,54 @@
+---
+# Install custom dovecot_impersonate_smtp plugin.
+#
+# Documentation on Roundcube plugins:
+#  - <https://github.com/roundcube/roundcubemail/wiki/Plugin-API>
+#
+# Notes:
+#  - The plugin does not work without the dovecot_impersonate plugin.
+#  - The plugin itself is licensed under GPL-2.0.
+#    - This is due to dovecot_impersonate's license.
+#    - See `/COPYING.GPL-2.0`.
+
+
+- name: Create directories for dovecot_impersonate_smtp plugin
+  ansible.builtin.file:
+    path: '{{ item }}'
+    owner: root
+    group: root
+    mode: '0755'
+    state: directory
+    follow: no
+  with_items:
+    - /usr/local/share/roundcube
+    - /usr/local/share/roundcube/plugins
+    - /usr/local/share/roundcube/plugins/dovecot_impersonate_smtp
+
+
+- name: Install dovecot_impersonate_smtp.php
+  ansible.builtin.copy:
+    src: plugins/dovecot_impersonate_smtp/main.php
+    dest: /usr/local/share/roundcube/plugins/dovecot_impersonate_smtp/dovecot_impersonate_smtp.php
+    owner: root
+    group: root
+    mode: '0644'
+
+
+- name: Install dovecot_impersonate_smtp/composer.json
+  ansible.builtin.copy:
+    src: plugins/dovecot_impersonate_smtp/composer.json
+    dest: /usr/local/share/roundcube/plugins/dovecot_impersonate_smtp/composer.json
+    owner: root
+    group: root
+    mode: '0644'
+
+
+- name: Link dovecot_impersonate_smtp plugin
+  ansible.builtin.file:
+    src: /usr/local/share/roundcube/plugins/dovecot_impersonate_smtp
+    dest: /var/lib/roundcube/plugins/dovecot_impersonate_smtp
+    owner: root
+    group: root
+    state: link
+    follow: no
+...

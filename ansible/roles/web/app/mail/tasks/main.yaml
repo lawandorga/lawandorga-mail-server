@@ -63,6 +63,10 @@
     mode: '0644'
 
 
+- name: Install dovecot_impersonate_smtp plugin
+  ansible.builtin.include_tasks: dovecot_impersonate_smtp.yaml
+
+
 - name: Configure PHP for Roundcube
   ansible.builtin.include_tasks: php.yaml
 
