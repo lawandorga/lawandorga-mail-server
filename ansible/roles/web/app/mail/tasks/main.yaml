@@ -17,6 +17,16 @@
     state: present
 
 
+- name: Create script directory
+  ansible.builtin.file:
+    path: '{{ web_app_mail_script_dir }}'
+    owner: root
+    group: root
+    mode: '0755'
+    state: directory
+    follow: no
+
+
 - name: Install spelling software
   ansible.builtin.apt:
     name: '{{ [ "php-pspell" ] + aspell_packages }}'
@@ -65,6 +75,10 @@
 
 - name: Install dovecot_impersonate_smtp plugin
   ansible.builtin.include_tasks: dovecot_impersonate_smtp.yaml
+
+
+- name: Set up deletion of old userdata
+  ansible.builtin.include_tasks: delete-old-userdata.yaml
 
 
 - name: Configure PHP for Roundcube

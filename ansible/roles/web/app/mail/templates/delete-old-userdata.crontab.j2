@@ -1,0 +1,7 @@
+# Delete data for accounts not (anymore) present in the main mail DB, daily.
+
+PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+MAILTO=root
+
+# m  h dom mon dow  user      command
+ 23  5   *   *   *  www-data  {{ web_app_mail_delete_old_userdata_script_path }} --delete

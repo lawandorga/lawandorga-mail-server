@@ -31,4 +31,14 @@ web_app_mail_php_version:
 #      a common tmpdir, such as `/tmp`.
 web_app_mail_upload_tmp_dir:
   '/tmp/php-upload'
+
+web_app_mail_script_dir: /usr/local/lib/webmail
+
+web_app_mail_delete_old_userdata_script_path:
+  '{{ web_app_mail_script_dir }}/delete-old-userdata.bash'
+
+# Note that we do not install this script ourselves.
+#  - Thus, this variable should generally not be changed.
+web_app_mail_rc_deluser_script_path:
+  '/usr/share/roundcube/bin/deluser.sh'
 ...

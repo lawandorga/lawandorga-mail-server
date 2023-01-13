@@ -3,11 +3,15 @@
 # Delete data for users that are no longer present in the database.
 #  - This does not handle static users.
 
+# Copyright 2022, 2023 Einhard Leichtfuß
+
 # Call as
 #  - `$0 --delete` (to be used in production), or
 #  - `$0 --list-only` (meant for testing).
 
 # Notes:
+#  - This scriot is very similar to the webmail deletion script.
+#    - `/ansible/roles/web/app/mail/templates/delete-old-userdata.bash.j2`
 #  - This script should be run as the Dovecot storage user.
 #  - This script requires the database configured "relative_path"s (and the
 #    directory names on the filesystem derived thereof) to match [a-z0-9-]+.
@@ -48,7 +52,7 @@
 
 # Dependencies:
 #  - bash
-#  - coreutils (`comm`; Debian Priority=required)
+#  - coreutils (`comm`, `mktemp`, `rm`; Debian Priority=required)
 #  - findutils (`find`; Debian Priority=required)
 #  - bsdutils (`logger`; Debian Priority=required)
 #  - postgresql-client (`psql`)
@@ -145,6 +149,8 @@ function error()
 }
 
 
+# See also
+#  - `/ansible/roles/web/app/mail/templates/delete-old-userdata.bash.j2#_psql()`
 function get_dirs_from_db()
 {
   tmpfiles[dirs-db-unsorted]="$(umask 077; mktemp -t tmp.XXXXXX)"
@@ -153,7 +159,9 @@ function get_dirs_from_db()
   # our setting hidepid=2 on /proc (see fstab configuration).
   #  - Even otherwise, `/proc/<pid>/environ` seems to have restrictive
   #    permissions.
-  #  - See also `/ansible/roles/backup/templates/backup.bash.j2`.
+  #  - See also
+  #    - `/ansible/roles/web/app/mail/templates/delete-old-userdata.bash.j2`
+  #    - `/ansible/roles/backup/templates/backup.bash.j2`
   PGPASSWORD="$cfg_PGSQL_PASSWORD" psql \
     --host="$cfg_PGSQL_HOST" \
     --port="$cfg_PGSQL_PORT" \

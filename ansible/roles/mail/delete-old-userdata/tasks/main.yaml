@@ -1,6 +1,7 @@
 ---
 # Configure deletion of data for users not (anymore) present in the database.
 #  - This does not handle static users.
+#  - See also `/ansible/roles/web/app/mail/tasks/delete-old-userdata.yaml`.
 
 
 - name: Install PostgreSQL client

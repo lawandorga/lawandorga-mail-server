@@ -36,7 +36,9 @@ auth_ssl_require_client_cert = no
 
 
 # Default minus upper case characters.
-auth_username_chars = abcdefghijklmnopqrstuvwxyz01234567890.-_@
+#  - See also
+#    - `/ansible/roles/web/app/mail/templates/delete-old-userdata.bash.j2#cfg_ACCOUNT_FORMAT_REGEX`
+auth_username_chars = abcdefghijklmnopqrstuvwxyz0123456789.-_@
 
 # Use lowercase username (default).
 #  - We enforce lower case above, so this is ineffective.

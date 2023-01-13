@@ -1,0 +1,25 @@
+---
+# Delete old webmail userdata.
+#  - See also `/ansible/roles/mail/delete-old-userdata`.
+
+# Notes:
+#  * The owner (and script executing user) could be any one, but it will get
+#    access to the database password.
+#    - For simplicity, choose the user Roundcube is executed as.
+- name: Install script for deletion of old user data
+  ansible.builtin.template:
+    src: delete-old-userdata.bash.j2
+    dest: '{{ web_app_mail_delete_old_userdata_script_path }}'
+    owner: www-data
+    group: www-data
+    mode: '0500'  # Protect database password.
+
+
+- name: Install crontab for deletion of old user data
+  ansible.builtin.template:
+    src: delete-old-userdata.crontab.j2
+    dest: /etc/cron.d/webmail-delete-old-userdata
+    owner: root
+    group: root
+    mode: '0644'
+...
