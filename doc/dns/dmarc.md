@@ -2,7 +2,7 @@
 
 * `TXT` record:
     * key: `dmarc.<MAILSERVER_DOMAIN>`
-    * value: `v=DMARC1; adkim=s; aspf=s; p=reject`
+    * value: `v=DMARC1; p=reject; adkim=s; aspf=s`
 * `CNAME` record:
     * key: `_dmarc.<CLIENT_DOMAIN>`
     * value: `dmarc.<MAILSERVER_DOMAIN>`
@@ -27,6 +27,16 @@
           as report address.
             * Note that `postmaster` is the only localpart for which we get
               mail for all configured domains ourselves.
+
+
+## Technical remarks
+
+* The `v` tag must come first, the `p` tag probably second.
+    * The wording in the relevant RFC 7489 is not that clear in my opinion:
+      It says these two tags "MUST appear in that order" (sec. 6.3)--the order
+      found in the formal ABNF of section 6.4 and "components other than
+      dmarc-version and dmarc-request may appear in any order" (sec 6.4), where
+      these correspond to the `v` and `p` tags, respectively.
 
 
 ## See also
