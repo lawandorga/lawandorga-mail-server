@@ -76,9 +76,9 @@ read the following Scaleway specific notes:
 If the our new `deboostrap`-installed Debian system fails booting:
 
 * Check if we are dropped into an
-  [EFI shell](doc/setup/vm-scaleway/efi/shell.md).
+  [EFI shell](/doc/setup/vm-scaleway/efi/shell.md).
     - If so, boot from there and check our
-      [EFI setup](doc/setup/vm-scaleway/efi.md).
+      [EFI setup](/doc/setup/vm-scaleway/efi.md).
 * Otherwise, reboot into the initial bootstrap system via
   "Instances" -> INSTANCE-NAME -> "Advanced Settings" -> "Boot Volume".
 

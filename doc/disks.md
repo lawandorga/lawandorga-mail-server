@@ -112,7 +112,7 @@ visible as `/dev/sda` on the machine.
 ### Why LVM?
 
 * Snapshots.
-    - These allow for backups of a the data at a single point in time.
+    - These allow for backups of the data at a single point in time.
         - Note that the snapshots themselves do not (!) constitute backups.
 * Easy resizability.
 
