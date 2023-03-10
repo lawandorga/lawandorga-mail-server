@@ -113,7 +113,7 @@ typeset -r cfg_S3_SECRET_KEY='{{ secret_s3_secret_key }}'
 typeset sg_LVM_SNAPSHOT_NAME
 typeset sg_LVM_SNAPSHOT_MOUNTED
 
-typeset sg_time_HOUR
+typeset g_time_HOUR
 
 
 function s_get_config()
@@ -191,8 +191,8 @@ function main()
   local action="$1"
   shift 1
 
-  sg_time_HOUR="$(date --utc +%H)"
-  sg_time_HOUR="${sg_time_HOUR#0}"
+  g_time_HOUR="$(date --utc +%H)"
+  g_time_HOUR="${g_time_HOUR#0}"
 
   case "$action" in
     check-lvm-snapshots|init|status|prune|check-backups)
@@ -440,7 +440,7 @@ function restic_check()
   [[ $# -eq 0 ]]
 
   local data_subset
-  data_subset="$(( sg_time_HOUR + 1 ))"
+  data_subset="$(( g_time_HOUR + 1 ))"
   _restic check --read-data-subset="${data_subset}/24"
 }
 
