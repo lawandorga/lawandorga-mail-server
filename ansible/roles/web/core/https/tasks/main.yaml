@@ -44,4 +44,10 @@
     mode: '0644'
   notify:
     - 'common/firewall : Reload nftables'
+
+
+- name: Configure nginx to be reloaded on certificate update
+  ansible.builtin.lineinfile:
+    path: '{{ tls_acme_services_to_reload_on_update_config_path }}'
+    line: 'nginx.service'
 ...

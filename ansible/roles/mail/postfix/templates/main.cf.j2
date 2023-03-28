@@ -537,6 +537,8 @@ tls_high_cipherlist = HIGH+DHE:HIGH+ECDHE:@STRENGTH
 smtpd_tls_security_level = may
 
 # The documentation recommends to have key and certificate chain in one file.
+#  - Note that postfix appears to pick up changes in this file without reload
+#    or similar (unlike Dovecot, nginx).
 smtpd_tls_chain_files = {{ tls_acme_data_dir }}/rsa.key_then_certchain.pem
 
 smtpd_tls_loglevel = 1
