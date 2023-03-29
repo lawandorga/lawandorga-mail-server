@@ -12,6 +12,7 @@ class dovecot_impersonate_smtp extends rcube_plugin
 {
   public function init()
   {
+    $this->require_plugin('dovecot_impersonate');
     $this->add_hook('smtp_connect', array($this, 'impersonate_smtp'));
   }
 
@@ -21,8 +22,8 @@ class dovecot_impersonate_smtp extends rcube_plugin
     if(isset($_SESSION['plugin.dovecot_impersonate_master']))
     {
       $data['smtp_user'] .= $_SESSION['plugin.dovecot_impersonate_master'];
-		}
+    }
 
     return($data);
-	}
+  }
 }
