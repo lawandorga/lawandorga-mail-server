@@ -1,0 +1,15 @@
+---
+# Install custom dovecot_impersonate_smtp plugin.
+
+
+- name: Install login_page_extra_links plugin
+  ansible.builtin.include_tasks: plugins/aux/custom-minimal.yaml
+  vars:
+    web_app_mail_plugin_name: login_page_extra_links
+
+
+- name: Configure login_page_extra_links plugin
+  ansible.builtin.include_tasks: plugins/aux/custom-config.yaml
+  vars:
+    web_app_mail_plugin_name: login_page_extra_links
+...

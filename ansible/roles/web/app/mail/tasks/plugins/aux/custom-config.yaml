@@ -1,0 +1,38 @@
+---
+# Set up configuration for a custom Roundcube plugin.
+#  - Requires the specific {{ web_app_mail_plugin_name }} variable to be set.
+#  - This should usually be used together with `./custom-minimal.yaml`.
+
+
+- name: Create configuration directories for {{ web_app_mail_plugin_name }} plugin
+  ansible.builtin.file:
+    path: '{{ item }}'
+    owner: root
+    group: root
+    mode: '0755'
+    state: directory
+    follow: no
+  with_items:
+    - /usr/local/etc/roundcube
+    - /usr/local/etc/roundcube/plugins
+    - /usr/local/etc/roundcube/plugins/{{ web_app_mail_plugin_name }}
+
+
+- name: Configure {{ web_app_mail_plugin_name }} plugin
+  ansible.builtin.template:
+    src: plugins/{{ web_app_mail_plugin_name }}/config.inc.php.j2
+    dest: /usr/local/etc/roundcube/plugins/{{ web_app_mail_plugin_name }}/config.inc.php
+    owner: root
+    group: root
+    mode: '0644'
+
+
+- name: Link configuration file for {{ web_app_mail_plugin_name }} plugin
+  ansible.builtin.file:
+    src: /usr/local/etc/roundcube/plugins/{{ web_app_mail_plugin_name }}/config.inc.php
+    dest: /usr/local/share/roundcube/plugins/{{ web_app_mail_plugin_name }}/config.inc.php
+    owner: root
+    group: root
+    state: link
+    follow: no
+...

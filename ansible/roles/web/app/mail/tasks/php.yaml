@@ -78,7 +78,7 @@
     #    `open_basedir`.
     #  * Partially determined by trial and error.
     - key: open_basedir
-      value: '"/usr/share/php:/usr/lib/php:/var/lib/php:{{ web_app_mail_upload_tmp_dir }}:/usr/share/javascript:/usr/share/nodejs:/usr/share/roundcube:/usr/local/share/roundcube:/var/lib/roundcube:/etc/roundcube:/var/log/roundcube"'
+      value: '"/usr/share/php:/usr/lib/php:/var/lib/php:{{ web_app_mail_upload_tmp_dir }}:/usr/share/javascript:/usr/share/nodejs:/usr/share/roundcube:/usr/local/share/roundcube:/var/lib/roundcube:/etc/roundcube:/usr/local/etc/roundcube:/var/log/roundcube"'
 
     # `cgi.fix_pathinfo`
     #   - kept at default

@@ -1,0 +1,49 @@
+---
+# Install custom (minimal) Roundcube plugin.
+#  - Requires the specific {{ web_app_mail_plugin_name }} variable to be set.
+#
+# Documentation on Roundcube plugins:
+#  - <https://github.com/roundcube/roundcubemail/wiki/Plugin-API>
+
+
+- name: Create directories for {{ web_app_mail_plugin_name }} plugin
+  ansible.builtin.file:
+    path: '{{ item }}'
+    owner: root
+    group: root
+    mode: '0755'
+    state: directory
+    follow: no
+  with_items:
+    - /usr/local/share/roundcube
+    - /usr/local/share/roundcube/plugins
+    - /usr/local/share/roundcube/plugins/{{ web_app_mail_plugin_name }}
+
+
+- name: Install {{ web_app_mail_plugin_name }}.php
+  ansible.builtin.copy:
+    src: plugins/{{ web_app_mail_plugin_name }}/main.php
+    dest: /usr/local/share/roundcube/plugins/{{ web_app_mail_plugin_name }}/{{ web_app_mail_plugin_name }}.php
+    owner: root
+    group: root
+    mode: '0644'
+
+
+- name: Install {{ web_app_mail_plugin_name }}/composer.json
+  ansible.builtin.copy:
+    src: plugins/{{ web_app_mail_plugin_name }}/composer.json
+    dest: /usr/local/share/roundcube/plugins/{{ web_app_mail_plugin_name }}/composer.json
+    owner: root
+    group: root
+    mode: '0644'
+
+
+- name: Link {{ web_app_mail_plugin_name }} plugin
+  ansible.builtin.file:
+    src: /usr/local/share/roundcube/plugins/{{ web_app_mail_plugin_name }}
+    dest: /var/lib/roundcube/plugins/{{ web_app_mail_plugin_name }}
+    owner: root
+    group: root
+    state: link
+    follow: no
+...

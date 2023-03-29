@@ -221,6 +221,7 @@ $config['email_dns_check'] = true;
 $config['plugins'] = array(
   'dovecot_impersonate',
   'dovecot_impersonate_smtp',
+  'login_page_extra_links',
 );
 
 
@@ -303,8 +304,19 @@ $config['contact_search_name'] = '{name} <{email}>';
 
 $config['skin'] = 'elastic';  // Default.
 
-// Allow all skins; default.
-$config['skins_allowed'] = array();
+// Restrict skins (disallow 'classic').
+//  - Legal reason:
+//    - We put some legal links (imprint, privacy policy, code) within the
+//      about section.
+//    - The 'classic' skin requires two clicks to reach the about section.
+//      - This is unlike the two here-allowed skins (one click).
+//    - At least the imprint and privacy policy must be reachable in two
+//      clicks.
+//  - See also `roles/web/app/mail/tasks/main.yaml#about.html.j2`.
+$config['skins_allowed'] = array(
+  'elastic',
+  'larry',
+);
 
 // Defaults.
 $config['addressbook_sort_col'] = 'surname';

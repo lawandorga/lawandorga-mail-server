@@ -5,6 +5,8 @@ web_app_mail_support_url: 'https://www.law-orga.de/help/'
 
 web_app_mail_product_name: 'Law&Orga - Webmail'
 
+web_app_mail_product_name_about_html: 'Webmail @ Law&amp;Orga'
+
 web_app_mail_aspell_languages:
   - de
   - en

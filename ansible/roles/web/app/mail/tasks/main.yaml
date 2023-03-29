@@ -64,9 +64,24 @@
     follow: no
 
 
+# Notes
+#  * It is also possible to install several About pages, for several languages,
+#    named, e.g., `/etc/roundcube/about.EN.html`.
+#  * This is used to display legal links.
+#  * See also
+#    `roles/web/app/mail/templates/roundcube.conf.php.j2#skins_allowed`.
+- name: Configure About page
+  ansible.builtin.template:
+    src: about.html.j2
+    dest: /etc/roundcube/about.html
+    owner: root
+    group: root
+    mode: '0644'
+
+
 - name: Configure dovecot_impersonate plugin
   ansible.builtin.template:
-    src: plugins/dovecot_impersonate.conf.php.j2
+    src: plugins/dovecot_impersonate/config.inc.php.j2
     dest: /etc/roundcube/plugins/dovecot_impersonate/config.inc.php
     owner: root
     group: root
@@ -74,7 +89,11 @@
 
 
 - name: Install dovecot_impersonate_smtp plugin
-  ansible.builtin.include_tasks: dovecot_impersonate_smtp.yaml
+  ansible.builtin.include_tasks: plugins/dovecot_impersonate_smtp.yaml
+
+
+- name: Install login_page_extra_links plugin
+  ansible.builtin.include_tasks: plugins/login_page_extra_links.yaml
 
 
 - name: Set up deletion of old userdata

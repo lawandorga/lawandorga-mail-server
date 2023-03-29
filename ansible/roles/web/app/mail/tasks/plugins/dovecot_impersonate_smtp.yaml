@@ -1,0 +1,15 @@
+---
+# Install custom dovecot_impersonate_smtp plugin.
+#
+# Notes:
+#  - The plugin does not work without the dovecot_impersonate plugin.
+#  - The plugin itself is licensed under GPL-2.0.
+#    - This is due to dovecot_impersonate's license.
+#    - See `/COPYING.GPL-2.0`.
+
+
+- name: Install dovecot_impersonate_smtp plugin
+  ansible.builtin.include_tasks: plugins/aux/custom-minimal.yaml
+  vars:
+    web_app_mail_plugin_name: dovecot_impersonate_smtp
+...
