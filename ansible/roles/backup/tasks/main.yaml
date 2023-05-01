@@ -37,6 +37,16 @@
     follow: no
 
 
+- name: Create state directory
+  ansible.builtin.file:
+    path: '{{ backup_state_dir }}'
+    owner: root
+    group: root
+    mode: '0755'
+    state: directory
+    follow: no
+
+
 - name: Create script directory
   ansible.builtin.file:
     path: '{{ backup_script_dir }}'

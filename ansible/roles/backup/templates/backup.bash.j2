@@ -2,7 +2,7 @@
 
 # Backup script.
 
-# Copyright 2022 Einhard Leichtfuß
+# Copyright 2022,2023 Einhard Leichtfuß
 
 # Usage:
 #  * Run this script without arguments to see the options.
@@ -102,6 +102,9 @@ typeset -r cfg_RESTIC_CACHEDIR='{{ backup_restic_cache_dir }}'
 typeset -r cfg_S3_ACCESS_KEY='{{ secret_s3_access_key }}'
 typeset -r cfg_S3_SECRET_KEY='{{ secret_s3_secret_key }}'
 
+typeset -r cfg_STATUS_PATH='{{ backup_state_dir }}/status'
+typeset -r cfg_STATUS_TMP_PATH='{{ backup_state_dir }}/status.tmp'
+
 
 
 ##############
@@ -173,7 +176,8 @@ function helpmsg()
   printf ' %s\n' \
     '$0 check-lvm-snapshots' \
     '$0 init' \
-    '$0 status' \
+    '$0 status [--cached]' \
+    '$0 save-status' \
     '$0 backup-and-forget-old CONFIG_FILE' \
     '$0 prune' \
     '$0 check-backups' \
@@ -195,7 +199,7 @@ function main()
   g_time_HOUR="${g_time_HOUR#0}"
 
   case "$action" in
-    check-lvm-snapshots|init|status|prune|check-backups)
+    check-lvm-snapshots|init|save-status|prune|check-backups)
       if [[ $# -ne 0 ]]
       then
         helpmsg >&2
@@ -208,14 +212,27 @@ function main()
     init)
       restic_initialize_repo
       ;;
-    status)
-      restic_show_status
+    save-status)
+      restic_save_status
       ;;
     prune)
       restic_prune
       ;;
     check-backups)
       restic_check
+      ;;
+
+    status)
+      if [[ $# -eq 0 ]]
+      then
+        restic_show_status
+      elif [[ $# -eq 1 && "$1" == '--cached' ]]
+      then
+        restic_show_saved_status
+      else
+        helpmsg >&2
+        exit 1;
+      fi
       ;;
 
     backup-and-forget-old)
@@ -427,6 +444,26 @@ function restic_show_status()
 {
   [[ $# -eq 0 ]]
   _restic snapshots
+}
+
+
+function restic_save_status()
+{
+  [[ $# -eq 0 ]]
+  _restic snapshots > "$cfg_STATUS_TMP_PATH"
+	mv -- "$cfg_STATUS_TMP_PATH" "$cfg_STATUS_PATH"
+}
+
+
+function restic_show_saved_status()
+{
+  if [[ -f "$cfg_STATUS_PATH" && -r "$cfg_STATUS_PATH" ]]
+  then
+    cat "$cfg_STATUS_PATH"
+  else
+    printf 'No status saved yet.\n'
+    return 1
+  fi
 }
 
 

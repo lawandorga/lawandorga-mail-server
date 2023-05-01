@@ -5,7 +5,7 @@
 #  - This script is mainly intended to be run as a cron job, but can also be
 #    run manually.
 
-# Copyright 2022 Einhard Leichtfuß
+# Copyright 2022,2023 Einhard Leichtfuß
 
 
 
@@ -44,6 +44,8 @@ function main()
     "$cfg_MAIN_SCRIPT_PATH" backup-and-forget-old "$config_file"
   done
   set -o noglob
+
+  "$cfg_MAIN_SCRIPT_PATH" save-status
 
   # This is important, to actually delete old backup data.
   "$cfg_MAIN_SCRIPT_PATH" prune
