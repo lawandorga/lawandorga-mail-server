@@ -9,6 +9,7 @@ pkgs_tools_standard:
   - info
 
   # Network tools.
+  - iproute2          # `ip`; also dep. of ifupdown
   - iputils-ping
   - netcat-openbsd    # Unlike netcat-traditional, supports sockets (i.a.).
   - ldnsutils         # `drill`
