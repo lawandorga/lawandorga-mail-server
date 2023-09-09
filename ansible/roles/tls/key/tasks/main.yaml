@@ -18,7 +18,7 @@
       - 'openssl'
       - 'genpkey'
       - '-algorithm'
-      - 'rsa'
+      - 'RSA'
       - '-pkeyopt'
       - 'rsa_keygen_bits:{{ tls_key_rsa_bits }}'
       - '-out'

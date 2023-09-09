@@ -63,7 +63,7 @@
       - 'openssl'
       - 'genpkey'
       - '-algorithm'
-      - 'rsa'
+      - 'RSA'
       - '-pkeyopt'
       - 'rsa_keygen_bits:{{ tls_acme_accountkey_rsa_bits }}'
       - '-out'
