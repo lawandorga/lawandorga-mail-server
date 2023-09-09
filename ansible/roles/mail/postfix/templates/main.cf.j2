@@ -142,6 +142,25 @@ backwards_bounce_logfile_compatibility = no
 
 
 
+##################
+## Documentation
+
+# Notes:
+#  - The settings below are (`postconf -d`) defaults.
+#  - They are only given explicitly due to the postinst scripts of the `postfix`
+#    and `postfix-doc` packages setting them explicitly with `postconf -e`.
+#  - This way, these postinst scripts do not cause modification of this file,
+#    which would be reversed by Ansible, where the Ansible modification notice
+#    might surprise the admin.
+#  - See also a corresponding bug report, which, w.r.t. this issue, concluded
+#    with not considering this a bug [worth fixing].
+#    - <https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=1035350#34>
+
+readme_directory = /usr/share/doc/postfix
+html_directory = /usr/share/doc/postfix/html
+
+
+
 ################################
 ## Host[-name] and IP settings
 
