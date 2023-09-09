@@ -1,5 +1,5 @@
 ---
-# Install custom dovecot_impersonate_smtp plugin.
+# Install custom login_page_extra_links plugin.
 
 
 - name: Install login_page_extra_links plugin

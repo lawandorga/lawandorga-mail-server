@@ -74,7 +74,7 @@ SyslogSuccess		yes
 TrustAnchorFile		/var/lib/unbound/root_key/root.key
 
 # OpenDKIM/libunbound does not honor `/etc/resolv.conf'.
-#  - Note that this settings should not be needed for DNSSEC; but due to our
+#  - Note that this setting should not be needed for DNSSEC; but due to our
 #    having a local Unbound server anyways, this should make things faster.
 Nameservers		127.0.0.1
 
@@ -242,5 +242,5 @@ AllowSHA1Only 		no
 #SignatureTTL
 
 # RFC 6376 says that signers must sign the "From" field.
-#  - Thus, it should be safe to require that to be signed..
+#  - Thus, it should be safe to require that to be signed.
 #MustBeSigned		From

@@ -122,12 +122,13 @@ dateformat .%Y-%m-%d
 ## "Secure" deletion
 
 # "Securely" delete old logfiles.
-#  - Note that this is not truly secure if the underlying file system and
+#  - Note that this is not truly secure unless the underlying file system and
 #    hardware overwrite data in-place.
 #    - ext4 with the default data=ordered is fine.
 #    - The hardware (and any other layers) at our provider likely do not
 #      satisfy this condition.
 #    - See <https://www.gnu.org/software/coreutils/manual/html_node/shred-invocation.html>.
+#    - See shred(1).
 #  - Note that the systemd journal files are not "securely" deleted.
 #    - logrotate in particular handles rsyslog's log files; which are derived
 #      from the systemd journal.

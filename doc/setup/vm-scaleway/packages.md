@@ -1,6 +1,6 @@
 # Scaleway-specific packages
 
-The Scaleway-provided Debian image (Debian Buster; installed 2022-09-18)
+The Scaleway-provided Debian image (Debian Bullseye; installed 2022-09-18)
 contains the following packages I believe are non-standard:
 
 * linux-image-cloud-amd64

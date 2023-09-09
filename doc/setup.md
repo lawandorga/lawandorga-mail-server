@@ -25,5 +25,5 @@ The process is as follows:
 
 1. [Setup VM (Scaleway)](/doc/setup/vm-scaleway.md)
 2. [Setup disks](/doc/disks.md)
-3. [Install Debian](doc/setup/debian.md)
+3. [Install Debian](/doc/setup/debian.md)
 4. [Remove remnants of initial bootstrap system (Scaleway)](/doc/setup/vm-scaleway/remove-boostrap-volume.md)

@@ -713,6 +713,7 @@ submission_tls_preempt_cipherlist = no
 
 # Store original recipient in an X-Original-To header (default).
 #  - This also has an effect on deduplication.
+#  - TODO: This does not appear to work.
 enable_original_recipient = yes
 
 # When to propagate extensions (see also $recipient_delimiter).  Default.
@@ -958,7 +959,7 @@ smtpd_delay_reject = yes
 #  * Commented below: Enforce rDNS/FCrDNS.
 #smtpd_client_restrictions =
 #	permit_mynetworks,
-#	reject_unknown_client_hostname|reject_unknown_reverse_client_hostname
+#	reject_unknown_reverse_client_hostname|reject_unknown_client_hostname
 
 # Notes:
 #  * This is not worth much without `smtpd_helo_required = yes'.
@@ -1168,7 +1169,6 @@ virtual_transport = lmtp:unix:private/dovecot-lmtp
 
 # Domains.
 #  - The static domains are those not configured via the database.
-#    - They are only alias domains, to keep the setup simple.
 #  - These must contain $myorigin.
 virtual_mailbox_domains =
 	{{ mail_static_domains | join(', ') }},

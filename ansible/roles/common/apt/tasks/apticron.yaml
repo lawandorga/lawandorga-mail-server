@@ -25,6 +25,7 @@
     mode: '0644'
 
 
+# Recommended by `apticron`.
 - name: Install apt-listchanges
   ansible.builtin.apt:
     name: apt-listchanges
