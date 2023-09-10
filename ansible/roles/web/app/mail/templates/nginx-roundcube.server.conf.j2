@@ -34,6 +34,7 @@ server
 
 	include {{ web_core_http_confpath_headers_security }};
 
+	# TODO: Revise / Test for new Roundcube version.
 	# Largely determined by trial and error.
 	add_header
 		Content-Security-Policy
@@ -76,8 +77,12 @@ server
 		# "Mitigate https://httproxy.org/ vulnerabilities" [0].
 		fastcgi_param HTTP_PROXY "";
 
-		# See `/etc/php/7.4/fpm/pool.d/www.conf`, [0].
-		fastcgi_pass unix:/run/php/php7.4-fpm.sock;
+		# Notes:
+		#  * See `/etc/php/<VERSION>/fpm/pool.d/www.conf`, [0].
+		#  * There normally also exists a symlink at `/run/php/php-fpm.sock`.
+		#    - Its creation on service start fails due to our read-only root.
+		#    - See `/usr/lib/systemd/system/php<VERSION>-fpm.service`.
+		fastcgi_pass unix:/run/php/php{{ web_app_mail_php_version }}-fpm.sock;
 	}
 }
 

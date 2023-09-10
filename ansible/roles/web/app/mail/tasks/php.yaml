@@ -5,7 +5,7 @@
 # Documentation/References:
 #  * [0] <https://www.php.net/manual/en/install.unix.nginx.php>
 #  * [1] <https://www.php.net/security-note.php>
-#  * [2] `/usr/share/doc/php7.4-fpm/README.Debian.security`
+#  * [2] `/usr/share/doc/php<VERSION>-fpm/README.Debian.security`
 #  * [3] <https://www.nginx.com/resources/wiki/start/topics/examples/phpfcgi/>
 #  * [4] <https://www.php.net/manual/en/session.security.ini.php>
 #  * [5] <https://www.nginx.com/resources/wiki/start/topics/tutorials/config_pitfalls/#passing-uncontrolled-requests-to-php>
@@ -57,8 +57,11 @@
 
 # php.ini configuration.
 #  * For documentation on the settings, see
-#    - `/etc/php/7.4/fpm/php.ini`
+#    - `/etc/php/<VERSION>/fpm/php.ini`
 #      - also: references therein to PHP online docs.
+#  * History
+#    - Originally written for PHP 7.4.
+#    - Reviewed for debver 2:8.2+93.
 #  * Not all settings rigorously considered.
 #  * Settings with an [importantly] good default not explicitly set.
 #    - These should generally not change for the worse.

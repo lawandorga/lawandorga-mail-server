@@ -2,6 +2,22 @@
 # Roundcube Webmail.
 
 
+# This should come before installation of `roundcube`.
+#  * Note: This applies to Debian Bookworm and is deemed not unlikely to change
+#    in later releases.
+#  - This satisfies a dependency of `roundcube-core`.
+#    - This installs `php-fpm`.
+#    - `roundcube-core` has a dependency on `php`, which is effectively
+#      satisfied by `php-fpm`, and would otherwise pull in
+#      `libapache2-mod-php`.
+#    - Note that if installing `php-fpm` at the same time as `roundcube` /
+#      `roundcube-core`, the former must be listed before the latter, to avoid
+#      pulling in the extra dependency.
+#  - This allows us to use {{ web_app_mail_php_version }} in the following.
+- name: Install & configure PHP
+  ansible.builtin.include_tasks: php.yaml
+
+
 - name: Install Roundcube
   ansible.builtin.apt:
     name:
@@ -13,6 +29,11 @@
 
       # This notably contains the dovecot_impersonate plugin.
       - roundcube-plugins-extra
+
+      # Extra skin (default `elastic`).
+      #  - We intentionally do not install the `classic` skin.
+      #    - See `../templates/roundcube.conf.php.j2` on why.
+      - roundcube-skin-larry
 
     state: present
 
@@ -98,10 +119,6 @@
 
 - name: Set up deletion of old userdata
   ansible.builtin.include_tasks: delete-old-userdata.yaml
-
-
-- name: Configure PHP for Roundcube
-  ansible.builtin.include_tasks: php.yaml
 
 
 - name: Configure Nginx for Roundcube

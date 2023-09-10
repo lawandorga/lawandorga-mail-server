@@ -1,16 +1,24 @@
 <?php
 // Roundcube configuration.
 //
-// See
+// See:
 //  - `/var/lib/roundcube/config/defaults.inc.php`
 //  - `/usr/share/doc/roundcube-core/config.inc.php.sample`
+//
+// History:
+//  - Originally written for roundcube debver 1.4.13+dfsg.1-1~deb11u1.
+//  - Revised for debver 1.6.1+dfsg-1.
+//    - Consulted:
+//      - /usr/share/doc/roundcube/NEWS.Debian.gz
+//      - /usr/share/doc/roundcube/changelog.Debian.gz
+//      - changes to the default and example configuration files (see above)
 //
 // Notes:
 //  * Settings mostly in order of appearance in `defaults.inc.php`.
 //  * This does not include all, but many settings.
 
 
-$config = array();
+$config = [];
 
 
 
@@ -47,8 +55,7 @@ $config['smtp_debug'] = false;
 // IMAP
 // ----
 
-$config['default_host'] = 'tls://localhost';
-$config['default_port'] = 143;    // Default.
+$config['imap_host'] = 'tls://localhost:143';
 $config['imap_auth_type'] = 'PLAIN';
 
 // Specific to Dovecot and its configuration.
@@ -71,8 +78,7 @@ $config['imap_dual_use_folders'] = true;
 // SMTP
 // ----
 
-$config['smtp_server'] = 'tls://localhost';
-$config['smtp_port'] = 587;   // Default.
+$config['smtp_host'] = 'tls://localhost:587';
 $config['smtp_user'] = '%u';  // Default.
 $config['smtp_pass'] = '%p';  // Default.
 $config['smtp_auth_type'] = 'PLAIN';
@@ -86,7 +92,7 @@ $config['smtp_helo_host'] = '{{ webmail_domain }}';
 
 // See <https://www.php.net/manual/en/context.ssl.php>.
 
-$default_tls_options = array(
+$default_tls_options = [
   'verify_peer' => true,
   'verify_peer_name' => true,
   'allow_self_signed' => false,
@@ -107,20 +113,20 @@ $default_tls_options = array(
   //  - We cannot go to a higher level or else the certificate verification
   //    fails.
   'security_level' => 2,
-);
+];
 
 
-$config['imap_conn_options'] = array(
-  'ssl' => array_replace($default_tls_options, array(
+$config['imap_conn_options'] = [
+  'ssl' => array_replace($default_tls_options, [
     'peer_name' => '{{ mail_dovecot_hostname }}',
-  )),
-);
+  ]),
+];
 
-$config['smtp_conn_options'] = array(
-  'ssl' => array_replace($default_tls_options, array(
+$config['smtp_conn_options'] = [
+  'ssl' => array_replace($default_tls_options, [
     'peer_name' => '{{ mail_postfix_myhostname }}',
-  )),
-);
+  ]),
+];
 
 
 
@@ -160,7 +166,7 @@ $config['login_rate_limit'] = 3;      // Default.
 $config['display_product_info'] = 1;
 
 $config['trusted_host_patterns'] =
-  array('^{{ webmail_domain | regex_replace("\.", "\\.") }}$');
+  ['^{{ webmail_domain | regex_replace("\.", "\\.") }}$'];
 
 // Nginx already takes care of this.
 $config['x_frame_options'] = false;
@@ -186,7 +192,7 @@ $config['max_message_size'] = '{{ mail_postfix_message_size_limit }}';
 
 $config['product_name'] = '{{ web_app_mail_product_name }}';
 
-// Default also contains the version.
+// Default: not set.
 $config['useragent'] = 'Roundcube Webmail';
 
 // This is relevant to privacy.  Default.
@@ -218,11 +224,11 @@ $config['email_dns_check'] = true;
 // PLUGINS
 // -------
 
-$config['plugins'] = array(
+$config['plugins'] = [
   'dovecot_impersonate',
   'dovecot_impersonate_smtp',
   'login_page_extra_links',
-);
+];
 
 
 
@@ -261,16 +267,22 @@ $config['create_default_folders'] = false;  // Default.
 
 $config['protect_default_folders'] = true;  // Default.
 $config['show_real_foldernames'] = false;   // Default.
-$config['enable_spellcheck'] = true;        // Default.
+$config['enable_spellcheck'] = true;
 
 // This is relevant to privacy (do not set to 'shared').
 $config['spellcheck_dictionary'] = true;
 
 // This requires php-pspell and aspell-<LANG> packages to be installed.
+// TODO: New default is enchant.
 $config['spellcheck_engine'] = 'pspell';
 
 // CONSIDER:
 //$config['keyservers']
+//$config['mailvelope_main_keyring']
+//$config['mailvelope_keysize']        - default 4096
+
+$config['html2text_links'] = 1;             // Default.
+$config['html2text_width'] = 72;
 
 
 
@@ -280,7 +292,7 @@ $config['spellcheck_engine'] = 'pspell';
 
 // Defaults.
 $config['address_book_type'] = 'sql';
-$config['autocomplete_addressbooks'] = array('sql');
+$config['autocomplete_addressbooks'] = ['sql'];
 $config['autocomplete_min_length'] = 1;
 
 $config['autocomplete_max'] = 16;
@@ -293,8 +305,11 @@ $config['address_template'] = '{street}<br/>{zipcode} {locality}<br/>{region}<br
 
 // Defaults.
 $config['addressbook_search_mode'] = 0;
-$config['contactlist_fields'] = array('name', 'firstname', 'surname', 'email');
+$config['contactlist_fields'] = ['name', 'firstname', 'surname', 'email'];
 $config['contact_search_name'] = '{name} <{email}>';
+$config['contact_form_mode'] = 'private';
+$config['collected_recipients'] = true;
+$config['collected_senders'] = true;
 
 
 
@@ -313,10 +328,10 @@ $config['skin'] = 'elastic';  // Default.
 //    - At least the legal notice and privacy notice must be reachable in two
 //      clicks.
 //  - See also `roles/web/app/mail/tasks/main.yaml#about.html.j2`.
-$config['skins_allowed'] = array(
+$config['skins_allowed'] = [
   'elastic',
   'larry',
-);
+];
 
 // Defaults.
 $config['addressbook_sort_col'] = 'surname';
@@ -376,19 +391,19 @@ $config['sig_below'] = true;
 // Default.
 $config['sig_separator'] = true;
 
-$config['search_mods'] = array(
-  '*' => array(
+$config['search_mods'] = [
+  '*' => [
     'subject' => 1,
     'from' => 1,
-  ),
-  $config['sent_mbox'] => array(
+  ],
+  $config['sent_mbox'] => [
     'subject' => 1,
     'to' => 1,
-  ),
-);
+  ],
+];
 
 $config['addressbook_search_mods'] =
-  array('name'=>1, 'firstname'=>1, 'surname'=>1, 'email'=>1, '*'=>1);
+  ['name'=>1, 'firstname'=>1, 'surname'=>1, 'email'=>1, '*'=>1];
 
 // Defaults.
 $config['delete_junk'] = false;
