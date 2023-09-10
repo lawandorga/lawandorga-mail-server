@@ -1,13 +1,23 @@
 # OpenSSH server configuration.
-#  * Written with options and default values of version 1:8.4p1-5
-#    (Debian:2021-09-01) in mind.
-#    - Originally written for version 1:7.9p1-10+deb10u2 (Debian:2021-03-05)).
-#    - Revised 2022-09-21 (version 1:8.4p1-5+deb11u1).
-#    - See sshd_config(5) and [changelog].
+#  * History:
+#    - Originally written for debver 1:7.9p1-10+deb10u2 (2021-03-05).
+#    - Revised 2022-09-21 for debver 1:8.4p1-5+deb11u1.
+#      - Considered:
+#        - [releasenotes]
+#        - maybe: changes in sshd_config(5) man page
+#    - Revised 2023-09-05 for debver 1:9.2p1-2.
+#      - Considered:
+#        - changes in sshd_config(5) man page
+#        - /usr/share/doc/openssh-server/NEWS.Debian.gz
+#        - /usr/share/doc/openssh-server/changelog.Debian.gz
+#          - This basically contains [releasenotes].
+#    * Note: There may have been other changes, independent of version updates.
 #  * Most security-relevant values are explicitly set.  That is, as long as no
 #    new options are added or modified and none of the used crypto breaks, the
 #    below settings should be fine.
 #  * All options considered, see sshd_config(5).
+#  * Additional, secondary guides used:
+#    - See references at the bottom + other links below.
 
 
 # General notes:
@@ -16,6 +26,15 @@
 #  * Prefer very restrictive settings.
 #    * We do not expect many different people to connect.
 #    * Can always be changed per host/user / in Match blocks.
+
+
+# Debian-specific options:
+#  * `DebianBanner`
+#  * `GSSAPIKeyExchange`, `GSSAPIStoreCredentialsOnRekey`,
+#    `GSSAPIKexAlgorithms`
+#    - That's not all of the `GSSAPI*` options.
+#    - Fedora should also have (most of?) these.
+#    - See also <https://github.com/openssh-gsskex/openssh-gsskex>.
 
 
 ##################################
@@ -39,29 +58,42 @@
 #    * <https://tools.ietf.org/html/draft-ietf-ipsecme-safecurves-03#section-4>
 #    * <https://safecurves.cr.yp.to/>
 #  * Both Ed25519 and RSA are fine.
-#    * One is sufficient.
+#    * One is sufficient.  Half the attack surface.
 #    * RSA requires OpenSSL, Ed25519 does not.
 #    * Choose Ed25519.
-#  * Note on RSA:
+#  * Notes on RSA:
 #    * Do not use the `ssh-rsa*' algorithm.  It uses SHA-1, which is broken.
 #      * Instead, use `rsa-sha2-512*' (or `rsa-sha2-256*').
 #      - <https://eprint.iacr.org/2020/014.pdf>
+#    * Use sufficiently long keys.
+#      * Best, 4096; 2048 may be considered acceptable.
 
 HostKey /etc/ssh/ssh_host_ed25519_key
 HostKeyAlgorithms ssh-ed25519
 
-PubkeyAcceptedKeyTypes ssh-ed25519
+PubkeyAcceptedAlgorithms ssh-ed25519
 
 # This is not actually relevant, we do not use certificates.
 CASignatureAlgorithms ssh-ed25519
 
 # Notes:
-#  * Without OpenSSL, we are basically limited to Curve25519.
+#  * Only relevant if RSA allowed somewhere.
+#  * sshd_config(5) does not mention this applying to a host RSA key.
+RequiredRSASize 4096
+
+# Notes:
+#  * Without OpenSSL, we are basically limited to Curve25519 (optionally
+#    combined with sntrup761 (post-quantum crypto)).
+#    - These are considered very good options.
+#  * We prefer, but do not require the post-quantum crypto option.
+#    - It is at least as secure (because combined with Curve25519).
+#    - It is not widely supported, notably not in Debian Bullseye.
+#    - It is not unlikely to be replaced in a close future OpenSSH release.
 #  * If allowing Diffie-Hellman KexAlgorithms, modify `/etc/ssh/moduli'.
 #    - moduli(5)
 #    - [Mozilla]
 #    - [stribika]
-KexAlgorithms curve25519-sha256@libssh.org
+KexAlgorithms sntrup761x25519-sha512@openssh.com,curve25519-sha256@libssh.org
 
 # Notes:
 #  * Without OpenSSL, we are limited to ChaCha20-Poly1305 and AES-CTR.
@@ -90,7 +122,7 @@ AllowGroups ssh-users-nopty
 PubkeyAuthentication yes
 PasswordAuthentication no
 HostbasedAuthentication no
-ChallengeResponseAuthentication no
+KbdInteractiveAuthentication no
 KerberosAuthentication no
 GSSAPIAuthentication no
 
@@ -101,7 +133,7 @@ AuthenticationMethods publickey
 
 # Enable PAM.
 #  * The main function of this setting is to "enable PAM authentication using
-#    ChallengeResponseAuthentication and PasswordAuthentication"
+#    KbdInteractiveAuthentication and PasswordAuthentication"
 #    (sshd_config(5).
 #    - These are both disabled, however.
 #  * This allows "disabled" accounts to connect.
@@ -145,9 +177,10 @@ MaxAuthTries 1
 #  - [CERT NZ:sshd]
 MaxSessions 1
 
-# Note:
+# Notes:
 #  * The default MaxStartups should be fine.  I simply do not know a good
 #    value; hence, I left it as is.
+#  * See also: `PerSourceMaxStartups`, `PerSourceNetBlockSize`.
 #MaxStartups
 
 
@@ -197,6 +230,11 @@ TCPKeepAlive no
 ClientAliveInterval 15
 ClientAliveCountMax 3
 
+# The following may be used to close channels and connections after a certain
+# time period of inactivity.
+#ChannelTimeout
+#UnusedConnectionTimeout
+
 # This stuff is shown pre-authentication.  Be boring.
 #  * Note: The OpenSSH version is shown in any case.
 Banner none
@@ -205,6 +243,14 @@ DebianBanner no
 VersionAddendum none
 
 # Restrict access to potentially sensible log messages (default: AUTH).
+#  - Note: If logging to the systemd journal, the access is not actually
+#    differentiated by syslog facility.
+#  - Note that sshd_config(5) does not list AUTHPRIV as an option.
+#  - Suggested by: [Mozilla] [CERT NZ:sshd]
+#  - Suggested otherwise by: [Bettercrypto] (AUTH)
+#  - See also:
+#    - <https://unix.stackexchange.com/questions/59525/difference-between-authpriv-and-auth#answer-59530>
+#    - syslog(3)
 SyslogFacility AUTHPRIV
 
 # INFO should be enough.  VERBOSE does not harm though.
@@ -226,7 +272,9 @@ PrintLastLog yes
 ## SFTP
 
 # Notes:
-# * Reason to enable: Ansible wants to copy files via SFTP.
+# * Reasons to enable:
+#   * `scp` uses SFTP by default, nowadays.
+#   * Ansible wants to copy files via SFTP.
 # * See also sftp-server(8).
 # * There is a difference between `internal-sftp` and `sftp-server`.
 #   See sshd_config(5).
@@ -263,4 +311,4 @@ Match Group ssh-users-pty
 #  * [CERT NZ] https://github.com/certnz/ssh_hardening/
 #  * [CERT NZ:sshd] https://github.com/certnz/ssh_hardening/blob/master/config/ssh/sshd_config
 #  * [stosb] https://stosb.com/blog/explaining-my-configs-sshd_config/
-#  * [changelog] https://www.openssh.com/releasenotes.html
+#  * [releasenotes] https://www.openssh.com/releasenotes.html
