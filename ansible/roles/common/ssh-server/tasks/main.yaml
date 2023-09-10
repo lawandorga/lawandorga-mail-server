@@ -6,6 +6,18 @@
 #    - Inbound SSH is allowed by default to avoid unwanted surprises.
 
 
+# Note:
+#  * This should not be necessary; the SSH server should have been installed
+#    before Ansible is run.
+- name: Prevent the OpenSSH server from starting on installation
+  ansible.builtin.include_tasks: apt-systemd-noautostart/pre.yaml
+  vars:
+    mask_package_name: openssh-server
+    mask_systemd_units:
+      - ssh.service
+      - sshd.service
+
+
 - name: Install OpenSSH server
   ansible.builtin.apt:
     name: openssh-server
@@ -47,6 +59,15 @@
     path: /etc/pam.d/sshd
     regexp: '^(session\s+optional\s+pam_motd.so\s)'
     replace: '#\1'
+
+
+- name: Unmask sshd.service
+  ansible.builtin.include_tasks: apt-systemd-noautostart/post.yaml
+  vars:
+    mask_package_name: openssh-server
+    mask_systemd_units:
+      - ssh.service
+      - sshd.service
 
 
 - name: Start and enable OpenSSH server
