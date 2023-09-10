@@ -6,7 +6,7 @@ Assumptions:
 
 * The disks are fully set up and the file systems mounted.
 * EFI booting.
-* Debian Buster.
+* Debian Bookworm.
     - This guide should work largely unchanged for later versions of Debian.
 
 
@@ -25,8 +25,8 @@ This in turn does not even allow for partitioning.
 ## Process
 
 We generally follow the *Debian GNU/Linux installation guide*'s section on
-[Installing Debian GNU/Linux from a Unix/Linux System](https://www.debian.org/releases/bullseye/amd64/apds03.en.html).
-(Note that this link is specific to Debian Buster.)
+[Installing Debian GNU/Linux from a Unix/Linux System](https://www.debian.org/releases/bookworm/amd64/apds03.en.html).
+(Note that this link is specific to Debian Bookworm.)
 There will be references to subsections of this guide below.
 
 Note that we use `/mnt` instead of `/mnt/debinst` as the mountpoint of our
@@ -35,7 +35,7 @@ root file system.
 The actual needed steps are listed below, in order:
 
 * `apt install debootstrap`  (c.f. D.3.2)
-* `debootstrap --variant=minbase bullseye /mnt https://deb.debian.org/debian`
+* `debootstrap --variant=minbase bookworm /mnt https://deb.debian.org/debian`
   (c.f. D.3.3)
     - `--variant=minbase`: Only packages of `Priority` `required` and their
       (transitive) dependencies are installed.
@@ -61,7 +61,7 @@ The actual needed steps are listed below, in order:
 * Configure APT.
     - `install -Tm 0644 /tmp/conf/apt/sources.list.j2 /etc/apt/sources.list`
       (c.f. D.3.4.5)
-    - `sed -Ei 's/\{\{ debian_release_codename \}\}/bullseye/g' /etc/apt/sources.list`
+    - `sed -Ei 's/\{\{ debian_release_codename \}\}/bookworm/g' /etc/apt/sources.list`
     - `install -Tm 0644 /tmp/conf/apt/10norecommends /etc/apt/apt.conf.d/10norecommends`
     - `install -Tm 0644 /tmp/conf/apt/09tempdir /etc/apt/apt.conf.d/09tempdir`
 * Configure mount points.
