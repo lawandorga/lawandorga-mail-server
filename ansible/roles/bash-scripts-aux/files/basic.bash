@@ -1,6 +1,6 @@
 # Basic bash configuration for scripts.
 
-# Copyright 2020-2022 Einhard Leichtfuß
+# Copyright 2020-2023 Einhard Leichtfuß
 
 
 ###################################
@@ -69,7 +69,7 @@ trap 'on_exit' EXIT
 # Disable globbing; set good defaults for when temporarily enabled.
 #  - `extglob` has an effect regardless.
 set -o noglob
-shopt -s nullglob dotglob globasciiranges globstar extglob
+shopt -s nullglob dotglob globasciiranges globstar extglob globskipdots
 
 # Print an error message upon `shift`-ing "too far" (causes ERR regardless).
 shopt -s shift_verbose

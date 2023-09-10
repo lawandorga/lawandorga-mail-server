@@ -37,7 +37,7 @@ HISTFILESIZE=-1         # Unlimited.
 
 
 # Globbing.
-shopt -s globasciiranges globstar extglob
+shopt -s globasciiranges globstar extglob globskipdots
 
 # Do not let `source' use PATH.
 shopt -u sourcepath
