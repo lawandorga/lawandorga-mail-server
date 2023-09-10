@@ -62,6 +62,9 @@
 #      * specific to single backup configuration: s_NAME
 #        * if combined with another prefix PREFIX: sPREFIX_NAME
 #      * auxiliary function: _NAME
+#  * restic tags (`--tag=`) must be validated (_validate_restic_tags()) before
+#    use.
+#  * This assumes restic version 0.14.0.
 
 
 
@@ -403,21 +406,42 @@ function s_lvm_snapshot_unmount()
 }
 
 
+# Check for commata in tags.
+#  - `restic` separates values to `--tag` by comma; i.e., tags must not contain
+#    commata.
+function _validate_restic_tags()
+{
+  local tag
+  for tag
+  do
+    if [[ "$tag" =~ ',' ]]
+    then
+      return 1
+    fi
+  done
+
+  return 0
+}
+
+
 function _restic()
 {
-  # Note that giving the secrets in the environment is safe, at least due to
-  # our setting hidepid=2 on /proc (see fstab configuration).
-  #  - Even otherwise, `/proc/<pid>/environ` seems to have restrictive
-  #    permissions.
-  #  - See also
-  #    - `/ansible/roles/mail/delete-old-userdata/templates/delete-old-userdata.bash.j2`
-  #    - `/ansible/roles/web/app/mail/templates/delete-old-userdata.bash.j2`
+  # Notes:
+  #  * Giving the secrets in the environment is safe, at least due to our
+  #    setting hidepid=2 on /proc (see fstab configuration).
+  #    - Even otherwise, `/proc/<pid>/environ` seems to have restrictive
+  #      permissions.
+  #    - See also
+  #      - `/ansible/roles/mail/delete-old-userdata/templates/delete-old-userdata.bash.j2`
+  #      - `/ansible/roles/web/app/mail/templates/delete-old-userdata.bash.j2`
+  #  * Disable compression because it generally weakens encryption.
   AWS_ACCESS_KEY_ID="$cfg_S3_ACCESS_KEY" \
     AWS_SECRET_ACCESS_KEY="$cfg_S3_SECRET_KEY" \
     RESTIC_PASSWORD="$cfg_RESTIC_PASSWORD" \
     restic \
     --cache-dir="$cfg_RESTIC_CACHEDIR" \
     --repo="$cfg_RESTIC_REPOSITORY" \
+    --compression=off \
     --quiet \
     "$@"
 
@@ -451,7 +475,7 @@ function restic_save_status()
 {
   [[ $# -eq 0 ]]
   _restic snapshots > "$cfg_STATUS_TMP_PATH"
-	mv -- "$cfg_STATUS_TMP_PATH" "$cfg_STATUS_PATH"
+  mv -- "$cfg_STATUS_TMP_PATH" "$cfg_STATUS_PATH"
 }
 
 
@@ -470,6 +494,8 @@ function restic_show_saved_status()
 # Check consistency and integrity.
 #  * This somewhat relies on this script being called not close to a full hour.
 #    - See crontab.
+#  * CONSIDER: Use a percentage or fixed size for `--read-data-subset=` to
+#    check randomly chosen subsets instead of fixed subsets.
 #  * Checking the actual data requires fetching data.
 #    - This is expensive, so we only check ca. 1/24 of all data at once.
 function restic_check()
@@ -489,6 +515,8 @@ function s_restic_backup_mounted_lv()
   local -a paths
   paths=( "${scfg_RELATIVE_PATHS[@]/#/"$scfg_drv_LVM_SNAPSHOT_MOUNTPOINT"\/}" )
 
+  _validate_restic_tags \
+    "name=${scfg_NAME}" "vg=${scfg_LVM_VG}" "lv=${scfg_LVM_LV}"
   _restic backup \
     --tag="name=${scfg_NAME}" \
     --tag="vg=${scfg_LVM_VG}" --tag="lv=${scfg_LVM_LV}" \
@@ -503,6 +531,7 @@ function s_restic_backup_nolvm()
   local -a paths
   paths=( "${scfg_RELATIVE_PATHS[@]/#/"$scfg_NOLVM_BASE_PATH"\/}" )
 
+  _validate_restic_tags "name=${scfg_NAME}" 'nolvm'
   _restic backup \
     --one-file-system \
     --tag="name=${scfg_NAME}" \
@@ -534,12 +563,14 @@ function s_restic_forget_old_backups()
   #  * Note: We cannot use `--keep-hourly`.
   #    - If the first hour in the period is missing a backup, it will keep the
   #      last backup from before.
+  #  * Note: We might also want to use `--keep-within-hourly`.
   local keep_hours
   keep_hours=$(( "$scfg_RETENTION_DAYS" * 24 - 2 ))
 
   # Notes:
   #  * `restic forget` never "forgets" the newest backup.
   #    - This does not matter to us; the newest backup is the one just created.
+  _validate_restic_tags "name=${scfg_NAME}"
   _restic forget \
     --tag="name=${scfg_NAME}" \
     --keep-within="${keep_hours}h" \
