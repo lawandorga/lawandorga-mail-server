@@ -3,5 +3,11 @@ server
 	listen 80;
 	server_name {{ tls_acme_domain_names | join(' ') }};
 
+	# See also `/ansible/roles/web/core/https/files/default-https.server.conf`.
+	location /
+	{
+		return 444;
+	}
+
 	include {{ tls_acme_nginx_location_config_path }};
 }
