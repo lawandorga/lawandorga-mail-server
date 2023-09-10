@@ -18,6 +18,15 @@
     state: present
 
 
+# `unbound` only "Recommends" this.
+#  - We need it for the initial `root.key`.
+#    - See `../files/unbound.conf#auto-trust-anchor-file`.
+- name: Install dns-root-data
+  ansible.builtin.apt:
+    name: dns-root-data
+    state: present
+
+
 - name: Set up auxiliary configuration directory
   ansible.builtin.file:
     path: /etc/unbound/conf
@@ -86,13 +95,15 @@
     follow: no
 
 
-- name: Install script updating the root trust anchor
+- name: Configure /etc/default/unbound
   ansible.builtin.copy:
-    src: update-root-trust-anchor.bash
-    dest: /etc/unbound/update-root-trust-anchor.bash
+    src: unbound.default
+    dest: /etc/default/unbound
     owner: root
     group: root
-    mode: '0755'
+    mode: '0644'
+  notify:
+    - 'common/dnssec-resolver : Restart Unbound'
 
 
 - name: Configure systemd service

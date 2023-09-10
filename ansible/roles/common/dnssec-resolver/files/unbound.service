@@ -1,22 +1,22 @@
-# Unbound configuration for Unbound 1.13.1 on Debian.
+# Unbound systemd service for Unbound 1.17.1 on Debian Bookworm.
 #
 # Assembled from
-#  * the Debian provided service (version 1.13.1-1),
+#  * the Debian provided service (debver 1.17.1-2.),
 #    - /usr/lib/systemd/system/unbound.service
-#  * Unbound 1.13.1 & 1.13.2
-#    - contrib/unbound.service.in'
-#    * `configure' values manually replaced (e.g, @UNBOUND_SYSCONF_DIR@)
+#  * Unbound 1.17.1
+#    - `contrib/unbound.service.in`
+#    * `configure` values manually replaced (e.g., @UNBOUND_SYSCONF_DIR@)
+#      * `@UNBOUND_CHROOT_DIR` is "" on Debian, but was replaced by
+#        `/var/lib/unbound`, our actual chroot directory.
 #    * The two versions differ only slightly w.r.t. this file.
 #  * elsewhere (see comments).
 #
 # Works in tandem with
-#  * a custom unbound.conf.
-#  * a custom script to update the root trust anchor on start, if necessary.
+#  * a custom `unbound.conf`.
 #
 # Configuration lines are marked depending on where they are from.
-#  * `Unbound upstream', unless further specified, refers to version 1.13.1.
-#  * If unmarked, a the labeled configuration is present in both the Debian
-#    provided service and the upstream Unbound configuration (1.13.1).
+#  * If unmarked, the respective configuration is present in both the Debian
+#    provided service and the upstream Unbound configuration.
 
 
 [Unit]
@@ -26,17 +26,12 @@
 Description=Unbound DNS server
 
 Documentation=man:unbound(8)
+After=network.target
 
 # Unbound upstream:
-After=network-online.target
+Before=network-online.target nss-lookup.target
 # Debian:
-#After=network.target
-
-Before=nss-lookup.target
-
-# Unbound upstream:
-Wants=network-online.target nss-lookup.target
-# Debian:
+#Before=nss-lookup.target
 #Wants=nss-lookup.target
 
 
@@ -56,32 +51,29 @@ Restart=on-failure
 # Debian:
 #EnvironmentFile=-/etc/default/unbound
 
-# Debian
-#  * Copy /etc/unbound into chroot; instead, bind-mount it
+# Debian:
+#  * Copy /etc/unbound into chroot; instead, bind-mount it.
 #  * Bind-mount /run/systemd/notify; instead, do that explicitly later on.
-#ExecStartPre=-/usr/lib/unbound/package-helper chroot_setup
+#ExecStartPre=-/usr/libexec/unbound-helper chroot_setup
 
-# Debian (Update trust anchor from `/usr/share/dns/root.key'):
-#  * Would need a prefixing `+` to work.
-#  * See also our custom script below.
-#ExecStartPre=-/usr/lib/unbound/package-helper root_trust_anchor_update
+# Debian (Update trust anchor (`root.key`) from `dns-root-data` package):
+#ExecStartPre=-/usr/libexec/unbound-helper root_trust_anchor_update
 # Custom:
-ExecStartPre=+/etc/unbound/update-root-trust-anchor.bash
+ExecStartPre=/usr/libexec/unbound-helper root_trust_anchor_update
 
-# Debian (don't daemonize, allow additional options from EnvironmentFile):
-#ExecStart=/usr/sbin/unbound -d $DAEMON_OPTS
-# Unbound upstream (don't daemonize, no pidfile):
+# Debian (allow additional options from EnvironmentFile):
+#ExecStart=/usr/sbin/unbound -d -p $DAEMON_OPTS
+# Unbound upstream:
 ExecStart=/usr/sbin/unbound -d -p
 
 # Debian:
-#ExecStopPost=-/usr/lib/unbound/package-helper chroot_teardown
+#  * See above.
+#ExecStopPost=-/usr/libexec/unbound-helper chroot_teardown
 
 ExecReload=+/bin/kill -HUP $MAINPID
 
 
-# Unbound upstream v1.13.2 (restrictions):
-#  * This is the only section where v1.13.1 and v1.13.2 differ, which is only
-#    slightly.
+# Unbound upstream:
 CapabilityBoundingSet=CAP_NET_BIND_SERVICE CAP_SETGID CAP_SETUID CAP_SYS_CHROOT CAP_SYS_RESOURCE CAP_NET_RAW
 MemoryDenyWriteExecute=true
 NoNewPrivileges=true
@@ -92,7 +84,7 @@ ProtectClock=true
 ProtectControlGroups=true
 ProtectKernelLogs=true
 ProtectKernelModules=true
-ProtectKernelTunables=true
+ProtectKernelTunables=false
 ProtectProc=invisible
 ProtectSystem=strict
 RuntimeDirectory=unbound
@@ -105,7 +97,13 @@ SystemCallFilter=~@clock @cpu-emulation @debug @keyring @module mount @obsolete 
 RestrictNamespaces=yes
 LockPersonality=yes
 RestrictSUIDSGID=yes
-ReadWritePaths=/var/lib/unbound
+
+# Unbound upstream:
+#  * `/var/lib/unbound` is already writable as `StateDirectory=`,
+#  * `/etc/unbound` is already readable as `ConfigurationDirectory=`.
+#    * Read access should suffice.
+#    * Note that the upstream macro behind this is `@UNBOUND_RUN_DIR@`.
+#ReadWritePaths=/etc/unbound /var/lib/unbound
 
 
 # Chroot.
