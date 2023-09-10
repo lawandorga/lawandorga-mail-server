@@ -1,7 +1,14 @@
 # Postfix SPF configuration
-#  - Originally written 2022-04-06 for postfix-policyd-spf-python debver
-#    2.9.2-1.
+#  - History
+#    - Originally written 2022-04-06 for postfix-policyd-spf-python debver
+#      2.9.2-1.
 #    - Reviewed 2022-11 (also debver 2.9.2-1).
+#    - Revised for debver 3.0.4-2.
+#      - Consulted:
+#        - `/usr/share/doc/postfix-policyd-spf-python/README.Debian`
+#        - `/usr/share/doc/postfix-policyd-spf-python/changelog.Debian.gz`
+#        - `/usr/share/doc/postfix-policyd-spf-python/changelog.gz`
+#        - changes in `/usr/share/doc/postfix-policyd-spf-python/policyd-spf.conf.commented.gz` (none)
 #  - See
 #    - policyd-spf.conf(5)
 #    - /usr/share/doc/postfix-policyd-spf-python/policyd-spf.conf.commented.gz
@@ -26,10 +33,10 @@ Mail_From_reject = Fail
 PermError_reject = False
 TempError_Defer = False
 
-# If "No", the receiver logged would "always be the first recipient sent by the
-# sending MTA, even if that recipient is a BCC recipient."
+# If "No", the receiver logged would "always be the host of the first recipient
+# sent by the sending MTA, even if that recipient is a BCC recipient."
 #  - Thus, "Yes", for privacy.
-#  - "Yes" is the default.
+#  - "No" is the default.
 Hide_Receiver = Yes
 
 # This must be unique.

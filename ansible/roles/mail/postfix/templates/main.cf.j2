@@ -1,4 +1,25 @@
 # Main Postfix configuration.
+#  - History
+#    - Written for postfix debver 3.5.6-1+b1 (2022-04-03--2022-06-12).
+#      - This provided a base for this configuration.
+#    - Thoroughly revised, and improved for debver 3.5.13-0+deb11u1.
+#      - This is arguably the first version of *this* configuration.
+#      - A lot of documentation read, see "List of read documentation" further
+#        below.
+#    - Revised for debver 3.7.6-0+deb12u2.
+#      - Consulted:
+#        - `/usr/share/doc/postfix/changelog.Debian.gz`
+#        - `/usr/share/postfix/main.cf.debian`
+#        - `/usr/share/postfix/main.cf.tls`
+#        - <https://www.postfix.org/announcements.html>
+#        - `/usr/share/doc/postfix/RELEASE_NOTES.gz`
+#        - RELEASE_NOTES-3.6 (from Debian source package)
+#        - `/usr/share/doc/postfix/COMPATIBILITY_README.gz`
+#        - changes in postconf(5)
+#        * See also `./spf-checker/policyd-spf.conf.j2`s "History" (3.0.4-2).
+#      - Checked all defaults claimed below.
+#    - 2023-12-30: Added mitigation for CVE-2023-51764
+#      (${smtpd_forbid_bare_newline} - new in 3.5.23 / 3.7.9).
 #  - Documentation:
 #    - /usr/share/doc/postfix/
 #    - postconf(5)
@@ -8,11 +29,6 @@
 #      - `debconf` amends these to generate a basic `main.cf`.
 #  - General e-mail documentation:
 #    - RFC 5321 (SMTP)
-#  - This configuration is based on one written for Postfix of
-#    debver 3.5.6-1+b1 (2022-04-03--2022-06-12).
-#    - It was thoroughly revised, and improved for debver 3.5.13-0+deb11u1.
-#    - 2023-12-30: Added mitigation for CVE-2023-51764
-#      (${smtpd_forbid_bare_newline} - new in 3.5.23).
 #
 
 
@@ -45,6 +61,9 @@
 #        possible related configuration settings.
 #  * Some settings left at the default value are explicitly mentioned to show
 #    their relevance.
+#  * Some defaults are specified in postconf(5), others can only be seen from
+#    `postconf -d`.
+#    - The latter defaults are always explicitly annotated as such below.
 #  * Settings documented in read _README files were generally considered more
 #    important.
 #  * All variables prefixed with `submission_` are custom variables (for SMTP
@@ -57,6 +76,8 @@
 
 
 # List of read documentation.
+#  * Generally, the documentation of debver 3.5.13-0+deb11u1 was read.
+#    - For consideration of later changes see "History" above.
 #  * Not necessarily in the given order.
 #  * Not necessarily exhaustive.
 #  - /usr/share/doc/postfix/[A-Z]+(\.gz)?
@@ -102,9 +123,16 @@
 #      recipients in that case.
 #  - smtpd_delay_open_until_valid_rcpt = no
 #  - ${smtpd_log_access_permit_actions}
+#  - ${smtp_per_request_deadline}, ${smtpd_per_request_deadline}
 #  - Performance tuning:
 #    - CONNECTION_CACHE_README
 #    - TUNING_README
+
+# TODO:
+#  - Check the effect of ${smtpd_sasl_mechanism_filter}.
+#    - On Bullseye (without this option), the server only lists PLAIN.
+#    - Possibly enable (set to "plain").
+#      - Would need Ansible variable for coordination w/ Dovecot.
 
 
 
@@ -123,8 +151,8 @@ helpful_warnings = yes
 ##################
 ## Compatibility
 
-# Recommended by /etc/postfix/main.cf.proto for fresh installations.
-compatibility_level = 2
+# This should normally be the current Postfix version number (<major>.<minor>).
+compatibility_level = 3.7
 
 backwards_bounce_logfile_compatibility = no
 
@@ -277,7 +305,7 @@ parent_domain_matches_subdomains =
 # Log hostname if "verifiable", else "unknown".  Default.
 smtpd_peername_lookup = yes
 
-# Default.  Ignored for DNSSEC lookups.
+# Default (`postconf -d`).  Ignored for DNSSEC lookups.
 smtp_cname_overrides_servername = no
 
 # `postconf -d' default.
@@ -287,6 +315,7 @@ undisclosed_recipients_header =
 # See 
 #  - /usr/share/doc/postfix-policyd-spf-python/README.Debian
 #  - policyd-spf(1)
+#  - policyd-spf.conf(5)#Lookup_Time, #Whitelist_Lookup_Time
 #  - SMTPD_POLICY_README
 #  - postconf(5):transport_time_limit
 policyd-spf_time_limit = 3600s
@@ -299,6 +328,9 @@ policyd-spf_time_limit = 3600s
 #  - This is effectively the default.
 #    - postconf(5) is contradicting itself w.r.t. to the default, though.
 smtpd_authorized_verp_clients =
+
+# Default; debatable.
+#enable_threaded_bounces = no
 
 
 
@@ -392,6 +424,9 @@ smtpd_sasl_authenticated_header = no
 ## General TLS configuration
 #
 
+# Recommended by postconf(5).
+tls_config_file = none
+
 # TLS options.
 #  - See Dovecot's `ssl.conf#ssl_options'.
 #  - postconf(5) deems "no_ticket" not needed.
@@ -402,7 +437,7 @@ tls_ssl_options = no_compression
 #    - See ${smtp_tls_mandatory_ciphers}.
 #    - See also ${submission_tls_high_cipherlist}.
 #  - It is set further below, in the Outbound TLS section.
-#tls_high_cipherlist =
+#tls_high_cipherlist
 
 # "medium" security cipherlist
 #  - This is used only for inbound TLS.
@@ -410,7 +445,8 @@ tls_ssl_options = no_compression
 #  - Intentionally left at default.
 #tls_medium_cipherlist
 
-# Elliptic curves to use for key exchange (client & server; default).
+# Elliptic curves to use for key exchange (client & server).
+#  - `postconf -d` default.
 #  - Prioritized list.
 #  - See also ${smtpd_tls_eecdh_grade}.
 #  - This includes NIST curves, whose security is somewhat debated.  [3, 3.1]
@@ -452,10 +488,12 @@ smtp_host_lookup = dns
 #  - For domains/hosts without TLSA record, encryption is opportunistic.
 #  - The "dane" security level implies the usage of "mandatory" ciphers,
 #    even though encryption is not actually mandatory.
+#  - The below claimed ${smtp_tls_dane_insecure_mx_policy} effective default
+#    assumes ${smtp_tls_security_level} = `dane`.
 #  - CONSIDER: Add per-host settings (${smtp_tls_policy_maps}).
 smtp_dns_support_level = dnssec
 smtp_tls_security_level = dane
-#smtp_tls_dane_insecure_mx_policy = dane  - default
+#smtp_tls_dane_insecure_mx_policy = dane  - effective default (`postconf -d`)
 #smtp_tls_force_insecure_host_tlsa_lookup = no  - default
 #tls_dane_digests = sha512 sha256  - default
 
@@ -472,6 +510,7 @@ smtp_tls_note_starttls_offer = yes
 #    certificates.
 #  - This file must be present in the chroot.
 #    - Handled by Debian's `/usr/lib/postfix/configure-instance.sh`.
+#    - See also `/usr/share/doc/postfix/README.Debian.gz`.
 smtp_tls_CApath = /etc/ssl/certs
 
 # Note:
@@ -507,9 +546,11 @@ smtp_tls_session_cache_database = btree:${data_directory}/smtp_scache
 #      requirements are few and generally small, for they should be deemed
 #      badly maintained.
 #      - This may be overly optimistic.
+#        - postconf(5)#smtp_tls_mandatory_protocols claims that
+#          "a few [SMTP servers with DANE TLSA records] only support TLS 1.0".
 #    - Note that this reasoning does not apply to inbound TLS.
 #      - We are unable to authenticate there.
-#      - It is the senders job to ensure proper crypto.
+#      - It is the senders' job to ensure proper crypto.
 #      - We want to accept any mail.
 #    - Notes from FORWARD_SECRECY_README:
 #      - "Exchange 2003 and likely other MTAs" excluded with "cipher grades
@@ -542,10 +583,12 @@ smtp_tls_session_cache_database = btree:${data_directory}/smtp_scache
 #     - (All TLSv1.3 ciphers are allowed regardless.)
 #     - The TLSv1.3 corresponding setting (in OpenSSL) is called ciphersuites.
 #     - There is no corresponding Postfix setting for TLSv1.3.
+#       - We could configure them using ${tls_config_file} and/or
+#         ${tls_config_name}.
 #     - That's OK; the TLSv1.3 ciphers are deemed pretty good.
-#     - If it did work, see `openssl ciphers -v -tls1_3 -s' for options.
+#     - See `openssl ciphers -v -tls1_3 -s' for options.
 # - See also ${tls_preempt_cipherlist} below.
-smtp_tls_mandatory_protocols = !SSLv2, !SSLv3, !TLSv1, !TLSv1.1
+smtp_tls_mandatory_protocols = >=TLSv1.2
 smtp_tls_mandatory_ciphers = high
 tls_high_cipherlist = HIGH+DHE:HIGH+ECDHE:@STRENGTH
 
@@ -579,7 +622,11 @@ smtpd_tls_received_header = yes
 #tls_preempt_cipherlist = yes
 
 # Elliptic curves to use for key exchange (inbound).
-#  * Use the best curve supported by both sides (default).
+#  * Note: This is effectively hard coded to "auto" in Postfix >= 3.6.
+#    - That is, this setting is ignored.
+#    - It is still referred to in several places in postconf(5) and, therefore,
+#      kept here.
+#  * Use the best curve supported by both sides (`postconf -d` default).
 #    - See ${tls_eecdh_auto_curves} above.
 #  - See also ${smtpd_tls_dh1024_param_file}.
 smtpd_tls_eecdh_grade = auto
@@ -587,8 +634,6 @@ smtpd_tls_eecdh_grade = auto
 # Use custom DH parameters.
 #  - Suggested by FORWARD_SECRECY_README.
 #  - The 1024 in the name does not mean much.
-#  - The ${smtpd_tls_dh512_param_file} is not relevant.
-#    - Would be used for "export"-grade ciphers.
 #  - Regenerated daily by a cron job.
 #    - FORWARD_SECRECY_README suggests an hourly or daily cron job.
 #    - See `ansible/roles/tls/dhparams/`.
@@ -598,6 +643,10 @@ smtpd_tls_eecdh_grade = auto
 #      bit DH params.
 #    - FORWARD_SECRECY_README: Uses 2048.
 #    - Rec. 4096: https://www.kuketz-blog.de/postfix-ecdsa-rsa-keys-und-tls-konfiguration/
+#  - CONSIDER: Use `auto` (or the equivalent default ``) instead.
+#    - "custom local parameters are no longer recommended when using Postfix
+#      >= 3.7 built against OpenSSL 3.0.0"
+#      - postconf(5)#smtpd_tls_dh1024_param_file
 smtpd_tls_dh1024_param_file = {{ tls_dhparams_path }}
 
 
@@ -615,7 +664,7 @@ smtpd_tls_dh1024_param_file = {{ tls_dhparams_path }}
 #    and ${tls_high_cipherlist} above.
 #  - CONSIDER: Disallow more old protocols (TLSv1, TLSv1.1).
 #    - See also: ${smtp_tls_mandatory_protocols}.
-#smtpd_tls_protocols = !SSLv2, !SSLv3
+#smtpd_tls_protocols = >=TLSv1
 #smtpd_tls_ciphers = medium
 
 
@@ -632,7 +681,7 @@ smtpd_tls_dh1024_param_file = {{ tls_dhparams_path }}
 #  - See also ${tls_high_cipherlist} above.
 #  - PFS.
 #    - TLSv1.3 enforces PFS.
-smtpd_tls_mandatory_protocols = !SSLv2, !SSLv3, !TLSv1, !TLSv1.1, !TLSv1.2
+smtpd_tls_mandatory_protocols = >=TLSv1.3
 smtpd_tls_mandatory_ciphers = high
 
 
@@ -661,7 +710,7 @@ smtpd_tls_mandatory_ciphers = high
 #    - Require TLS1.2 or later.
 #    - Enforce PFS (for TLS1.2) via the cipher list.
 #  - See also the generic (unused) "mandatory" TLS settings.
-submission_tls_mandatory_protocols = !SSLv2, !SSLv3, !TLSv1, !TLSv1.1
+submission_tls_mandatory_protocols = >=TLSv1.2
 submission_tls_mandatory_ciphers = high
 
 # (submission) Concrete ciphers to use.
@@ -858,7 +907,7 @@ expand_owner_alias = no
 #    - RCPT TO: any virtual account or alias
 
 
-# Require adhering to certain bits of the SMTP protocol (RFC 5321).
+# Require adhering to certain bits of the SMTP protocol (RFC 5321, i.a.).
 
 # Require HELO (as does RFC 5321).
 smtpd_helo_required = yes
@@ -874,6 +923,12 @@ smtpd_helo_required = yes
 #    - Default.
 smtpd_forbid_bare_newline = yes
 smtpd_forbid_bare_newline_exclusions = $mynetworks
+
+# Notes:
+#  * Future default (Postfix >= 3.9).
+#  * Possibly overlapping with or superseding our use of
+#    `reject_unauth_pipelining` in ${smtpd_data_restrictions}.
+smtpd_forbid_unauth_pipelining = yes
 
 
 # Reject "unlisted" recipients (enabled) / senders (disabled).
@@ -1024,6 +1079,10 @@ smtpd_sender_login_maps =
 	pgsql:{{ mail_postfix_maps_dir }}/postmaster-aliases.pgsql.cf,
 	pgsql:{{ mail_postfix_maps_dir }}/sender-to-login.pgsql.cf
 
+# Effectively the (`postconf -d`) default
+# (assuming ${compatibility_level} >= 3.6).
+smtpd_relay_before_recipient_restrictions = yes
+
 # Evaluated after RCPT TO, before ${smtpd_recipient_restrictions}.
 # Standard configuration to not be an open relay.
 #  - See also: ${relay_domains}.
@@ -1069,11 +1128,13 @@ smtpd_recipient_restrictions =
 	reject_non_fqdn_recipient,
 	reject_unknown_recipient_domain,
 	permit_mynetworks,
-	permit_sasl_authenticated
+	permit_sasl_authenticated,
 	check_policy_service unix:private/policyd-spf
 
 # This rejects mail if at any point until the DATA command, illegal pipelining
 # was detected.
+#  - Possibly overlapping with or superseded by our enabling
+#    ${smtpd_forbid_unauth_pipelining}.
 #  - Reason for checking this (only) at DATA:
 #    - The SMTPD_ACCESS_README has this as example.
 #    - Preceding commands are (usually?) short, this one is usually followed

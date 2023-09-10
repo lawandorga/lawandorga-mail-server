@@ -1,6 +1,11 @@
 ---
 mail_postfix_myhostname: '{{ fqdn }}'
 
+# Note:
+#  * This value must not exceed LONG_MAX
+#    - See postconf(5)#message_size_limit.
+#    - Assuming LONG_MAX = 2^31-1, that's 2GiB - 1B.
+#
 # 32 MiB
 mail_postfix_message_size_limit: 33554432
 ...

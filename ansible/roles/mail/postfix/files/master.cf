@@ -1,4 +1,13 @@
 # Postfix master(5) configuration file.
+#  - History
+#    - Written for postfix debver 3.5.13-0+deb11u1.
+#      - Influenced by configuration written for older versions.
+#    - Reviewed for debver 3.7.6-0+deb12u2.
+#      - Consulted:
+#        - changes in `/usr/share/postfix/master.cf.dist`
+#        - changes in master(5)
+#        * See also `../templates/main.cf.j2`s "History".
+#      - No change made.
 #  - See
 #    - master(5),
 #    - `/usr/share/postfix/master.cf.dist`.
