@@ -5,7 +5,7 @@
 - name: Prevent Nginx from starting on installation
   ansible.builtin.include_tasks: apt-systemd-noautostart/pre.yaml
   vars:
-    mask_package_name: nginx-light
+    mask_package_name: nginx
     mask_systemd_units:
       - nginx.service
 
@@ -13,7 +13,7 @@
 - name: Install nginx
   ansible.builtin.apt:
     name:
-      - nginx-light
+      - nginx
       - nginx-doc
 
 
@@ -79,7 +79,7 @@
 - name: Unmask nginx.service
   ansible.builtin.include_tasks: apt-systemd-noautostart/post.yaml
   vars:
-    mask_package_name: nginx-light
+    mask_package_name: nginx
     mask_systemd_units:
       - nginx.service
 

@@ -47,11 +47,9 @@ http
 	#  - We log to syslog, so not timestamp needed.
 	#  - Based on the default "combined" format.
 	#    - Added $host, removed $time_local.
-	#  - We'd also like to log $ssl_cipher, but this is only supported since
-	#    nginx version 1.21.5.
 	log_format custom_syslog
 		'$host $remote_addr $remote_user '
-		'$ssl_protocol/$ssl_cipher '
+		'$ssl_protocol/$ssl_cipher/$ssl_curve '
 		'"$request" $status $body_bytes_sent '
 		'"$http_referer" "$http_user_agent"';
 
