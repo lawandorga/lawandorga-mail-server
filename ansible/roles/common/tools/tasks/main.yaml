@@ -21,8 +21,8 @@
     mode: '0644'
 
 
-- name: Configure mlocate
-  ansible.builtin.include_tasks: mlocate.yaml
+- name: Configure locate
+  ansible.builtin.include_tasks: locate.yaml
 
 
 # Notes:

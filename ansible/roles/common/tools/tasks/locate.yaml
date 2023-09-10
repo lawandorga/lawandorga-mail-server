@@ -1,0 +1,21 @@
+---
+# Notes:
+#  * The Debian default updatedb.conf has no PRUNENAMES enabled, but a
+#    commented suggestion, listing several VCS dotpaths (e.g., `.git`).
+#    * CONSIDER: Follow this suggestion.
+
+
+- name: locate - Configure prune paths
+  ansible.builtin.lineinfile:
+    path: /etc/updatedb.conf
+    regexp: '^PRUNEPATHS=.*'
+    line: 'PRUNEPATHS="{{ locate_prunepaths }}"'
+
+
+- name: locate - Append ramfs to PRUNEFS
+  ansible.builtin.lineinfile:
+    path: /etc/updatedb.conf
+    regexp: '^PRUNEFS="(.*?)(\s+ramfs)?"\s*$'
+    line: 'PRUNEFS="\1 ramfs"'
+    backrefs: yes
+...

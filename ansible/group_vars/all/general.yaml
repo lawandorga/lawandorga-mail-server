@@ -35,7 +35,7 @@ pkgs_tools_extra:
 
 
 # See also the fstab configuration / the disk setup.
-mlocate_prunepaths: "/tmp /tmps /var/tmp /mnt /var/spool"
+locate_prunepaths: "/tmp /tmps /var/tmp /mnt /var/spool"
 
 
 # This depends on the fstab configuration / the disk setup (TODO).

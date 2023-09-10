@@ -20,7 +20,7 @@ pkgs_tools_standard:
 
   # Finding stuff.
   - findutils         # (Priority: required)
-  - mlocate
+  - plocate
 
   # Calculators.
   - dc
