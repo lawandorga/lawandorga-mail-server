@@ -35,8 +35,8 @@
 - name: Install Lua for OpenDKIM
   ansible.builtin.apt:
     name:
-      - lua5.3
-      - lua-sql-postgres    # Requires lua <= 5.3, as of version 2.3.4-1.1.
+      - lua5.4
+      - lua-sql-postgres    # Requires lua <= 5.4, as of version 2.6.0-2.
     state: present
 
 
