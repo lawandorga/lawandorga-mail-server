@@ -30,9 +30,7 @@ log_debug =
 #  - Add info on negotiated TLS cipher (like Postfix).
 #  - Add `auth_user`.  This is relevant for "master" user login.
 #  - Otherwise default.
-#  - We use the short names %m, %r, %l instead of %{mechanism}, %{remote_ip},
-#    %{local_ip}, for the latter are only valid by version 2.3.14.
-login_log_format_elements = user=<%{user}> auth_user=<%{auth_user}> method=%m rip=%r lip=%l mpid=%{mail_pid} %{secured} %{ssl_security} session=<%{session}>
+login_log_format_elements = user=<%{user}> auth_user=<%{auth_user}> method=%{mechanism} rip=%{remote_ip} lip=%{local_ip} mpid=%{mail_pid} %{secured} %{ssl_security} session=<%{session}>
 
 # IMAP logout log format.
 #  - This is relevant for privacy.

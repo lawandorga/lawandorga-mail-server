@@ -11,8 +11,6 @@
 #  - OpenSSH's crypto settings.
 
 # Notes:
-#  * Proper support (of configuration) for TLSv1.3 only by version 2.3.15.
-#    - current debver: 1:2.3.13+dfsg1-2+deb11u1
 #  * Compare the settings for SMTP submission in Postfix's `main.cf`.
 #    - Like there, we want relatively restrictive settings.
 
@@ -32,16 +30,14 @@ ssl_key = <{{ tls_key_dir }}/rsa.key.pem
 
 
 # We would like to have TLSv1.3 (only).
-#  - Problem 1: Dovecot cannot (yet) be configured to require >= TLS1.3.
-#  - Problem 2: Some clients that we want to support do not support TLS1.3.
+#  - Problem: Some clients that we want to support do not support TLS1.3.
 #    - See Postfix's `main.cf#submission_tls_mandatory_protocols`.
 #ssl_min_protocol = TLSv1.3
 ssl_min_protocol = TLSv1.2
 
 
 # TLSv1.3 ciphers.
-#  - We would not restrict these, the TLS 1.3 ciphers are all deemed quite
-#    good.
+#  - We do not restrict these, the TLS 1.3 ciphers are all deemed quite good.
 #    - See also Postfix's `main.cf#submission_tls_high_cipherlist`.
 #ssl_cipher_suites =
 

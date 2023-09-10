@@ -1,5 +1,17 @@
 # Dovecot configuration.
 #
+# * History
+#   * Note: This applies to all Dovecot configuration files.
+#   - Written for Dovecot 2.3.13 (debver 1:2.3.13+dfsg1-2+deb11u1).
+#     - Somewhat influenced by configuration written for earlier versions.
+#   - Revised for debver 1:2.3.19.1+dfsg1-2.1.
+#     - Consulted:
+#       - `/usr/share/doc/dovecot-core/changelog.Debian.gz`
+#       - `/usr/share/doc/dovecot-core/NEWS.Debian.gz` (nothing)
+#       - `/usr/share/doc/dovecot-core/NEWS.gz`
+#         - This is a (terse) changelog.
+#       - changes in `/etc/dovecot/` (few)
+#       - on-line documentation, where referred to in the changelog
 # * Documentation:
 #   - <https://doc.dovecot.org/>
 #     - Individual settings: <https://doc.dovecot.org/settings/>
@@ -13,7 +25,7 @@
 #     - This has not been consulted much.
 #   - `/usr/share/doc/dovecot-core/README.Debian`
 #   - The default configuration files at `/etc/dovecot/`.
-#     - Note that we override the main `dovecot.conf` file.
+#     - Note that we overwrite the main `dovecot.conf` file.
 
 
 # General notes:
