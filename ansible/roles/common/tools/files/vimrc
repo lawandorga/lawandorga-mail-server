@@ -1,14 +1,24 @@
 " Vim configuration.
 "
-" Sources of inspiration:
-"  - /usr/share/vim/vim82/defaults.vim
-"    (debver 2:8.2.2434-3; alleged last change '2020 Sep 30')
-"    - I ignored some more complex settings; they seemed not that important
-"      and I was lazy.
-"  - Debian's default /etc/vim/vimrc (debver 2:8.2.2434-3+deb11u1)
+" History
+"  - Written for debver 2:8.2.2434-3[+deb11u1].
+"    * Some configuration may have been originally written for earlier
+"      versions.
+"    - Sources of inspiration:
+"      - /usr/share/vim/vim82/defaults.vim
+"        (debver 2:8.2.2434-3; alleged last change '2020 Sep 30')
+"        - I ignored some more complex settings; they seemed not that important
+"          and I was lazy.
+"      - Debian's default /etc/vim/vimrc (debver 2:8.2.2434-3+deb11u1)
+"  - Revised for debver 2:9.0.1378-2.
+"    - Consulted:
+"      - `:help vim-9` (excluding `patches-9`)
+"        - Lists all changes from 8.2.0 until 9.0.
+"      - changes in `/usr/share/vim/vim<VERSION>/defaults.vim`
+"      - changes in Debian's default `/etc/vim/vimrc`
 " Further potential sources of inspiration:
-"  - /usr/share/vim/vim82/vimrc_example.vim
-"  - /usr/share/vim/vim82/*.vim
+"  - /usr/share/vim/vim<VERSION>/vimrc_example.vim
+"  - /usr/share/vim/vim<VERSION>/*.vim
 
 " Source $VIMRUNTIME/debian.vim (more or less Debian specific settings).
 runtime! debian.vim
@@ -53,12 +63,23 @@ set textwidth=78
 set background=dark
 
 
+" Allow backspacing over autoindent, linebreak, the start of insert.
+"  - "CTRL-W and CTRL-U stop once at the start of insert" - :help 'backspace'
+"    - alt: `nostop` (instead of `start`)
+set backspace=indent,eol,start
+
+
 " Jump to the last position when reopening a file (from Debian's /etc/vimrc).
 au BufReadPost * if line("'\"") > 1 && line("'\"") <= line("$") | exe "normal! g'\"" | endif
 
 
-" Better command-line completion
+" Better & fancier insert mode completion.
+"  - At least "longest" is a matter of taste.
+set completeopt=menu,preview,longest
+
+" Better & fancier command-line completion.
 set wildmenu
+set wildoptions=pum
 
 " Always show status line.
 set laststatus=2
