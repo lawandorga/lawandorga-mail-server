@@ -6,8 +6,9 @@ pkgs_base_system_other_standard:
   - apparmor
   
   # Package desc.:
-  #  * "Basic TCP/IP networking system",
-  #  * "... supplies ... /etc/services, /etc/rpc, and /etc/protocols."
+  #  * "... necessary infrastructure for basic TCP/IP based networking.",
+  #  * "... supplies ... /etc/services, /etc/rpc, /etc/protocols and
+  #    /etc/ethertypes."
   - netbase
 
   # Recommended by: initramfs-tools-core (transitive dep. of kernel package)
@@ -16,8 +17,10 @@ pkgs_base_system_other_standard:
   - busybox
 
   # Recommended by: initramfs-tools-core (transitive dep. of kernel package)
-  #  - This should speed up the initramfs compression (and, thus, creation).
-  - pigz
+  #  - This should decrease the initrd size and/or speed up its
+  #    [de-]compression.
+  #  - Until Debian 11, pigz was "Recommended" instead.
+  - zstd
 
   # Rotate log files.
   - logrotate

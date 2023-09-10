@@ -35,5 +35,5 @@ tmpfs  /tmps/apt  tmpfs  rw,size=20%,nosuid,nodev,mode=0700  0 0
 
 # Hide /proc/[pid] from other users (except root)--see proc(5).
 #  - The default options are the same except `hidepid`
-#    (Debian 11; 2022-09-20).
+#    (Debian 11, 2022-09-20; also Debian 12.1 2023-09-06).
 proc  /proc  proc  rw,relatime,nosuid,nodev,noexec,hidepid=2  0 0
