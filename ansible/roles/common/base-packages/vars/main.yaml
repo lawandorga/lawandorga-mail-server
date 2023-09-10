@@ -27,6 +27,7 @@ pkgs_base_system_other_standard:
 
   # Some packages need this for proper logging.
   #  - Notably, `postfix`.
+  #    - TODO: Check whether still true for Debian Bookworm.
   - rsyslog
 
   # Some packages install cron jobs that would otherwise never be executed.
