@@ -25,17 +25,6 @@
   ansible.builtin.include_tasks: dovecot-config.yaml
 
 
-- name: Configure firewall
-  ansible.builtin.copy:
-    src: ports.nft
-    dest: '{{ nftables_custom_conf_dir }}/ports-dovecot.nft'
-    owner: root
-    group: root
-    mode: '0644'
-  notify:
-    - 'common/firewall : Reload nftables'
-
-
 - name: Configure kernel parameters
   ansible.builtin.copy:
     src: sysctl.conf
@@ -93,4 +82,15 @@
     name: dovecot
     enabled: yes
     state: started
+
+
+- name: Configure firewall
+  ansible.builtin.copy:
+    src: ports.nft
+    dest: '{{ nftables_custom_conf_dir }}/ports-dovecot.nft'
+    owner: root
+    group: root
+    mode: '0644'
+  notify:
+    - 'common/firewall : Reload nftables'
 ...

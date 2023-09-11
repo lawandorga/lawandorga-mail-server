@@ -57,17 +57,6 @@
   ansible.builtin.include_tasks: opendkim.yaml
 
 
-- name: Configure firewall
-  ansible.builtin.copy:
-    src: ports.nft
-    dest: '{{ nftables_custom_conf_dir }}/ports-postfix.nft'
-    owner: root
-    group: root
-    mode: '0644'
-  notify:
-    - 'common/firewall : Reload nftables'
-
-
 - name: Unmask postfix.service
   ansible.builtin.include_tasks: apt-systemd-noautostart/post.yaml
   vars:
@@ -86,6 +75,17 @@
     name: postfix
     enabled: yes
     state: started
+
+
+- name: Configure firewall
+  ansible.builtin.copy:
+    src: ports.nft
+    dest: '{{ nftables_custom_conf_dir }}/ports-postfix.nft'
+    owner: root
+    group: root
+    mode: '0644'
+  notify:
+    - 'common/firewall : Reload nftables'
 
 
 - name: Configure backup

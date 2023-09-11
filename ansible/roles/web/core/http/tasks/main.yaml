@@ -65,17 +65,6 @@
     - 'web/core/http : Reload nginx'
 
 
-- name: Open HTTP ports
-  ansible.builtin.copy:
-    src: ports.nft
-    dest: '{{ nftables_custom_conf_dir }}/ports-http.nft'
-    owner: root
-    group: root
-    mode: '0644'
-  notify:
-    - 'common/firewall : Reload nftables'
-
-
 - name: Unmask nginx.service
   ansible.builtin.include_tasks: apt-systemd-noautostart/post.yaml
   vars:
@@ -89,4 +78,15 @@
     name: nginx
     enabled: yes
     state: started
+
+
+- name: Open HTTP ports
+  ansible.builtin.copy:
+    src: ports.nft
+    dest: '{{ nftables_custom_conf_dir }}/ports-http.nft'
+    owner: root
+    group: root
+    mode: '0644'
+  notify:
+    - 'common/firewall : Reload nftables'
 ...
