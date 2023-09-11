@@ -1,4 +1,11 @@
 ---
+- name: Apply kernel parameters
+  ansible.builtin.command:
+    argv:
+      - sysctl
+      - '--load={{ mail_dovecot_sysctl_conf_path }}'
+
+
 - name: Reload Dovecot
   ansible.builtin.service:
     name: dovecot
@@ -10,11 +17,4 @@
   ansible.builtin.service:
     name: dovecot
     state: restarted
-
-
-- name: Apply kernel parameters
-  ansible.builtin.command:
-    argv:
-      - sysctl
-      - '--load={{ mail_dovecot_sysctl_conf_path }}'
 ...

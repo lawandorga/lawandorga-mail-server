@@ -29,8 +29,13 @@
     group: root
     mode: '0644'
     validate: "findmnt --verify --tab-file '%s'"
-  notify:
-    - 'common/base : Mount all filesystems'
+  register: _reg_common_base_configure_fstab
+
+
+- name: Mount all filesystems
+  ansible.builtin.command:
+    cmd: 'mount --all'
+  when: _reg_common_base_configure_fstab.changed
 
 
 # Notes:

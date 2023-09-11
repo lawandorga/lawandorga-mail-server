@@ -76,6 +76,11 @@
       - postfix.service
 
 
+# Ensure TLS certificates and DH parameters are set up.
+- name: Flush handlers
+  ansible.builtin.meta: flush_handlers
+
+
 - name: Start and enable Postfix
   ansible.builtin.service:
     name: postfix

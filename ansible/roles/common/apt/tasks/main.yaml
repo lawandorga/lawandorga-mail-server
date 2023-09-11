@@ -28,8 +28,7 @@
     owner: root
     group: root
     mode: '0644'
-  notify:
-    - 'common/apt : update'
+  register: _reg_common_apt_configure_apt_sources
 
 
 - name: Configure APT not to install recommended packages
@@ -49,6 +48,12 @@
     owner: root
     group: root
     mode: '0644'
+
+
+- name: Update APT cache
+  ansible.builtin.apt:
+    update_cache: yes
+  when: _reg_common_apt_configure_apt_sources.changed
 
 
 - name: Set up Apticron

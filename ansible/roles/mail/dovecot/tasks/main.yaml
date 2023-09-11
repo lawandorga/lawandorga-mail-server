@@ -83,6 +83,11 @@
       - dovecot.service
 
 
+# Ensure TLS certificates are set up.
+- name: Flush handlers
+  ansible.builtin.meta: flush_handlers
+
+
 - name: Start and enable Dovecot
   ansible.builtin.service:
     name: dovecot

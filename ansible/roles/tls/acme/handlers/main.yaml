@@ -5,9 +5,14 @@
       - '{{ tls_acme_script_path }}'
       - '--force-new'
 
-# This should happen after updating the staging certificate.
-#  - I.e., it should be listed below that (and always triggered in tandem).
-#  - This should not be run too often; there are rate limits in place.
+# Note:
+#  * This handler should always be notified in tandem with
+#    "Force certificate update (staging)".
+#    - We want to test any change to our configuration in the staging
+#      enviroment first.
+#      - Notably, this helps avoid hitting the rate limits.
+#    - The order these handlers are defined in ensures they are run in the
+#      correct order.
 - name: Force certificate update
   ansible.builtin.command:
     argv:

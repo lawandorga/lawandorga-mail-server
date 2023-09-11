@@ -1,5 +1,0 @@
----
-- name: Mount all filesystems
-  ansible.builtin.command:
-    cmd: 'mount --all'
-...

@@ -1,12 +1,12 @@
 ---
+- name: daemon-reload
+  ansible.builtin.service:
+    daemon_reload: yes
+
 - name: Restart journald
   ansible.builtin.service:
     name: systemd-journald
     state: restarted
-
-- name: daemon-reload
-  ansible.builtin.service:
-    daemon_reload: yes
 
 - name: Create tmpfiles
   ansible.builtin.command:
