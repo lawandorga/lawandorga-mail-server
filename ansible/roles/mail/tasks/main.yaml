@@ -1,0 +1,63 @@
+---
+# Final configuration for the mail system.
+#  - Most configuration is done by the roles we depend upon.
+#  - Due to the mutual dependency between `mail/dovecot` and `mail/postfix`, we
+#    have to perform some steps after both are fully configured.
+#    - Note that we do not declare either dependency in Ansible.
+#    - See also:
+#      - `/ansible/roles/mail/postfix/meta/main.yaml`
+#      - `/ansible/roles/mail/dovecot/meta/main.yaml`
+#  - We deliberately start Dovecot before Postfix.
+#    - Dovecot can run independently, Postfix wants to deliver mail to
+#      Dovecot.
+
+
+# Ensure TLS certificates and DH parameters are set up.
+- name: Flush handlers
+  ansible.builtin.meta: flush_handlers
+
+
+- name: Start and enable Dovecot
+  ansible.builtin.service:
+    name: dovecot
+    enabled: yes
+    state: started
+
+
+- name: Configure firewall for Dovecot
+  ansible.builtin.copy:
+    src: ports-dovecot.nft
+    dest: '{{ nftables_custom_conf_dir }}/ports-dovecot.nft'
+    owner: root
+    group: root
+    mode: '0644'
+  notify:
+    - 'common/firewall : Reload nftables'
+
+
+- name: Start and enable Postfix
+  ansible.builtin.service:
+    name: postfix
+    enabled: yes
+    state: started
+
+
+- name: Configure firewall for Postfix
+  ansible.builtin.copy:
+    src: ports-postfix.nft
+    dest: '{{ nftables_custom_conf_dir }}/ports-postfix.nft'
+    owner: root
+    group: root
+    mode: '0644'
+  notify:
+    - 'common/firewall : Reload nftables'
+
+
+- name: Configure backup for Postfix
+  ansible.builtin.template:
+    src: postfix-queue.backup.conf.bash.j2
+    dest: '{{ backup_config_dir }}/postfix-queue.conf.bash'
+    owner: root
+    group: root
+    mode: '0644'
+...

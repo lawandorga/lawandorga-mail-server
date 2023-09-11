@@ -1,5 +1,6 @@
 ---
 # Postfix configuration.
+#  - See also `/ansible/roles/mail/tasks/main.yaml`.
 
 
 - name: Prevent Postfix from starting on installation
@@ -63,36 +64,4 @@
     mask_package_name: postfix
     mask_systemd_units:
       - postfix.service
-
-
-# Ensure TLS certificates and DH parameters are set up.
-- name: Flush handlers
-  ansible.builtin.meta: flush_handlers
-
-
-- name: Start and enable Postfix
-  ansible.builtin.service:
-    name: postfix
-    enabled: yes
-    state: started
-
-
-- name: Configure firewall
-  ansible.builtin.copy:
-    src: ports.nft
-    dest: '{{ nftables_custom_conf_dir }}/ports-postfix.nft'
-    owner: root
-    group: root
-    mode: '0644'
-  notify:
-    - 'common/firewall : Reload nftables'
-
-
-- name: Configure backup
-  ansible.builtin.template:
-    src: backup.conf.bash.j2
-    dest: '{{ backup_config_dir }}/postfix-queue.conf.bash'
-    owner: root
-    group: root
-    mode: '0644'
 ...

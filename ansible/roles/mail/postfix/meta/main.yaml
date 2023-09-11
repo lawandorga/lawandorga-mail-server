@@ -1,7 +1,15 @@
 ---
+# Note:
+#  * There is additionally an undeclared mutual dependency between
+#    `mail/dovecot` and `mail/postfix`.
+#    - This role's dependency on `mail/dovecot` is due to using Dovecot for
+#      authentication and mail delivery.
+#      - See `templates/main.cf.j2`.
+#    - See also `/ansible/roles/mail/tasks/main.yaml`.
+
+
 dependencies:
   - role: mail/common
-  - role: mail/dovecot
   - role: database-access
   - role: tls/dhparams
   - role: tls/acme

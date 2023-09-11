@@ -1,4 +1,8 @@
 ---
+# Dovecot configuration.
+#  - See also `/ansible/roles/mail/tasks/main.yaml`.
+
+
 - name: Prevent Dovecot from starting on installation
   ansible.builtin.include_tasks: apt-systemd-noautostart/pre.yaml
   vars:
@@ -70,27 +74,4 @@
     mask_package_name: dovecot-core
     mask_systemd_units:
       - dovecot.service
-
-
-# Ensure TLS certificates are set up.
-- name: Flush handlers
-  ansible.builtin.meta: flush_handlers
-
-
-- name: Start and enable Dovecot
-  ansible.builtin.service:
-    name: dovecot
-    enabled: yes
-    state: started
-
-
-- name: Configure firewall
-  ansible.builtin.copy:
-    src: ports.nft
-    dest: '{{ nftables_custom_conf_dir }}/ports-dovecot.nft'
-    owner: root
-    group: root
-    mode: '0644'
-  notify:
-    - 'common/firewall : Reload nftables'
 ...

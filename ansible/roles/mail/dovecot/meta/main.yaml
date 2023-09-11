@@ -1,4 +1,13 @@
 ---
+# Note:
+#  * There is additionally an undeclared mutual dependency between
+#    `mail/dovecot` and `mail/postfix`.
+#    - This role's dependency on `mail/postfix` is due to its using the
+#      `postfix` user.
+#      - See `templates/dovecot/services.conf.j2`.
+#    - See also `/ansible/roles/mail/tasks/main.yaml`.
+
+
 dependencies:
   - role: mail/common
   - role: database-access
