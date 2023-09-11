@@ -13,8 +13,8 @@
     - name: Configure LVM backup & archive directories
       ansible.builtin.replace:
         path: /etc/lvm/lvm.conf
-        regexp: '^(\s*(backup|archive)_dir)\s*=\s*.*$'
-        replace: '\1 = "{{ lvm_state_dir }}/\2"'
+        regexp: '^(\s*)(#\s*)?((backup|archive)_dir)\s*=\s*.*$'
+        replace: '\1\3 = "{{ lvm_state_dir }}/\4"'
       register: lvmconf_backup_archive_dir
 
     - name: Create LVM state directory
