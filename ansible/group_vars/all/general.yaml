@@ -1,10 +1,6 @@
 ---
 timezone: Etc/UTC
 
-# Use local Unbound resolver.
-#  - It verifies DNSSEC, so trust that.
-resolv_conf_content: "nameserver 127.0.0.1\noptions trust-ad\n"
-
 apt_sources_list_template: ../conf/apt/sources.list.j2
 
 debian_release_codename: bookworm

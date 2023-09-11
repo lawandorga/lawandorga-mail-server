@@ -137,6 +137,19 @@
     state: started
 
 
+# Configuration of resolv.conf must happen after Unbound is started.
+#  - Changes to `resolv.conf` take immediate effect.
+#    - I.e., network resolution would not work.
+#      - Notably, we would not be able not install packages.
+- name: Configure resolv.conf
+  ansible.builtin.copy:
+    content: "nameserver 127.0.0.1\noptions trust-ad\n"
+    dest: /etc/resolv.conf
+    owner: root
+    group: root
+    mode: '0644'
+
+
 # Notes:
 #  * This service, if active, might overwrite /etc/resolv.conf.
 #  * It would only ever start if resolvconf were installed.

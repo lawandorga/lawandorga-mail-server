@@ -1,5 +1,7 @@
 ---
 # Network configuration using ifupdown.
+#  * Note that this does not configure resolv.conf (DNS).
+#    - See the `common/dnssec-resolver` role.
 
 
 - name: Install ifupdown
@@ -33,13 +35,4 @@
     validate: "ifup --all --no-act --force --interfaces='%s'"
   notify:
     - 'common/network : Restart ifupdown'
-
-
-- name: Configure nameserver
-  ansible.builtin.copy:
-    content: '{{ resolv_conf_content }}'
-    dest: /etc/resolv.conf
-    owner: root
-    group: root
-    mode: '0644'
 ...
