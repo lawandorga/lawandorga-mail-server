@@ -2,4 +2,10 @@
 dependencies:
   - role: common/base
   - role: common/readonly-root
+
+  # TODO: This dependency should not exist.
+  #  - "common" roles should not depend on non "common" ones.
+  #    - See `/ansible/roles/common/meta/main.yaml`.
+  #  - It is arguably OK, for the `mail/common` role only defines variables.
+  - role: mail/common
 ...
