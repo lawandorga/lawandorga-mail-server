@@ -85,7 +85,7 @@ visible as `/dev/sda` on the machine.
     * Let `/dev/vdXN` be a partition to install LVM on.
     * Let *VGNAME* be the name of the volume group.
     * `pvcreate /dev/vdXN`
-    * `vgcreate main /dev/vdXN`
+    * `vgcreate VGNAME /dev/vdXN`
     * For each LV *NAME* of size *SIZE*:
         - `lvcreate -n NAME -L SIZE VGNAME`
         - `mkfs.ext4 -L NAME /dev/VGNAME/NAME`
