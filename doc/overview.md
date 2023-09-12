@@ -11,3 +11,8 @@ The mail server is set up as follows.
         * However, omitting DKIM `TXT` records will result in signatures with
           an unconfigured key, which may be deemed bad \[by recipients\].
 4. [The mail server is fully configured using Ansible.](/doc/ansible.md)
+
+
+## Upgrade
+
+* [Upgrade to a new Debian release](/doc/upgrade.md)
