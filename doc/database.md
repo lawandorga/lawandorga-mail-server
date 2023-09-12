@@ -16,10 +16,11 @@ The database is set up as follows, via Scaleway.
 2. Set up database tables via the [Law&Orga backend](https://github.com/lawandorga/lawandorga-backend-service).
 3. Set up a private network.
     1. To the database server, add a new private network
-       `lawandorga-mail-server-db`, with IP address `10.25.0.2/30`.
+       `lawandorga-mail-server-db`.
     2. Add the mail server to the private network.
     3. Adjust the Ansible configuration.
-        1. Adjust the TCP port in [`hosts.yaml`](/ansible/hosts.yaml).
+        1. Adjust the IP addresses and the database's TCP port in
+           [`hosts.yaml`](/ansible/hosts.yaml).
         2. Configure the `secret_database_password` variable as a
            [secret](/doc/ansible/secrets.md).
 
