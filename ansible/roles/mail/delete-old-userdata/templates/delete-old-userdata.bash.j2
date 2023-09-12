@@ -151,6 +151,7 @@ function error()
 
 # See also
 #  - `/ansible/roles/web/app/mail/templates/delete-old-userdata.bash.j2#_psql()`
+#  - `/ansible/roles/web/app/mail/vars/main.yaml#web_app_mail_psql_argv`
 function get_dirs_from_db()
 {
   tmpfiles[dirs-db-unsorted]="$(umask 077; mktemp -t tmp.XXXXXX)"
@@ -170,6 +171,7 @@ function get_dirs_from_db()
     --no-password \
     --no-psqlrc \
     --no-readline \
+    --set='ON_ERROR_STOP=on' \
     --echo-errors \
     --quiet \
     --tuples-only --no-align \

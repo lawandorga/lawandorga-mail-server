@@ -1,0 +1,34 @@
+---
+# Initialize database.
+#  - See `/usr/share/doc/roundcube-core/README.Debian.gz`.
+#  - NOTE: This does not handle upgrades.
+#    - See `/doc/upgrade/roundcube.md`.
+#  - Note: We could also have debconf handle this problem for us.
+#    - See also `/doc/upgrade/roundcube.md`.
+
+
+- name: Install PostgreSQL client
+  ansible.builtin.apt:
+    name: postgresql-client
+    state: present
+
+
+- name: Check whether database already initialized
+  ansible.builtin.command:
+    argv: "{{ web_app_mail_psql_argv + ['--command=\\dt'] }}"
+  environment:
+    PGPASSWORD: '{{ database_password }}'
+  register: _reg_web_app_mail_db_check_initialized
+  changed_when: false
+
+
+- name: Initialize database
+  ansible.builtin.command:
+    argv: "{{ web_app_mail_psql_argv
+      + [ '--single-transaction'
+        , '--file=/usr/share/dbconfig-common/data/roundcube/install/pgsql'
+        ] }}"
+  environment:
+    PGPASSWORD: '{{ database_password }}'
+  when: _reg_web_app_mail_db_check_initialized.stdout == ''
+...

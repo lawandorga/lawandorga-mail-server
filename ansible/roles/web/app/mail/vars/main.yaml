@@ -41,4 +41,23 @@ web_app_mail_delete_old_userdata_script_path:
 #  - Thus, this variable should generally not be changed.
 web_app_mail_rc_deluser_script_path:
   '/usr/share/roundcube/bin/deluser.sh'
+
+
+# See also
+#  - `/ansible/roles/mail/delete-old-userdata/templates/delete-old-userdata.bash.j2#get_dirs_from_db()`.
+#  - `/ansible/roles/web/app/mail/templates/delete-old-userdata.bash.j2#_psql()`
+web_app_mail_psql_argv:
+  - psql
+  - '--host={{ database_server_address }}'
+  - '--port={{ database_server_port }}'
+  - '--dbname={{ database_name_webmail }}'
+  - '--username={{ database_user }}'
+  - '--no-password'
+  - '--no-psqlrc'
+  - '--no-readline'
+  - '--set=ON_ERROR_STOP=on'
+  - '--echo-errors'
+  - '--quiet'
+  - '--tuples-only'
+  - '--no-align'
 ...

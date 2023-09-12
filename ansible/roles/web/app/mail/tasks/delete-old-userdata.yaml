@@ -2,6 +2,13 @@
 # Delete old webmail userdata.
 #  - See also `/ansible/roles/mail/delete-old-userdata`.
 
+
+- name: Install PostgreSQL client
+  ansible.builtin.apt:
+    name: postgresql-client
+    state: present
+
+
 # Notes:
 #  * The owner (and script executing user) could be any one, but it will get
 #    access to the database password.

@@ -182,7 +182,8 @@ function setminus()
 
 
 # See also
-#  - `roles/mail/delete-old-userdata/templates/delete-old-userdata.bash.j2#get_dirs_from_db()`.
+#  - `/ansible/roles/mail/delete-old-userdata/templates/delete-old-userdata.bash.j2#get_dirs_from_db()`.
+#  - `/ansible/roles/web/app/mail/vars/main.yaml#web_app_mail_psql_argv`
 function _psql()
 {
   # Note that giving the password in the environment is safe, at least due to
@@ -199,6 +200,7 @@ function _psql()
     --no-password \
     --no-psqlrc \
     --no-readline \
+    --set='ON_ERROR_STOP=on' \
     --echo-errors \
     --quiet \
     --tuples-only --no-align \

@@ -117,6 +117,15 @@
   ansible.builtin.include_tasks: plugins/login_page_extra_links.yaml
 
 
+# Ensure the connection to the database is set up.
+- name: Flush handlers
+  ansible.builtin.meta: flush_handlers
+
+
+- name: Initialize database
+  ansible.builtin.include_tasks: database.yaml
+
+
 - name: Set up deletion of old userdata
   ansible.builtin.include_tasks: delete-old-userdata.yaml
 
