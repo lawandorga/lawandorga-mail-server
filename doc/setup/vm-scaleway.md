@@ -32,6 +32,8 @@
             - See [this article][gremwell-ssh-mitm],
               and also the [documentation on ssh-mitm][ssh-mitm-doc].
     3. `apt update && apt dist-upgrade`
+        - It may be advisable to reboot after this; e.g., in case of a kernel
+          upgrade.
     4. Set some decent temporary root password (`passwd`).
     5. Connect via web console, login with new password.
         - `ssh-keygen -lE sha256 -f /etc/ssh/ssh_host_ed25519_key.pub`
