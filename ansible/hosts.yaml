@@ -16,10 +16,10 @@ all:
         private_db:
           interface_name: ens5
           ipv4:
-            address: 10.25.0.1
-            mask_length: 30
+            address: 172.16.0.3
+            mask_length: 24
             db:
-              address: 10.25.0.2
+              address: 172.16.0.2
               port: 5432
 
       hostname: '{{ inventory_hostname }}'
