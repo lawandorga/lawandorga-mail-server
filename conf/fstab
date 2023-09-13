@@ -10,7 +10,7 @@
 /dev/main/var        /var        ext4  rw,relatime,nosuid,nodev         0 2
 /dev/main/var-log    /var/log    ext4  rw,relatime,nosuid,nodev,noexec  0 2
 /dev/main/var-tmp    /var/tmp    ext4  rw,relatime,nosuid,nodev,noexec  0 2
-/dev/data/var-cache  /var/cache  ext4  rw,relatime,nosuid,nodev,noexec  0 2
+/dev/main/var-cache  /var/cache  ext4  rw,relatime,nosuid,nodev,noexec  0 2
 /dev/main/home       /home       ext4  rw,relatime,nosuid,nodev,noexec  0 2
 /dev/data/mail-data  /var/mail   ext4  rw,relatime,nosuid,nodev,noexec  0 2
 /dev/data/static-data  /persistent  ext4  ro,relatime,nosuid,nodev,noexec  0 2

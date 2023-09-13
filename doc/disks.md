@@ -20,57 +20,51 @@ on this disk.
 This disk should contain all valuable state.  Notably, the email data, but also
 secrets that are to persist a reinstallation and are not managed via Ansible.
 
-This may additionally contain other data that does not fit on the system disk,
-which (assuming the below *Scaleway-specific* setup) is limited in size.
-
 
 ## Disk layout
 
 ### system disk
 
-*Scaleway-specific:* This disk is based on *local storage* and should be
-visible as `/dev/vda` on the machine.
-    - *Local storage* is apparently limited to 20GB (< 20GiB) and cannot be
-      resized post creation.
+*Scaleway-specific:* This disk is based on *block storage*.
 
 We assume an EFI setup.
 
-* size: 10G
-    - This is generous, to leave a some space for LV snapshots.
+* size: 24G
+    - This is generous, to leave some space for LV snapshots.
 * GPT partition table
     1. "ESP"   - 128M        - vfat - /boot/efi
         - partition type: EFI system partition (`gdisk`: `EF00`)
-    2. "nolvm" - 128M        - ext4 - /var/nolvm
+    2. "nolvm" - 512M        - ext4 - /var/nolvm
         - This is for LVM metadata backups.
     3. "main"  - *remainder* - LVM
-        * "root"    - 2G   - ext4 - /
-        * "var"     - 1G   - ext4 - /var
-        * "var-log" - 2G   - ext4 - /var/log
-        * "var-tmp" - 1G   - ext4 - /var/tmp
-        * "home"    - 128M - ext4 - /home
+        * "root"      -   2G - ext4 - /
+        * "var"       -   1G - ext4 - /var
+        * "var-log"   -   2G - ext4 - /var/log
+        * "var-tmp"   -   1G - ext4 - /var/tmp
+        * "var-cache" -  12G - ext4 - /var/cache
+        * "home"      - 128M - ext4 - /home
+* Notes:
+    - The large size of the LV mounted at `/var/cache` is due to `restic`'s
+      need for a large cache.
+      See [here](/ansible/roles/backup/vars/main.yaml).
 
 
 ### data disk
 
-*Scaleway-specific:* This disk is based on *block storage* and should be
-visible as `/dev/sda` on the machine.
+*Scaleway-specific:* This disk is based on *block storage*.
 
-* size: 16G
+* size: 12G
     - This is just an initial size and should be expanded once the need arises.
     - As for the system disk, this should be a little more than needed to allow
       for LV snapshots.
 * MBR partition table
     1. "data" - *full-size* - LVM
-        * "mail-data"     - 5G - ext4 - /var/mail
+        * "mail-data"     - 8G - ext4 - /var/mail
         * "static-data"   - 4M - ext4 - /persistent
         * "variable-data" - 4M - ext4 - /persistent/var
-        * "var-cache"     - 8G - ext4 - /var/cache
 * Notes:
     - We could also skip the partition table layer, given that there is only
       one partition (and no need for an MBR to boot from).
-    - The large size of the LV mounted at `/var/cache` is due to `restic`'s
-      need for a large cache.
-      See [here](/ansible/roles/backup/vars/main.yaml).
 
 
 ## Setup
@@ -118,3 +112,22 @@ visible as `/dev/sda` on the machine.
 
 An alternative solution to both of these points would be to use individual
 disks/"volumes", one for each file system, and to create snapshots externally.
+
+
+### Why not local storage (Scaleway specific)?
+
+That is, instead of *block storage*.
+
+This is actually debatable.
+
+* Pro *local storage*:
+    * Storage is "local", i.e., access should be quicker.
+        * This is likely particularly useful for the system disk.
+* Contra *local storage*:
+    * The maximum disk size is quite low (depends on *instance* type).
+        * Notably, we likely cannot fit our large-growing `/var/cache` on it.
+    * The disk cannot be resized later.
+    * The disk cannot be moved between instances.
+        * For the system disk, this should not be an issue.
+* See also:
+    * [Scaleway's own comparison](https://www.scaleway.com/en/docs/faq/blockstorage/#why-should-i-use-block-storage-instead-of-local-storage)
