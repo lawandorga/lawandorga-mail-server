@@ -77,10 +77,14 @@ The actual needed steps are listed below, in order:
 * Configure networking.  (c.f. D.3.4.4)
     - We shall assume a DHCP IPv4-only setup.
         - [This works well with Scaleway](/doc/setup/vm-scaleway.md).
-    - `apt install ifupdown isc-dhcp-client`
+    - `apt install ifupdown dhcpcd-base`
     - Figure out the ethernet interface name (`ip link show`).
     - `iface=IFACE_NAME`
     - `printf '%s\n' "auto ${iface}" "iface ${iface} inet dhcp" > /etc/network/interfaces`
+    - `install -Tm 0644 /tmp/conf/network/dhcpcd.conf.j2 /etc/dhcpcd.conf`
+    - `sed -Ei 's/^(allowinterfaces) .*$/\1 '"$iface"'/' /etc/dhcpcd.conf`
+    - `printf 'exit 0\n' > /etc/dhcpcd.enter-hook`
+    - `printf 'nameserver 9.9.9.9\n' > /etc/resolv.conf`
 * Configure locale.  (c.f. D.3.4.6)
     - `printf '%s\n' 'LANG=C.UTF-8' > /etc/default/locale`
     - Note: To use any locale besides `C.UTF-8`, `C`, `POSIX`, the `locales`

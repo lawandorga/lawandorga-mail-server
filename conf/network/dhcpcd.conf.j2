@@ -1,0 +1,58 @@
+# dhcpcd configuration
+#  * History:
+#    - Written for debver 9.4.1-24~deb12u2.
+#      - Consulted:
+#        - dhcpcd.conf(5)
+#        - Debian's default `/etc/dhcpcd.conf`
+#        - `/usr/share/doc/dhcpcd-base/examples/dhcpv6-pd.conf`
+#  * All options considered, see dhcpcd.conf(5).
+
+
+allowinterfaces {{ network_interfaces_dhcp | join (' ') }}
+
+ipv4only
+
+dhcp
+nodhcp6
+noipv4ll
+
+# Do not time out.
+timeout 0
+
+# Send MAC address of the interface as Client ID.
+clientid
+
+# Do not "ask the DHCP server to update DNS." - dhcpcd.conf(5)
+fqdn disable
+
+# Set up a default route.  Default.
+gateway
+
+# Do not deconfigure the interface upon exit.
+persistent
+
+# Send no vendorclassid (indicated by missing argument).
+vendorclassid
+
+# Options to request from the DHCP server:
+#  - See also dhcp-options(5) from the `isc-dhcp-common` package.
+#  - Inspired by:
+#    - the default configured set in `isc-dhcp-client` (debver 4.4.1-2.3):
+#      * Note: `isc-dhcp-client` is obsolete.
+#      - subnet-mask, broadcast-address, time-offset, routers,
+#        domain-name, domain-name-servers, domain-search, host-name,
+#        dhcp6.name-servers, dhcp6.domain-search, dhcp6.fqdn,
+#        dhcp6.sntp-servers, netbios-name-servers, netbios-scope,
+#        interface-mtu, rfc3442-classless-static-routes (custom defined),
+#        ntp-servers
+#    - the set in the default dhcpcd.conf (debver 9.4.1-24~deb12u2):
+#      - domain_name_servers, domain_name, domain_search
+#      - classless_static_routes
+#      - interface_mtu
+#      - host_name
+#      - rapid_commit
+#  - To update resolv.conf, we'd probably (additionally) want:
+#    - domain_name_servers, domain_name, domain_search
+option subnet_mask, broadcast_address, routers
+option interface_mtu
+option classless_static_routes

@@ -1,0 +1,4 @@
+---
+network_interfaces_dhcp:
+  - '{{ network.primary.interface_name }}'
+...

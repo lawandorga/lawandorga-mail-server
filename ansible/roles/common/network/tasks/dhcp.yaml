@@ -1,0 +1,51 @@
+---
+# DHCP configuration using dhcpcd(8).
+#  * See also `/doc/setup/debian.md`.
+#  * Options compatible with ifupdown (see interfaces(5)) are:
+#    - `isc-dhcp-client` (deprecated)
+#    - `udhcpc` (part of busybox; not easily configurable)
+#      - By default, overwrites `/etc/resolv.conf`.
+#    - `dhcpcd-base`
+
+
+- name: Install dhcpcd
+  ansible.builtin.apt:
+    name: dhcpcd-base
+    state: present
+
+
+# Note:
+#  * We'd like to `validate:` this configuration.
+#    * Unfortunately, we cannot (easily) do this.
+#    * We might instead add a task that performs validation after the
+#      configuration file is installed.
+- name: Configure dhcpcd
+  ansible.builtin.template:
+    src: ../conf/network/dhcpcd.conf.j2
+    dest: /etc/dhcpcd.conf
+    owner: root
+    group: root
+    mode: '0644'
+  notify:
+    - 'common/network : Restart ifupdown'
+
+
+# Notes:
+#  * We do not want to run any dhcpcd(8) hook.
+#    * These notably include a resolv.conf hook, which must not be run.
+#  * dhcpcd.conf(5) only allows positively disabling individual hooks
+#    (`nohook`).
+#  * The here given hook is run (sourced) first.
+#    - See:
+#      - dhcpcd-run-hooks(8)
+#      - `/usr/lib/dhcpcd/dhcpcd-run-hooks`
+#  * Alternatively, setting `script /bin/true` in `dhcpcd.conf` should also
+#    work.
+- name: Disable dhcpcd hooks
+  ansible.builtin.copy:
+    content: "exit 0\n"
+    dest: /etc/dhcpcd.enter-hook
+    owner: root
+    group: root
+    mode: '0644'
+...

@@ -8,10 +8,8 @@
     state: present
 
 
-- name: Install isc-dhcp-client
-  ansible.builtin.apt:
-    name: isc-dhcp-client
-    state: present
+- name: Install & configure DHCP client
+  ansible.builtin.include_tasks: dhcp.yaml
 
 
 - name: Configure firewall for DHCP
@@ -32,18 +30,9 @@
     owner: root
     group: root
     mode: '0644'
-    validate: "ifup --all --no-act --force --interface='%s'"
+    validate: "ifup --all --no-act --force --interfaces='%s'"
   notify:
     - 'common/network : Restart ifupdown'
-
-
-- name: Configure dhclient not to touch /etc/resolv.conf
-  ansible.builtin.copy:
-    src: dhcp/dhclient-enter-hooks
-    dest: /etc/dhcp/dhclient-enter-hooks
-    owner: root
-    group: root
-    mode: '0755'
 
 
 - name: Configure nameserver
