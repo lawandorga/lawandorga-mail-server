@@ -46,6 +46,7 @@ web_app_mail_rc_deluser_script_path:
 # See also
 #  - `/ansible/roles/mail/delete-old-userdata/templates/delete-old-userdata.bash.j2#get_dirs_from_db()`.
 #  - `/ansible/roles/web/app/mail/templates/delete-old-userdata.bash.j2#_psql()`
+#  * TODO: Deduplicate code.
 web_app_mail_psql_argv:
   - psql
   - '--host={{ database_server_address }}'
