@@ -25,8 +25,18 @@ else
 fi
 
 
-# Note: bash completion, in Debian, is performed by
-#       `/etc/profile.d/bash_completion.sh'.
+# Bash completion.
+#  * Bash completion, in Debian, is performed by the here-sourced file.
+#    * Sourcing from /etc/profile is insufficient; that only happens for
+#      login shells.
+#    * There is no harm in sourcing it twice; the script checks for being
+#      sourced twice (or so it claims; it relies upon another sourced script
+#      for that).
+#  * This ignores `/etc/bash_completion`.
+#    * By default (on Debian) this just sources
+#      `/usr/share/bash-completion/bash_completion`, like the below sourced
+#      script.
+. /etc/profile.d/bash_completion.sh
 
 
 # History.
