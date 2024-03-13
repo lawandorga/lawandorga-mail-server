@@ -4,22 +4,28 @@
 
 127.0.0.1	localhost
 
+# Map hostname and FQDN to an IPv4 address.
+#
 # Notes:
-#  * Here, we'd usually map our FQDN and hostname to our static IP.
-#  * We are behind a NAT and get an IP via DHCP.
-#    - Thus, use the address 127.0.1.1 as suggested by [0].
-#  * Mapping the FQDN to this local IP address is debatable.
-#    * [0] recommends to use the FQDN here if we have one *and* we have a
-#      static IP address.
-#    * hosts(5) has this exact configuration line listed in its example
-#      configuration.
-#    * We map our FQDN to something else than what it resolves to in the DNS
-#      (which is the NAT's public IP address).
-#    * It seems to work well, however.
-#    * The point of adding the FQDN here is to have `hostname -f` return it.
-#      - Some software depends on this.
+#  * If we are not behind a NAT and have a static public IPv4 address:
+#    * We should specify our public IPv4 address here.
+#  * If we are behind a NAT and get a dynamic IPv4 address via DHCP:
+#    * We should specify `127.0.1.1`.
+#      * This follows a suggestion by [0].
+#      * Mapping the FQDN to this local IP address is debatable.
+#        * [0] recommends to use the FQDN here if we have one *and* we have a
+#          static IP address.
+#        * hosts(5) has this exact configuration line listed in its example
+#          configuration.
+#        * We map our FQDN to something else than what it resolves to in the
+#          DNS (which is the NAT's public IP address).
+#        * It seems to work well, however.
+#  * Note that the above two cases are not exhaustive.
+#    * Nothing is being said about the remaining cases.
+#  * The point of adding the FQDN here is to have `hostname -f` return it.
+#    - Some software depends on this.
 #  * The hostname should be the same as in `/etc/hostname`.
-127.0.1.1	{{ fqdn }} {{ hostname }}
+{{ network.primary.ipv4.address }}	{{ fqdn }} {{ hostname }}
 
 # The following lines are desirable for IPv6 capable hosts.
 ::1		localhost ip6-localhost ip6-loopback

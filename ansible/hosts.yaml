@@ -2,15 +2,18 @@
 all:
   hosts:
     lawandorga-mail-server:
-      ansible_host: '{{ network.primary.ipv4.nat.external_address }}'
+      ansible_host: '{{ network.primary.ipv4.address }}'
       network:
         primary:
           interface_name: ens2
           ipv4:
-            # We are behind a NAT and get a private address and the gateway via
-            # DHCP.
-            nat:
-              external_address: '51.15.218.231'
+            # Note:
+            #  * IPv4 address configuration is done via DHCP.
+            #    * We do not love this.
+            #    * Reason: The gateway is assumed not to be static.
+            #    * Alternatively, we could arrange for only the gateway to be
+            #      obtained via DHCP.
+            address: '51.15.218.231'
 
         # See `/doc/database.md`.
         private_db:

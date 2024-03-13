@@ -233,9 +233,9 @@ mydestination =
 
 inet_protocols = ipv4
 
-# We are behind a NAT, the below is the public IP address we hide behind.
+# If we were behind a NAT, we'd have to configure it's public IP address here.
 #  - See also: BASIC_CONFIGURATION_README.
-proxy_interfaces = {{ network.primary.ipv4.nat.external_address }}
+#proxy_interfaces
 
 inet_interfaces = all
 
@@ -814,6 +814,8 @@ virtual_alias_maps =
 #  - local(8) gets mail destined to ${mydestination}, ${inet_interfaces} and
 #    ${proxy_interfaces}.
 #    - We can (and do) empty ${mydestination}, but not the others.
+#      - We can never empty ${inet_interfaces}.
+#      - ${proxy_interfaces} is to be non-empty iff we are behind a NAT.
 #  - We can stop mail received via SMTP to reach local(8).
 #    - See ${smtpd_reject_unlisted_recipient}, ${local_recipient_maps}.
 #  - We cannot (easily) stop mail received via, e.g., sendmail(1) to reach

@@ -130,7 +130,6 @@ The actual needed steps are listed below, in order:
 * Shutdown the system (from outside the chroot: `halt -p`).
 * Boot the newly installed system.
 * Connect via SSH to the newly installed system.
-    - Note that connecting to the IPv6 address won't work.
     - The fingerprint of the old system should fail verification
       and is to be removed
       (but maybe noted down in case the old system is ever to be used again).

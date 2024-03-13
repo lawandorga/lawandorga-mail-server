@@ -19,6 +19,7 @@
             - Scaleway only allows one *local storage*.
             - *Block storage* has the advantage to be easily moved
               to a different VM, while being more expensive.
+    - network: "routed public IP", not "NAT public IP" (legacy)
 2. Set up SSH connection to SCW-provided image.
     1. Make sure public key authentication (i.e., a public key) is correctly
        configured with Scaleway.
@@ -56,9 +57,11 @@ read the following Scaleway specific notes:
       unused.
 * [Debian installation](/doc/setup/debian.md)
     - Network setup:
-        - Scaleway assigns us a private IPv4 address behind a NAT that
-          we can obtain via DHCP (together with the route and DNS server).
-        - We also get a static IPv6 address, which we do not use during setup.
+        - Only use IPv4.
+            - Background: Until recently, Scaleway did not properly support
+              IPv6.
+        - Use DHCP.
+            - Reason: The IPv4 gateway address is assumed not to be static.
     - As kernel, choose `linux-image-cloud-amd64`.
         - See [Scaleway-specific packages](/doc/setup/vm-scaleway/packages.md).
     - As GRUB package, install `grub-cloud-amd64`.
