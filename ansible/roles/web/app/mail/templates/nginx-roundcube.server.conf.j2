@@ -34,11 +34,49 @@ server
 
 	include {{ web_core_http_confpath_headers_security }};
 
-	# TODO: Revise / Test for new Roundcube version.
-	# Largely determined by trial and error.
+	# Content-Security Policy.
+	#
+	# Notes:
+	#  * Largely determined by trial and error.
+	#    * Checking only "Mail" view insufficient.
+	#    * Checking only "Mail" and "Compose" view sufficient to obtain the
+	#      below result, unless otherwise noted.
+	#  * On external sources:
+	#    * Generally, one does not want to allow (generic) external
+	#      sources.
+	#    * We allow both displaying and writing HTML e-mail messages.
+	#      * See $config['prefer_html'] and $config['htmleditor'] in
+	#        `/ansible/roles/web/app/mail/templates/roundcube.conf.php.j2`.
+	#    * Roundcube itself blocks (some kinds of?) external resources,
+	#      which the user can disable per e-mail message.
+	#      * This is for privacy reasons.
+	#      * See $config['show_images'] in
+	#        `/ansible/roles/web/app/mail/templates/roundcube.conf.php.j2`.
+	#    * We want to allow (by CSP) the loading of some external
+	#      resources.
+	#    * Images (`img-src`) and "media" (`media-src`) are deemed
+	#      sufficient.
+	#  * `base-uri`:
+	#    - `'none'` would also work.
+	#  * `img-src`, `media-src`:
+	#    - `*`: Only needed for external sources (see above).
+	#      - `*` semantically encompasses `'self'`, which we specify
+	#        explicitly regardless.
+	#  * `media-src`:
+	#    - `'self'`: Rarely needed.
+	#      * Known necessary for displaying `blocked.gif`, when Roundcube
+	#        informs the user that external resources have been blocked
+	#        for privacy reasons.
+	#        * See also "On external sources" above.
+	#    - `data:`:
+	#      * Apparently not needed (anymore?).
+	#      * Was previously enabled (in configuration for Debian 11).
+	#        * Could not reproduce its being needed on Debian 11 either
+	#          (2024-03-13).
+	#
 	add_header
 		Content-Security-Policy
-		"default-src 'none'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self'; font-src 'self'; media-src data:; frame-src 'self'; base-uri 'self'; form-action 'self'; frame-ancestors 'self'"
+		"default-src 'none'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' * data:; connect-src 'self'; font-src 'self'; media-src 'self' *; frame-src 'self'; base-uri 'self'; form-action 'self'; frame-ancestors 'self'"
 		always;
 
 	add_header X-Frame-Options "SAMEORIGIN" always;

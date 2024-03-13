@@ -347,10 +347,18 @@ $config['timezone'] = 'auto';
 //      - E.g., it blocks embedded images, but offers to show them.
 //  - Our users likely expect to see HTML e-mail directly.
 //  - See also $config['htmleditor'].
+//  - See also Content-Security-Policy in
+//    `/ansible/roles/web/app/mail/templates/nginx-roundcube.server.conf.j2`.
 $config['prefer_html'] = true;
 
+// Notes:
+//  - Default.
+//  - Relevant to security/privacy.
+//  - See also Content-Security-Policy in
+//    `/ansible/roles/web/app/mail/templates/nginx-roundcube.server.conf.j2`.
+$config['show_images'] = 0;
+
 // Defaults.
-$config['show_images'] = 0;       // Relevant to security/privacy.
 $config['message_extwin'] = false;
 $config['compose_extwin'] = false;
 
@@ -364,6 +372,8 @@ $config['compose_extwin'] = false;
 //    to to just work.
 //  - This is debatable.
 //  - See also $config['prefer_html'].
+//  - See also Content-Security-Policy in
+//    `/ansible/roles/web/app/mail/templates/nginx-roundcube.server.conf.j2`.
 $config['htmleditor'] = 1;
 
 // Defaults.
