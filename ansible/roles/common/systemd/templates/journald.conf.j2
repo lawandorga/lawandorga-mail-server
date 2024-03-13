@@ -1,9 +1,13 @@
 # Journald configuration.  See journald.conf(5).
-#  - Written with systemd debver 247.3-7+deb11u1 in mind.
+#  - History
+#    - Written with systemd debver 247.3-7+deb11u1 in mind.
 #    - Revised for debver 252.12-1~deb12u1.
 #      - Considered changes in journald.conf(5) man page w.r.t. debver
 #        247.3-7+deb11u4.
 #      - Nothing changed.
+#    - Fixed size limits.
+#      - Previously, we incorrectly specified percentages for
+#        `{System,Runtime}{MaxUse,KeepFree}=`.
 
 
 [Journal]
@@ -24,13 +28,53 @@ Storage=persistent
 ###################
 ## Storage limits
 
-# Logs are valuable.  /var/log should be on a separate partition anyways.
-SystemMaxUse=90%
-SystemKeepFree=5%
+# Notes:
+#  - We want to limit the size very little.
+#    - Logs are valuable.
+#    - /var/log should be on a separate partition anyways.
+#    - See also "Rotation & retention".
+#  - The defaults for `SystemMaxUse=` and `SystemKeepFree=` are calculated
+#    using fixed percentages of the underlying disk space.
+#    - Unfortunately (?), we cannot manually configure such percentages.
+#  - Note: We do not configure the corresponding `Runtime*=` settings, which
+#    (due to `Storage=persistent`) are only effective during early boot.
+#  - CONSIDER: Do not hard-code these sizes.
+#    - E.g., we could calculate the sizes as a percentages of the underlying
+#      fs size.
+#      - In that case, we might also want to consider the corresponding
+#        `Runtime*=` settings.
 
-# Applicable during early boot:
-RuntimeMaxUse=90%
-RuntimeKeepFree=10%
+# This limit is usually higher than the available space.
+#  - I.e., it will be usually ignored.
+#  - Note: This value influences our choice of `SystemMaxFiles=`.
+SystemMaxUse=16G
+
+# Rely on the default.
+#SystemKeepFree=[default: min(15% of fs size, 4G)]
+
+# Maximum file size.
+#  - This is relevant for rotation granularity, together with `MaxFileSec=`.
+#  - This is limited by 128M.
+#    - See <https://github.com/systemd/systemd/issues/25124#issuecomment-1303847707>.
+#  - Note: This value influences our choice of `SystemMaxFiles=`.
+SystemMaxFileSize=16M
+
+# Maximum number of files.
+#  - We do not really want to limit this.
+#  - We want this to practically never come into force.
+#    - We have to account for both size-based and time-based rotation.
+#    - Note that rotation may happen for several other reasons.
+#      - See <https://github.com/systemd/systemd/issues/25124#issuecomment-1296837451>.
+#  - Accounting for size-based rotation (n_SIZE):
+#    - ${SystemMaxUse=}/${SystemMaxFileSize=} = 16G/16M = 2^10
+#  - Accounting for time-based rotation (n_TIME):
+#    - ${MaxRetentionSec=}/${MaxFileSec=} = {{ privacy_log_retention_days }}
+#  - Arbitrary safety multiplicator: c_0 = 16
+#  - Arbitrary safety padding: c_1 = 128
+#  - Calculation: (n_SIZE + n_TIME) * c_0 + c_1
+#  - CONSIDER: Use Ansible variables for the above.
+#
+SystemMaxFiles={{ ( 1024 + privacy_log_retention_days ) * 16 + 128 }}
 
 # Restrict to 1000 messages per 30s, per service.
 #  - Note that RateLimitBurst= is effectively multiplied by a small constant
@@ -53,12 +97,15 @@ RateLimitBurst=1000
 
 # How long to use a single logfile.
 #  - This influences the granularity at which old log entries can be removed.
+#    - See also `SystemMaxFileSize=`.
+#  - Note: This value influences our choice of `SystemMaxFiles=`.
 MaxFileSec=1day
 
 # How long to keep log entries (!).
 #  - Unless there is only one log file left (should require MaxFileSec= >
 #    MaxRetentionSec=), this enforces deletion of any log file that contains
 #    log entries older than specified.
+#  - Note: This value influences our choice of `SystemMaxFiles=`.
 MaxRetentionSec={{ privacy_log_retention_days }}day
 
 
