@@ -132,12 +132,6 @@
 #    - CONNECTION_CACHE_README
 #    - TUNING_README
 
-# TODO:
-#  - Check the effect of ${smtpd_sasl_mechanism_filter}.
-#    - On Bullseye (without this option), the server only lists PLAIN.
-#    - Possibly enable (set to "plain").
-#      - Would need Ansible variable for coordination w/ Dovecot.
-
 
 
 ############
@@ -381,6 +375,18 @@ smtpd_sasl_auth_enable = no
 
 # Restrict SASL auth to TLS.
 smtpd_tls_auth_only = yes
+
+# Restrict SASL mechanism to PLAIN.
+#  - We place the same restriction on Dovecot's end.
+#    - See `/ansible/roles/mail/dovecot/templates/dovecot/auth.conf.j2`.
+#  - This is effectively redundant.
+#    - Naturally, this cannot widen the actual authentication methods allowed
+#      by the Dovecot auth backend.
+#    - Further, the server only lists authentication methods allowed by the
+#      backend (in reply to EHLO).
+#      - Tested with postfix debver 3.7.10-0+deb12u1.
+#      - This was not clear to me from the documentation (but makes sense).
+smtpd_sasl_mechanism_filter = plain
 
 # Authentication security options for SASL login (default).
 #  - We are happy with PLAIN login.

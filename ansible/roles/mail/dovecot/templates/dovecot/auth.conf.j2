@@ -30,6 +30,12 @@ disable_plaintext_auth = yes
 
 # See
 #  - <https://doc.dovecot.org/configuration_manual/authentication/authentication_mechanisms/>
+# Note:
+#  * This is hard-coded in three places (including here).
+#    * See:
+#      - `/ansible/roles/mail/postfix/templates/main.cf.j2`
+#      - `/ansible/roles/web/app/mail/templates/roundcube.conf.php.j2`
+#    * CONSIDER: Resolve this by use of an Ansible variable.
 auth_mechanisms = plain
 
 auth_ssl_require_client_cert = no
