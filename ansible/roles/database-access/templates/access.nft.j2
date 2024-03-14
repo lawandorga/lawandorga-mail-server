@@ -1,6 +1,7 @@
 table inet filter {
 	chain out_outbound {
-		oif {{ network.private_db.interface_name }} \
+		# See `/doc/misc/nftables.md` on the use of `oifname`.
+		oifname {{ network.private_db.interface_name }} \
 			ip daddr {{ network.private_db.ipv4.db.address }} \
 			tcp dport {{ network.private_db.ipv4.db.port }} \
 			accept
