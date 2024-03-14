@@ -25,9 +25,16 @@ pkgs_base_system_other_standard:
   # Rotate log files.
   - logrotate
 
-  # Some packages need this for proper logging.
-  #  - Notably, `postfix`.
-  #    - TODO: Check whether still true for Debian Bookworm.
+  # Notes:
+  #  * Some packages need this for proper logging.
+  #    - [citation needed]
+  #  * I previously thought this was necessary for Postfix.
+  #    - This does not seem to be the case (anymore?, since Debian 12?).
+  #  * This is notably useful to get the mail logs centralized to `mail.log`,
+  #    and with nice syntax highlighting in vim.
+  #    - Compare `journalctl --facility mail`.
+  #  * If used together with systemd-journald, this should at least double the
+  #    size of storage used for logs.
   - rsyslog
 
   # Some packages install cron jobs that would otherwise never be executed.
