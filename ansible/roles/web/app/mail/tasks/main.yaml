@@ -48,12 +48,20 @@
     follow: no
 
 
+# Notes:
+#  * A backend package should be installed at the same time as (or before)
+#    `php-enchant`.
+#    * Otherwise, `php-enchant` would (transitively) pull in a default
+#      dependency.
+#    * Notably, {{ web_app_mail_spelling_backends }} should not be the empty
+#      list.
 - name: Install spelling software
   ansible.builtin.apt:
-    name: '{{ [ "php-pspell" ] + aspell_packages }}'
-  vars:
-    aspell_packages:
-      "{{ web_app_mail_aspell_languages | map('regex_replace', '^', 'aspell-') | list }}"
+    name: >-
+      {{
+          [ "php-enchant" ]
+        + ( web_app_mail_spelling_backends | map(attribute="package") )
+      }}
 
 
 - name: Configure Roundcube

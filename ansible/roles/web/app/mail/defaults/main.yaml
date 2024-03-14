@@ -1,3 +1,14 @@
 ---
-web_app_mail_aspell_languages: []
+# Notes:
+#  * This should not be the empty list.
+#    - Otherwise, `php-enchant` would (transitively) pull in a default
+#      dependency.
+#  * A backend must be compatible with `php-enchant`.
+#  * `php-enchant can work with different backends.
+#    * hunspell is merely one of them.
+web_app_mail_spelling_backends:
+  - package: hunspell-en-us
+    languages:
+      id: en_US
+      name: English (US)
 ...

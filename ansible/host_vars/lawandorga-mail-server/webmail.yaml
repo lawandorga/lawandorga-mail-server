@@ -7,7 +7,25 @@ web_app_mail_product_name: 'Law&Orga - Webmail'
 
 web_app_mail_product_name_about_html: 'Webmail @ Law&amp;Orga'
 
-web_app_mail_aspell_languages:
-  - de
-  - en
+web_app_mail_spelling_backends:
+  - package: hunspell-de-de
+    languages:
+      - id: de_DE
+        name: Deutsch (Deutschland)
+  - package: hunspell-de-at
+    languages:
+      - id: de_AT
+        name: Deutsch (Österreich)
+  - package: hunspell-de-ch
+    languages:
+      - id: de_CH
+        name: Deutsch (Schweiz)
+  - package: hunspell-en-us
+    languages:
+      - id: en_US
+        name: English (US)
+  - package: hunspell-en-gb
+    languages:
+      - id: en_GB
+        name: English (GB)
 ...

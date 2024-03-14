@@ -12,6 +12,12 @@
 //      - /usr/share/doc/roundcube/NEWS.Debian.gz
 //      - /usr/share/doc/roundcube/changelog.Debian.gz
 //      - changes to the default and example configuration files (see above)
+//  - Changed spelling engine from pspell to enchant and spelling backend from
+//    aspell to hunspell.
+//    * `enchant` is the default in Debian since Debian 12 (more precisely,
+//      since `roundcube-core` debver 1.5~beta+dfsg.1-1).
+//      * The changelog.Debian says "[enchant] is better supported and more
+//        flexible [than pspell]".
 //
 // Notes:
 //  * Settings mostly in order of appearance in `defaults.inc.php`.
@@ -272,9 +278,34 @@ $config['enable_spellcheck'] = true;
 // This is relevant to privacy (do not set to 'shared').
 $config['spellcheck_dictionary'] = true;
 
-// This requires php-pspell and aspell-<LANG> packages to be installed.
-// TODO: New default is enchant.
-$config['spellcheck_engine'] = 'pspell';
+// Notes:
+//  * This requires `php-enchant` and some spell checker backend packages
+//    (e.g., `hunspell-<langcode>-<countrycode>`) to be installed.
+$config['spellcheck_engine'] = 'enchant';
+
+// Notes:
+//  * This defines the spell checker languages that are to be selectable, and
+//    their names to be displayed.
+//  * There must be language-specific spell checker backends installed for the
+//    here-configured languages.
+//  * If we did not define this, Roundcube would fall back to a builtin map.
+//    - See `/usr/share/roundcube/program/localization/index.inc`.
+//    - Unfortunately, this map is incomplete.
+//      - Notably, it lacks `de_AT`, which would apparently fall back to `de`,
+//        and then to `de_DE`.
+//        - I.e., `de_AT` and `de_DE` become indistinguishable.
+//        - This also means that `de_DE` and `de_AT` would not be possible to
+//          effectively be enabled at the same time; the former appears to
+//          shadow the latter.
+//          - Interestingly, this is not the case if manually specifying the
+//            same name twice below.
+$config['spellcheck_languages'] = [
+{% for backend in web_app_mail_spelling_backends %}
+{% for lang in backend.languages %}
+	'{{ lang.id }}' => '{{ lang.name }}',
+{% endfor %}
+{% endfor %}
+];
 
 // CONSIDER:
 //$config['keyservers']
