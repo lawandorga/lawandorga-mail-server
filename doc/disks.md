@@ -29,12 +29,12 @@ secrets that are to persist a reinstallation and are not managed via Ansible.
 
 We assume an EFI setup.
 
-* size: 24G
+* size: 26G
     - This is generous, to leave some space for LV snapshots.
 * GPT partition table
     1. "ESP"   - 128M        - vfat - /boot/efi
         - partition type: EFI system partition (`gdisk`: `EF00`)
-    2. "nolvm" - 512M        - ext4 - /var/nolvm
+    2. "nolvm" - 2G          - ext4 - /var/nolvm
         - This is for LVM metadata backups.
     3. "main"  - *remainder* - LVM
         * "root"      -   2G - ext4 - /
@@ -47,6 +47,8 @@ We assume an EFI setup.
     - The large size of the LV mounted at `/var/cache` is due to `restic`'s
       need for a large cache.
       See [here](/ansible/roles/backup/vars/main.yaml).
+    - The sizes for non-lvm partitions ("ESP", "nolvm") are chosen generously.
+        - Such sizes are non-trivial to increase later.
 
 
 ### data disk
