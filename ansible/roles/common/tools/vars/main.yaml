@@ -36,6 +36,9 @@ pkgs_tools_standard:
   - fdisk
   - gdisk
 
+  # Security
+  - debian-security-support   # `check-security-support`; Includes a dpkg hook.
+
   # Miscellaneous tools.
   - bash-completion
   - screen
