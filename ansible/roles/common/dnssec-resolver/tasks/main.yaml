@@ -73,8 +73,10 @@
     - 'common/dnssec-resolver : Reload Unbound'
 
 
-# This is only needed for the next task.
-#  - This directory would normally be created on the first start of Unbound.
+# Notes:
+#  * This directory should also be created by installation of `unbound`.
+#    * However, owned by `unbound:unbound`.
+#  * See also `/doc/misc/unbound/file-ownership.md`.
 - name: Create chroot directory
   ansible.builtin.file:
     path: /var/lib/unbound
@@ -85,6 +87,8 @@
     follow: no
 
 
+# Notes:
+#  * See also `/doc/misc/unbound/file-ownership.md`.
 - name: Create root key directory
   ansible.builtin.file:
     path: /var/lib/unbound/root_key

@@ -51,6 +51,11 @@ Restart=on-failure
 # Debian:
 #EnvironmentFile=-/etc/default/unbound
 
+# Custom:
+#  * This is a workaround.
+#  * See `/doc/misc/unbound/file-ownership.md`.
+ExecStartPre=+/bin/chown -R unbound:unbound /var/lib/unbound/root_key/
+
 # Debian:
 #  * Copy /etc/unbound into chroot; instead, bind-mount it.
 #  * Bind-mount /run/systemd/notify; instead, do that explicitly later on.
