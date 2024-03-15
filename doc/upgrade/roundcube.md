@@ -11,3 +11,5 @@
 
 * As per `roundcube-core`'s `README.Debian`, it should be possible to configure
   debconf to do this job for us.
+* It might also be possible to use `/usr/share/roundcube/bin/update.sh`
+  instead.

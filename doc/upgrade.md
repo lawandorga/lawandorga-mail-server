@@ -18,4 +18,5 @@ On upgrade to a new Debian release, the following should be done:
           (`database_name_webmail`).
             * Using the same general mail database (`database_name_mail`) is
               fine.
+        * Use distinct restic backup repositories (`backup_restic_repository`).
 3. [Upgrade Roundcube's database.](/doc/upgrade/roundcube.md)
