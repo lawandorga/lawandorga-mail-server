@@ -35,7 +35,7 @@ root file system.
 The actual needed steps are listed below, in order:
 
 * `apt install debootstrap`  (c.f. D.3.2)
-* `debootstrap --variant=minbase bookworm /mnt https://deb.debian.org/debian`
+* `debootstrap --force-check-gpg --variant=minbase bookworm /mnt https://deb.debian.org/debian`
   (c.f. D.3.3)
     - `--variant=minbase`: Only packages of `Priority` `required` and their
       (transitive) dependencies are installed.
