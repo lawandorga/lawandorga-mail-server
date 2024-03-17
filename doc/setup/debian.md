@@ -114,8 +114,11 @@ The actual needed steps are listed below, in order:
     - `groupadd -r ssh-users-pty`
     - `groupadd -r ssh-users-nopty`
     - `gpasswd -a root ssh-users-pty`
-    - Obtain and note down the new server key fingerprint:
-        - `ssh-keygen -lE sha256 -f /etc/ssh/ssh_host_ed25519_key.pub`
+    - Obtain the server's public ssh key (`/etc/ssh/ssh_host_ed25519_key.pub`),
+      and configure it in the local `known_hosts` file.
+        - We have to replace the current server's public key.
+            - It may be worth keeping a copy of this current public key
+              elsewhere, in case we need it again.
 * Install further important packages.
     - `apt install lvm2 init libpam-systemd apparmor python3`
         - `libpam-systemd`:
@@ -130,7 +133,3 @@ The actual needed steps are listed below, in order:
 * Shutdown the system (from outside the chroot: `halt -p`).
 * Boot the newly installed system.
 * Connect via SSH to the newly installed system.
-    - The fingerprint of the old system should fail verification
-      and is to be removed
-      (but maybe noted down in case the old system is ever to be used again).
-    - Verify the new server key fingerprint noted down earlier.
