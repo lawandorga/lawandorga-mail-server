@@ -15,6 +15,36 @@
 
 
 
+# Notes:
+#  * OpenDKIM needs static uid:gid s.t. a rebuild of the system can work with
+#    the old OpenDKIM keys.
+#    * See also `/ansible/roles/mail/dovecot/tasks/mail-storage.yaml`.
+#  * Installing `opendkim` would also set up this user and group, but generally
+#    with different uid:gid.
+#  * The values for `home` and `shell` are as they would be if set up by the
+#    `opendkim` package (as of debver 2.11.0~beta2-8+deb12u1).
+#  * This task fails if the uid:gid pair is to be changed, but the old one is
+#    in use, e.g., by OpenDKIM.
+#    * Notably, changing the uid:gid Ansible variables after initial run of
+#      this tasks list / role will generally fail.
+#  * See also:
+#    * `/ansible/roles/mail/postfix/templates/opendkim/opendkim.conf.j2`
+- name: Configure OpenDKIM group
+  ansible.builtin.group:
+    name: opendkim
+    gid: '{{ mail_opendkim_gid }}'
+    system: yes
+- name: Configure OpenDKIM user
+  ansible.builtin.user:
+    name: opendkim
+    uid: '{{ mail_opendkim_uid }}'
+    group: opendkim
+    home: /run/opendkim
+    create_home: no
+    shell: /usr/sbin/nologin
+    system: yes
+
+
 - name: Prevent OpenDKIM from starting on installation
   ansible.builtin.include_tasks: apt-systemd-noautostart/pre.yaml
   vars:

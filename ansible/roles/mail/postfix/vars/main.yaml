@@ -8,6 +8,10 @@ mail_postfix_sets_dir: /etc/postfix/sets
 
 mail_opendkim_authserv_id: 'dkim.{{ fqdn }}'
 
+# These should be < 1000 (system user), and something that is usually unused.
+mail_opendkim_uid: 576
+mail_opendkim_gid: 576
+
 mail_opendkim_config_dir: /etc/opendkim
 mail_opendkim_domains_script: '{{ mail_opendkim_config_dir }}/domains.lua'
 ...

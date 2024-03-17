@@ -2,6 +2,7 @@
 # Configure mail storage, with its own user and group.
 #  * The mail storage needs an owner with a static uid:gid s.t. a rebuild of
 #    the system can work with the old mail data.
+#    * See also `/ansible/roles/mail/postfix/tasks/opendkim.yaml`.
 
 
 - name: Configure mail storage group
