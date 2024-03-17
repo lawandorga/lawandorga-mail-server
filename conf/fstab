@@ -16,7 +16,7 @@
 /dev/data/static-data  /persistent  ext4  ro,relatime,nosuid,nodev,noexec  0 2
 /dev/data/variable-data  /persistent/var  ext4  rw,relatime,nosuid,nodev,noexec  0 2
 
-# These should be /dev/vda1 and /dev/vda2, but we do not want to rely on that.
+# These are not on logical volumes, but on GPT partitions.
 LABEL=ESP            /boot/efi   vfat  rw,relatime,nosuid,nodev,noexec  0 2
 LABEL=nolvm          /var/nolvm  ext4  rw,relatime,nosuid,nodev,noexec  0 2
 

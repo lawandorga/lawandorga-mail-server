@@ -29,6 +29,7 @@ secrets that are to persist a reinstallation and are not managed via Ansible.
 
 We assume an EFI setup.
 
+* name: system
 * size: 26G
     - This is generous, to leave some space for LV snapshots.
 * GPT partition table
@@ -55,6 +56,7 @@ We assume an EFI setup.
 
 *Scaleway-specific:* This disk is based on *block storage*.
 
+* name: data
 * size: 12G
     - This is just an initial size and should be expanded once the need arises.
     - As for the system disk, this should be a little more than needed to allow

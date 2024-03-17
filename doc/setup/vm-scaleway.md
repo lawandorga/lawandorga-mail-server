@@ -8,17 +8,18 @@
 1. Create a new "instance".
     - name: lawandorga-mail-server
     - OS: Debian
-    - disks
-        - *local storage* - 10G - "system"
-        - *block storage* - 10G - "data"
-        - *block storage* - 10G - "bootstrap-system"
+    - disks:
+        - Target disks:
+            - See [/doc/disks.md](/doc/disks.md).
+            - Note: Scaleway uses SI prefixes (e.g., 1 GB = 10^9 B), while we
+              (implicitly) use binary-multiple prefixes (e.g., 1 GiB = 2^30 B).
+                - I.e., our sizes must be multiplied by a multiple of 1.024.
+        - Bootstrapping disk:
+            - Scaleway storage type: *block storage*
+            - name: bootstrap-system
+            - size: 10GB
             - Mark this (!) the boot/system disk
               (Scaleway will install Debian here).
-        - See also [/doc/disks.md](/doc/disks.md).
-        - Notes on Scaleway storage types:
-            - Scaleway only allows one *local storage*.
-            - *Block storage* has the advantage to be easily moved
-              to a different VM, while being more expensive.
     - network: "routed public IP", not "NAT public IP" (legacy)
 2. Set up SSH connection to SCW-provided image.
     1. Make sure public key authentication (i.e., a public key) is correctly
@@ -52,9 +53,8 @@ read the following Scaleway specific notes:
 * General.
     - An EFI setup is required.
 * [Disk setup](/doc/disks.md)
-    - The "system" disk should be visible at `/dev/vda`.
-    - The "data" disk should be visible at `/dev/sda` or `/dev/sdb` and be
-      unused.
+    - The disks should be visible at `/dev/sda` and `/dev/sdb`, but we cannot
+      rely on the order.
 * [Debian installation](/doc/setup/debian.md)
     - Network setup:
         - Only use IPv4.
