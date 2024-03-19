@@ -206,7 +206,7 @@ function main()
       if [[ $# -ne 0 ]]
       then
         helpmsg >&2
-        exit 1;
+        exit 1
       fi
       ;;&
     check-lvm-snapshots)
@@ -234,7 +234,7 @@ function main()
         restic_show_saved_status
       else
         helpmsg >&2
-        exit 1;
+        exit 1
       fi
       ;;
 
@@ -242,7 +242,7 @@ function main()
       if [[ $# -ne 1 ]]
       then
         helpmsg >&2
-        exit 1;
+        exit 1
       fi
       local -r config_file="$1"
       s_get_config "$config_file"
@@ -256,7 +256,7 @@ function main()
 
     *)
       helpmsg >&2
-      exit 1;
+      exit 1
       ;;
   esac
 }
@@ -483,7 +483,7 @@ function restic_show_saved_status()
 {
   if [[ -f "$cfg_STATUS_PATH" && -r "$cfg_STATUS_PATH" ]]
   then
-    cat "$cfg_STATUS_PATH"
+    cat -- "$cfg_STATUS_PATH"
   else
     printf 'No status saved yet.\n'
     return 1
