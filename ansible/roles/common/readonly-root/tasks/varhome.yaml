@@ -20,7 +20,7 @@
     mode: '0755'
     state: directory
     follow: no
-  with_items:
+  loop:
     - .vim
     - .vim/plugin
     - .profile.d
@@ -54,7 +54,7 @@
     path: '/root/{{ item }}'
     state: absent
     follow: no
-  with_items:
+  loop:
     - .bash_history
     - .viminfo
     - .lesshst

@@ -18,7 +18,7 @@
     mode: '0755'
     state: directory
     follow: no
-  with_items:
+  loop:
     - '{{ tls_dhparams_script_dir }}'
     - '{{ tls_dhparams_data_dir }}'
 

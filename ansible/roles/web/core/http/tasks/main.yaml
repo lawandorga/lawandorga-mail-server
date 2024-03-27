@@ -25,7 +25,7 @@
     mode: '0755'
     state: directory
     follow: no
-  with_items: '{{ web_core_http_dirs }}'
+  loop: '{{ web_core_http_dirs }}'
 
 
 # Notes:

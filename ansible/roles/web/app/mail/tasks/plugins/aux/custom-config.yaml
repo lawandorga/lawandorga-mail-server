@@ -12,7 +12,7 @@
     mode: '0755'
     state: directory
     follow: no
-  with_items:
+  loop:
     - /usr/local/etc/roundcube
     - /usr/local/etc/roundcube/plugins
     - /usr/local/etc/roundcube/plugins/{{ web_app_mail_plugin_name }}

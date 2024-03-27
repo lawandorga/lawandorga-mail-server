@@ -72,7 +72,7 @@
     regexp: '^;?{{ item.key }} *='
     line: '{{ item.key }} = {{ item.value }}'
 
-  with_items:
+  loop:
 
     # Notes:
     #  * This should not be relied upon too much.  [1, 2]

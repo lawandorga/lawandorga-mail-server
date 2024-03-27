@@ -10,7 +10,7 @@
     mode: '0755'
     state: directory
     follow: no
-  with_items:
+  loop:
     - '{{ mail_postfix_maps_dir }}'
     - '{{ mail_postfix_sets_dir }}'
 
@@ -45,7 +45,7 @@
     owner: root
     group: root
     mode: '0600'
-  with_items:
+  loop:
     - postmaster-aliases.pgsql.cf
     - aliases.pgsql.cf
     - sender-to-login.pgsql.cf
@@ -59,7 +59,7 @@
     owner: root
     group: root
     mode: '0600'
-  with_items:
+  loop:
     - mailbox-domains.pgsql.cf
     - users.pgsql.cf
 ...

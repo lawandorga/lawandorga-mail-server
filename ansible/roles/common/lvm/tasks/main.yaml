@@ -28,7 +28,7 @@
 
     - name: (Re-)move old backup & archive directories
       ansible.builtin.include_tasks: "move_statedir.yaml"
-      with_items:
+      loop:
         - backup
         - archive
       vars:

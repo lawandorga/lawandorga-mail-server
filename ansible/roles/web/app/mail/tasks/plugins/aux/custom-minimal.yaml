@@ -14,7 +14,7 @@
     mode: '0755'
     state: directory
     follow: no
-  with_items:
+  loop:
     - /usr/local/share/roundcube
     - /usr/local/share/roundcube/plugins
     - /usr/local/share/roundcube/plugins/{{ web_app_mail_plugin_name }}

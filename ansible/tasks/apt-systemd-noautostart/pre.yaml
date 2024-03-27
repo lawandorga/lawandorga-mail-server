@@ -27,5 +27,5 @@
     name: '{{ item }}'
     masked: yes
   when: "mask_package_name|string not in ansible_facts.packages"
-  with_items: '{{ mask_systemd_units }}'
+  loop: '{{ mask_systemd_units }}'
 ...

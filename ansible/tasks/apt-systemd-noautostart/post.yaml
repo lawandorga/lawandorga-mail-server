@@ -7,5 +7,5 @@
   ansible.builtin.systemd:
     name: '{{ item }}'
     masked: no
-  with_items: '{{ mask_systemd_units }}'
+  loop: '{{ mask_systemd_units }}'
 ...

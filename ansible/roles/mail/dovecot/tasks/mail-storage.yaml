@@ -31,7 +31,7 @@
     mode: '0700'
     state: directory
     follow: no
-  with_items:
+  loop:
     - '{{ mail_dovecot_storage_base_dir }}'
     - '{{ mail_dovecot_storage_static_accounts_dir }}'
     - '{{ mail_dovecot_storage_dynamic_accounts_dir }}'
