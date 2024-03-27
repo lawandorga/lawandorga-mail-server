@@ -44,7 +44,7 @@ typeset -r cfg_PGSQL_DBNAME_WEBMAIL='{{ database_name_webmail }}'
 typeset -r cfg_PGSQL_DBNAME_MAIL='{{ database_name_mail }}'
 
 # See the `deluser` script.
-typeset -r cfg_QUERY_WEBMAIL_ACCOUNTS="SELECT username FROM users;"
+typeset -r cfg_QUERY_WEBMAIL_ACCOUNTS='SELECT username FROM users;'
 
 # Notes:
 #  * See also `/ansible/roles/mail/postfix/templates/sets/users.pgsql.cf.j2`.
