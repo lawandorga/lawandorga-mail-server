@@ -84,14 +84,14 @@ auth_master_user_separator = {{ mail_dovecot_group_account_separator }}
 #    - Such overlaps should, however, not be possible.
 passdb {
   driver = sql
-  args = {{ mail_dovecot_conf_aux_dir }}/sql-adminauth.conf.ext
+  args = {{ mail_dovecot_confdir_external }}/sql-adminauth.conf.ext
   master = yes
 }
 
 # Regular group accounts.
 passdb {
   driver = sql
-  args = {{ mail_dovecot_conf_aux_dir }}/sql-groupauth.conf.ext
+  args = {{ mail_dovecot_confdir_external }}/sql-groupauth.conf.ext
   master = yes
 }
 
@@ -102,7 +102,7 @@ passdb {
 #    - <https://doc.dovecot.org/configuration_manual/authentication/password_databases_passdb/>
 passdb {
   driver = sql
-  args = {{ mail_dovecot_conf_aux_dir }}/sql-common.conf.ext
+  args = {{ mail_dovecot_confdir_external }}/sql-common.conf.ext
 }
 
 
@@ -118,7 +118,7 @@ passdb {
 #    - <https://doc.dovecot.org/configuration_manual/authentication/passwd_file/>
 userdb {
   driver = passwd-file
-  args = {{ mail_dovecot_conf_aux_dir }}/static-users.passwd
+  args = {{ mail_dovecot_confdir_external }}/static-users.passwd
 }
 
 
@@ -127,5 +127,5 @@ userdb {
 #    - <https://doc.dovecot.org/configuration_manual/authentication/user_databases_userdb/>
 userdb {
   driver = sql
-  args = {{ mail_dovecot_conf_aux_dir }}/sql-common.conf.ext
+  args = {{ mail_dovecot_confdir_external }}/sql-common.conf.ext
 }

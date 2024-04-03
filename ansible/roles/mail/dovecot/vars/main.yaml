@@ -22,7 +22,32 @@ mail_dovecot_admin_address: 'postmaster@{{ mail_default_domain }}'
 mail_dovecot_group_account_separator: '*'
 
 
-mail_dovecot_conf_aux_dir: /etc/dovecot/extra
+# Notes:
+#  * We deliberately avoid the usual /etc/dovecot/conf.d, to avoid collisions.
+mail_dovecot_confdir_root: /etc/dovecot/conf
+
+mail_dovecot_confdir_explicit_root: '{{ mail_dovecot_confdir_root }}/explicit'
+mail_dovecot_confdir_implicit_root: '{{ mail_dovecot_confdir_root }}/implicit'
+mail_dovecot_confdir_external: '{{ mail_dovecot_confdir_root }}/external'
+
+mail_dovecot_confdir_explicit_base:
+  '{{ mail_dovecot_confdir_explicit_root }}/base'
+
+mail_dovecot_confdir_snippets:
+  '{{ mail_dovecot_confdir_explicit_root }}/snippet'
+
+mail_dovecot_confdir_implicit_global:
+  '{{ mail_dovecot_confdir_implicit_root }}/global'
+
+mail_dovecot_confdirs:
+  - '{{ mail_dovecot_confdir_root }}'
+  - '{{ mail_dovecot_confdir_explicit_root }}'
+  - '{{ mail_dovecot_confdir_implicit_root }}'
+  - '{{ mail_dovecot_confdir_external }}'
+  - '{{ mail_dovecot_confdir_explicit_base }}'
+  - '{{ mail_dovecot_confdir_snippets }}'
+  - '{{ mail_dovecot_confdir_implicit_global }}'
+
 
 mail_dovecot_sysctl_conf_path: /etc/sysctl.d/50-dovecot-custom.conf
 ...

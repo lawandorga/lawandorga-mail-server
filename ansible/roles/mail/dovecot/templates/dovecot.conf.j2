@@ -100,13 +100,16 @@ mail_temp_scan_interval = {{ privacy_mail_dovecot_tmp_cleanup_frequency_days }}d
 #  - Notably, variables need to be defined before use.
 #  - See <https://doc.dovecot.org/configuration_manual/config_file/>.
 
-!include {{ mail_dovecot_conf_aux_dir }}/services.conf
-!include {{ mail_dovecot_conf_aux_dir }}/tls.conf
-!include {{ mail_dovecot_conf_aux_dir }}/auth.conf
-!include {{ mail_dovecot_conf_aux_dir }}/logging.conf
+!include {{ mail_dovecot_confdir_explicit_base }}/services.conf
+!include {{ mail_dovecot_confdir_explicit_base }}/tls.conf
+!include {{ mail_dovecot_confdir_explicit_base }}/auth.conf
+!include {{ mail_dovecot_confdir_explicit_base }}/logging.conf
 
-!include {{ mail_dovecot_conf_aux_dir }}/mail-storage.conf
-!include {{ mail_dovecot_conf_aux_dir }}/mailboxes.conf
+!include {{ mail_dovecot_confdir_explicit_base }}/mail-storage.conf
+!include {{ mail_dovecot_confdir_explicit_base }}/mailboxes.conf
 
-!include {{ mail_dovecot_conf_aux_dir }}/lmtp.conf
-!include {{ mail_dovecot_conf_aux_dir }}/imap.conf
+!include {{ mail_dovecot_confdir_explicit_base }}/lmtp.conf
+!include {{ mail_dovecot_confdir_explicit_base }}/imap.conf
+
+
+!include {{ mail_dovecot_confdir_implicit_global }}/*.conf
