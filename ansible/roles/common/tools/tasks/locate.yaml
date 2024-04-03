@@ -12,10 +12,14 @@
     line: 'PRUNEPATHS="{{ locate_prunepaths }}"'
 
 
-- name: locate - Append ramfs to PRUNEFS
+# Note:
+#  * This would not work properly (TODO) if
+#    - `ramfs` were already present as first value, or
+#    - the list of values were empty.
+- name: locate - Add ramfs to PRUNEFS
   ansible.builtin.lineinfile:
     path: /etc/updatedb.conf
-    regexp: '^PRUNEFS="(.*?)(\s+ramfs)?"\s*$'
-    line: 'PRUNEFS="\1 ramfs"'
+    regexp: '^PRUNEFS="(.*?)(\s+ramfs(\s+.*)?)?"\s*$'
+    line: 'PRUNEFS="\1 ramfs\3"'
     backrefs: yes
 ...
