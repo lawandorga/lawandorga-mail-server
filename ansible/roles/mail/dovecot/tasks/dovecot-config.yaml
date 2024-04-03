@@ -52,6 +52,44 @@
     - 'mail/dovecot : Reload Dovecot'
 
 
+# Notes:
+#  * This basically is just meant to create an empty file.
+#    * We use `ansible.builtin.lineinfile` with `create=true` in place of
+#      `ansible.builtin.file` with `touch=true`, because the latter would
+#      update the timestamp unconditionally.
+#  * The idea is that for each (lmtp-specific) plugin PLUGIN we add a line
+#    `mail_plugins = $mail_plugins PLUGIN`.
+#    * We thereby implicitly inherit the global $mail_plugins setting.
+#  * Alternatives:
+#    * Configure all lmtp-specific plugins as
+#      `mail_plugins = $mail_plugins PLUGIN_0 PLUGIN_1 ...`.
+#      * For each lmtp-specific plugin, we'd modify that line using
+#        `ansible.builtin.lineinfile` with a regex.
+#        * The chosen solution is deemed simpler.
+#      * This could also be achieved via `mail_plugins = < file`, where
+#        `file` would need to contain a space separated list of the plugins.
+#        * Note that `file` would not be allowed to contain '\n' (including at
+#          the end).
+#    * Create a small configuration file for each lmtp-specific plugin, and
+#      wildcard-include these.
+#  * The `mail_plugins` variable (within the lmtp context) should not be
+#    updated anywhere else.
+#    * On why, see
+#      <https://doc.dovecot.org/configuration_manual/config_file/#variable-expansion>.
+#
+- name: Create lmtp $mail_plugins configuration file
+  ansible.builtin.lineinfile:
+    path: '{{ mail_dovecot_lmtp_mail_plugins_config_path }}'
+    line: '# LMTP $mail_plugins configuration'      # Dummy line.
+    create: true
+    owner: root
+    group: root
+    mode: '0644'
+    validate: "doveconf -nc '%s'"
+  notify:
+    - 'mail/dovecot : Reload Dovecot'
+
+
 - name: Install basic to be included configuration files
   ansible.builtin.template:
     src: 'dovecot/base/{{ item }}.j2'

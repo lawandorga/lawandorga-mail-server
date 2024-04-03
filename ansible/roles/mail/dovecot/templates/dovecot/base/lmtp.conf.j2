@@ -27,3 +27,9 @@ lmtp_add_received_header = yes
 
 # Default.
 #lmtp_hdr_delivery_address = final
+
+
+
+protocol lmtp {
+  !include {{ mail_dovecot_lmtp_mail_plugins_config_path }}
+}

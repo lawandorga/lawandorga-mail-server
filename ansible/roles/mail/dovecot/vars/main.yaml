@@ -49,5 +49,9 @@ mail_dovecot_confdirs:
   - '{{ mail_dovecot_confdir_implicit_global }}'
 
 
+mail_dovecot_lmtp_mail_plugins_config_path:
+  '{{ mail_dovecot_confdir_snippets }}/lmtp-mail-plugins.conf'
+
+
 mail_dovecot_sysctl_conf_path: /etc/sysctl.d/50-dovecot-custom.conf
 ...
