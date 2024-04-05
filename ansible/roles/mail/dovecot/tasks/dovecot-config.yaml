@@ -111,6 +111,28 @@
     - 'mail/dovecot : Reload Dovecot'
 
 
+# Notes:
+#  * Dovecot's `!include` fails on wildcards with no matches.
+#    - This appears to be a Bug.
+#      - See <https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=1068478>.
+#    - Upstream documentation (as of 2024-04-05) says on `!include`:
+#      - "It’s not an error if wildcards don’t result in any matching files."
+#      - <https://doc.dovecot.org/configuration_manual/config_file/#including-config-files>
+#    - The alternative `!include_try` works, but also ignores errors due to
+#      denied read permission.
+- name: Install empty placeholder configuration file
+  ansible.builtin.copy:
+    content: ''
+    dest: '{{ mail_dovecot_confdir_implicit_global }}/_empty.conf'
+    owner: root
+    group: root
+    mode: '0644'
+    follow: false
+    validate: "doveconf -nc '%s'"
+  notify:
+    - 'mail/dovecot : Reload Dovecot'
+
+
 - name: Install main Dovecot configuration file
   ansible.builtin.template:
     src: dovecot.conf.j2
