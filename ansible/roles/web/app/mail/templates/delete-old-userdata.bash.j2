@@ -69,7 +69,7 @@ typeset -ra cfg_STATIC_ACCOUNTS=('{{ mail_admin_address }}')
 #      - This seems to be the case
 #        (roundcube-core debver 1.4.13+dfsg.1-1~deb11u1).
 #  * See also
-#    - `/ansible/roles/mail/dovecot/templates/dovecot/auth.conf.j2#auth_username_chars`
+#    - `/ansible/roles/mail/dovecot/templates/dovecot/base/auth.conf.j2#auth_username_chars`
 typeset -r cfg_ACCOUNT_FORMAT_REGEX='^[a-z0-9._@-]+$'
 
 typeset -r \

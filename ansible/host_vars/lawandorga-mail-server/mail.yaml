@@ -3,7 +3,7 @@
 
 
 # Memory.
-#  - See `/ansible/roles/mail/dovecot/templates/services.conf.j2`.
+#  - See `/ansible/roles/mail/dovecot/templates/dovecot/base/services.conf.j2`.
 #  - We cannot set this in the role vars, because that should be agnostic
 #    w.r.t. the available server memory.
 mail_dovecot_auth_memory_limit: 2G

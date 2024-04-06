@@ -378,7 +378,7 @@ smtpd_tls_auth_only = yes
 
 # Restrict SASL mechanism to PLAIN.
 #  - We place the same restriction on Dovecot's end.
-#    - See `/ansible/roles/mail/dovecot/templates/dovecot/auth.conf.j2`.
+#    - See `/ansible/roles/mail/dovecot/templates/dovecot/base/auth.conf.j2`.
 #  - This is effectively redundant.
 #    - Naturally, this cannot widen the actual authentication methods allowed
 #      by the Dovecot auth backend.
