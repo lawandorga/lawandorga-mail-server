@@ -1,0 +1,38 @@
+---
+- name: Install sieve plugin
+  ansible.builtin.apt:
+    name: dovecot-sieve
+    state: present
+
+
+- name: Configure sieve plugin
+  ansible.builtin.template:
+    src: sieve.conf.j2
+    dest: '{{ mail_dovecot_confdir_implicit_global }}/sieve.conf'
+    owner: root
+    group: root
+    mode: '0644'
+    follow: false
+    validate: "doveconf -nc '%s'"
+  notify:
+    - 'mail/dovecot : Reload Dovecot'
+
+
+- name: Enable sieve plugin for lmtp
+  ansible.builtin.lineinfile:
+    path: '{{ mail_dovecot_lmtp_mail_plugins_config_path }}'
+    line: 'mail_plugins = $mail_plugins sieve'
+    validate: "doveconf -nc '%s'"
+  notify:
+    - 'mail/dovecot : Reload Dovecot'
+
+
+- name: Configure logrotate for sieve
+  ansible.builtin.template:
+    src: logrotate.conf.j2
+    dest: /etc/logrotate.d/dovecot-sieve
+    owner: root
+    group: root
+    mode: '0644'
+    follow: false
+...

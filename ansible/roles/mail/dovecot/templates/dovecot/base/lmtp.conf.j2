@@ -14,7 +14,9 @@
 # How to handle detail elements (usually user+detail@domain).
 #  - See <https://doc.dovecot.org/configuration_manual/protocols/lmtp_server/#address-extension-delivery>.
 
-# Note: Postfix (importantly) sets the same recipient delimiter.
+# Notes:
+#  * Postfix (importantly) sets the same recipient delimiter.
+#  * The sieve plugin also sets the same recipient delimiter.
 recipient_delimiter = {{ mail_recipient_delimiter }}
 
 # Default.

@@ -1,0 +1,74 @@
+# Sieve Filtering
+
+# See 
+#  - [0] <https://doc.dovecot.org/configuration_manual/sieve/configuration/>
+#  - [1] `/etc/dovecot/conf.d/90-sieve.conf`
+#  - [2] <https://doc.dovecot.org/configuration_manual/sieve/>
+#  - [3] <https://doc.dovecot.org/settings/pigeonhole/>
+
+
+plugin {
+  sieve = file:~/{{
+    mail_dovecot_sieve_scripts_reldir
+  }};active=~/{{
+    mail_dovecot_sieve_active_script_relpath
+  }}
+
+  # Unused.
+  #sieve_default = 
+  #sieve_default_name =
+
+  # CONSIDER:
+  #sieve_global = /etc/dovecot/sieve/global
+  #sieve_before*
+  #sieve_after*
+
+  # Notes:
+  #  * Relevant to privacy.
+  #  * See also `./logrotate.conf`.
+  sieve_user_log = ~/{{ mail_dovecot_sieve_log_file_relpath }}
+
+
+  # Disable redirects.
+  # Notes:
+  #  * Reasons:
+  #    - Avoid privacy issues.
+  #      - Senders generally do not expect their mail to be forwarded to a
+  #        third party mail server.
+  #      - Users may be tempted to forward mail to a mail server with weak
+  #        privacy protections and/or security.
+  #    - Avoid SPF issues.
+  #      - Otherwise, one could use:
+  #        - Sender Rewriting Scheme, or
+  #        - `sieve_redirect_envelope_from`
+  #    - See also `../vars/main.yaml#mail_dovecot_sieve_extensions` (automated
+  #      mail sending).
+  #  * Prior to Pigeonhole v0.3.0, this would make the number or redirects
+  #    unlimited instead.
+  sieve_max_redirects = 0
+
+
+  # Notes:
+  #  * This is actually specific to the `subaddress` extension.
+  #    * It is given here because:
+  #      - (a) In the documentation, it is listed among the general settings
+  #        for the sieve plugin.  [0]
+  #      - (b) It has a generic name.
+  #      - (c) (a) and (b) indicate that the setting might be used for more
+  #        than the `subaddress` extension in the future.
+  #  * See also the same setting in `mail/dovecot`'s `lmtp.conf`.
+  recipient_delimiter = {{ mail_recipient_delimiter }}
+
+
+  sieve_extensions = {{
+    mail_dovecot_sieve_extensions | map(attribute='name') | join(' ')
+  }}
+
+{% for ext in mail_dovecot_sieve_extensions %}
+{% for setting in ( ext.settings | default([]) ) %}
+{% if setting.value is defined %}
+  {{ setting.key }} = {{ setting.value }}
+{% endif %}
+{% endfor %}
+{% endfor %}
+}

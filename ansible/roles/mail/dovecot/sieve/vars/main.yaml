@@ -1,0 +1,100 @@
+---
+mail_dovecot_sieve_active_script_relpath: sieve/active.sieve
+mail_dovecot_sieve_scripts_reldir: sieve/scripts
+
+# Note:
+#  * The log file's parent directory must exist when the log file is to be
+#    created by Dovecot (which requires a script to exist).
+#    - I.e., `sieve/` is OK, `sieve/log/` is not.
+mail_dovecot_sieve_log_file_relpath: sieve/active.log
+mail_dovecot_sieve_log_logrotate_olddir: active.log.old.d
+
+
+# Notes:
+#  * All extensions considered (2024-03-28 -- 2024-03-31).
+#    - See:
+#      - [0] <https://doc.dovecot.org/configuration_manual/sieve/pigeonhole_sieve_interpreter/>
+#      - [1] <https://doc.dovecot.org/configuration_manual/sieve/#sieve-plugins>
+#    - Skimmed over the respective (linked) RFCs.
+#      - Notably the respective "Security Considerations".
+#    - All listed below, except if deprecated or specific to Dovecot.
+#      - Listed in the order found at [0].
+#  * General rules for inclusion/exclusion:
+#    * Allow tests (e.g., `envelope`).
+#    * Disallow automated mail sending (e.g., `enotify`, `vacation`).
+#      * Reason:
+#        * Avoid backscatter (and similar).
+#          - See:
+#            - <https://www.backscatterer.org/?target=autoresponders>
+#            - <https://en.wikipedia.org/wiki/Backscatter_(email)>
+#            - Postfix' BACKSCATTER_README
+#      * Varieties of automated mail sending:
+#        * bounce (`reject`)
+#          * Risk of backscatter.
+#        * auto-reply (`vacation`)
+#          * Risk of equivalent to backscatter.
+#        * mail to third party (`enotify`, redirect)
+#          * See also `../templates/sieve.conf.j2#sieve_max_redirects`.
+#          * This is generally less of a problem.
+#            * Generally, only the volume may become a problem here.
+#              * I.e., if we get lots of spam.
+#          * Generally allows emulating auto-reply.
+#      * See also RFC 3834 (on "Automatic Responses to Electronic Mail").
+#      * If we did allow this, see also the `sieve_user_email` setting.
+#    * Disallow modification of messages (e.g., `editheader`).
+#      * This is just a thing not to do.
+#      * Note that users can still modify messages via IMAP.
+#        * Any such modification should be logged (but the logs are not
+#          generally kept for long).
+#      * Note that modification of IMAP flags is deemed OK.
+#  * Some extensions have their own settings, which should be considered.
+#    * See
+#      - [1] (and pages linked there).
+#      - [2] <https://doc.dovecot.org/configuration_manual/sieve/configuration/>
+#      - [3] <https://doc.dovecot.org/settings/pigeonhole-ext/>
+#    * We list all settings for enabled extensions.
+#    * We leave some settings at their default value (missing `value` field).
+#    * We only configure extensions that we actually use.
+#      * Hence, upon enabling any new extension, there may be new settings to
+#        add.
+#
+mail_dovecot_sieve_extensions:
+  - name: body
+  - name: copy
+  - name: date
+  # name: duplicate         - reason: unsure about privacy implications
+  #                           (duplicate-tracking list / database)
+  # name: editheader        - reason: message modification
+  - name: encoded-character
+  # name: enotify           - reason: automated mail sending
+  - name: envelope
+  # name: environment       - unsure; default enabled; probably unneeded
+  - name: fileinto
+  - name: foreverypart
+  - name: ihave
+  - name: imap4flags
+  # name: imapsieve         - CONSIDER; would require corresponding IMAP plugin
+  - name: include
+    settings:
+      - key: sieve_include_max_inlines
+      - key: sieve_include_max_nesting_depth
+  - name: index
+  - name: mailbox
+  # name: mboxmetadata      - unsure; default disabled; probably rarely needed
+  - name: mime
+  - name: extracttext
+  - name: regex
+  # name: reject            - reason: automated mail sending (bounce)
+  - name: relational
+  # name: servermetadata    - unsure; default disabled; probably rarely needed
+  # name: spamtest          - unsure; default disabled
+  - name: subaddress        # See also $recipient_delimiter in
+                            # `../templates/sieve.conf.j2`.
+  # name: vacation          - reason: automated mail sending (auto-reply)
+  # name: vacation-seconds  - reason: extension to `vacation`
+  - name: variables
+    settings:
+      - key: sieve_variables_max_scope_size
+      - key: sieve_variables_max_variable_size
+  # name: virustest         - unsure; default disabled
+...

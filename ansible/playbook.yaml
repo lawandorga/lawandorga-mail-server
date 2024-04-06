@@ -10,6 +10,7 @@
     - backup
     - monitor/diskspace
     - mail
+    - mail/dovecot/sieve
     - web/app/mail
 
 
