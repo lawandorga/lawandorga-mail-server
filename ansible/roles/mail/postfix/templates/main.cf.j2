@@ -929,12 +929,12 @@ smtpd_helo_required = yes
 #  - Default.
 #strict_rfc821_envelopes = no
 
-# Disallow "\n" as line terminator (require "\r\n").
+# Disallow bare newlines around end-of-message `.` (require "\r\n.\r\n").
 #  - This addresses CVE-2023-51764.
 #    - See also <https://www.postfix.org/smtp-smuggling.html>.
 #  - Except for ${mynetworks} - (useful for testing via netcat).
 #    - Default.
-smtpd_forbid_bare_newline = yes
+smtpd_forbid_bare_newline = normalize
 smtpd_forbid_bare_newline_exclusions = $mynetworks
 
 # Notes:
