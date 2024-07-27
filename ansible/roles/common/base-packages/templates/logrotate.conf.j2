@@ -113,8 +113,11 @@ dateext
 # Notes:
 #  - Only quite few format strings allowed, unlike with date(1).
 #  - The lexicographic order must match the order of time.
-#  - The chosen format makes most sense with `daily` rotation.
-dateformat .%Y-%m-%d
+#  - We intentionally use high precision.
+#    - With daily rotation, if happening around midnight, we fear that
+#      otherwise date strings might collide.
+#      - logrotate errors if the file to be rotated to already exists.
+dateformat .%Y-%m-%dT%H:%M:%S
 
 
 
