@@ -260,13 +260,10 @@ $config['date_short'] = 'D H:i';
 $config['date_long'] = 'Y-m-d H:i';
 
 // Special folders.
-//  - Defaults.
-//  - To be kept in sync with Dovecot's configuration.
-//    - `/ansible/roles/mail/dovecot/templates/dovecot/base/mailboxes.conf.j2`
-$config['drafts_mbox'] = 'Drafts';
-$config['junk_mbox'] = 'Junk';
-$config['sent_mbox'] = 'Sent';
-$config['trash_mbox'] = 'Trash';
+$config['drafts_mbox'] = '{{ mail_dovecot_mailbox_name_drafts }}';
+$config['junk_mbox']   = '{{ mail_dovecot_mailbox_name_junk }}';
+$config['sent_mbox']   = '{{ mail_dovecot_mailbox_name_sent }}';
+$config['trash_mbox']  = '{{ mail_dovecot_mailbox_name_trash }}';
 
 // Dovecot does that.
 $config['create_default_folders'] = false;  // Default.

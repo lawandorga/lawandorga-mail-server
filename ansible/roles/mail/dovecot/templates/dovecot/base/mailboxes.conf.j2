@@ -19,20 +19,18 @@ namespace inbox {
   # Default mailboxes.
   #  - All below mailboxes are created and subscribed to by default.
   #    - (`auto = subscribe`)
-  #  - To be kept in sync with Roundcube's configuration.
-  #    - `/ansible/roles/web/app/mail/templates/roundcube.conf.php.j2`
 
-  mailbox Drafts {
+  mailbox "{{ mail_dovecot_mailbox_name_drafts }}" {
     special_use = \Drafts
     auto = subscribe
   }
 
-  mailbox Junk {
+  mailbox "{{ mail_dovecot_mailbox_name_junk }}" {
     special_use = \Junk
     auto = subscribe
   }
 
-  mailbox Trash {
+  mailbox "{{ mail_dovecot_mailbox_name_trash }}" {
     special_use = \Trash
     auto = subscribe
   }
@@ -40,12 +38,8 @@ namespace inbox {
   # In the default configuration (`/etc/dovecot/conf.d/15-mailboxes.conf`),
   # there are two \Sent mailboxes configured.
   #  - We are picky.
-  mailbox Sent {
+  mailbox "{{ mail_dovecot_mailbox_name_sent }}" {
     special_use = \Sent
     auto = subscribe
   }
-  #mailbox "Sent Messages" {
-  #  special_use = \Sent
-  #  auto = subscribe
-  #}
 }

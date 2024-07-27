@@ -1,3 +1,10 @@
 ---
 mail_dovecot_hostname: '{{ fqdn }}'
+
+
+# These should best be alphanumeric.
+mail_dovecot_mailbox_name_drafts: Drafts
+mail_dovecot_mailbox_name_junk: Junk
+mail_dovecot_mailbox_name_trash: Trash
+mail_dovecot_mailbox_name_sent: Sent
 ...
