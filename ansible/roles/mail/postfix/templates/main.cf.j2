@@ -811,6 +811,12 @@ virtual_alias_maps =
 ## local(8) delivery
 
 # We do not want any mail to be delivered by local(8).
+#  - See also STANDARD_CONFIGURATION_README#"Postfix email firewall/gateway".
+#    - Beware of `local_recipient_maps =`
+#      and `local_transport = error:...`, which cause bounces, and, therefore,
+#      risk backscatter.
+#      - For the former, see LOCAL_RECIPIENT_README.
+#      - For the latter, see transport(5).
 #  - It would (by default) end up in ${mail_spool_directory}/USER and never be
 #    read.
 #  - All mail should be ultimately delivered by Dovecot as "virtual" mail.
@@ -1070,6 +1076,7 @@ submission_helo_restrictions =
 #      - It is generally not unallowed to have several servers sending mail
 #        with the same sender domain.
 #        - It's SPF's job to restrict that.
+#          - Sidenote: We do not enforce SPF for authenticated senders.
 smtpd_sender_restrictions =
 	reject_non_fqdn_sender,
 	reject_unknown_sender_domain,
