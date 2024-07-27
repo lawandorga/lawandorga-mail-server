@@ -1,8 +1,7 @@
 ---
 # Configure hardware clock.
 #  * See adjtime_config(5).
-#  * We use `sed` (with `warn = false`); `replace` and `lineinfile` do not
-#    understand line numbers.
+#  * We use `sed`; `replace` and `lineinfile` do not understand line numbers.
 
 
 - name: Check existence of hardware clock configuration
@@ -22,7 +21,6 @@
       - '-En'
       - '3 { /^{{ clock_mode }}$/ q 23 }'  # GNU sed specific
       - '{{ adjtime_path }}'
-    warn: false
   register: adjtime_config
   changed_when: no
   failed_when:
@@ -48,7 +46,6 @@
       - '-Ei'
       - '3 c {{ clock_mode }}'
       - '{{ adjtime_path }}'
-    warn: false
   when:
     - 'adjtime_stat.stat.exists and adjtime_stat.stat.isreg'
     - 'adjtime_config.rc == 0'
