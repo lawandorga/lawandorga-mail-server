@@ -13,14 +13,12 @@ dependencies:
   - role: database-access
   - role: tls/dhparams
   - role: tls/acme
-  - role: backup
-  - role: common/firewall
 
   # We want/need
   #  - a local DNSSEC validating resolver
   #    - to verify DANE TLSA records,
   #    - for OpenDKIM.
-  #      - See `..//templates/opendkim/opendkim.conf.j2`.
+  #      - See `../templates/opendkim/opendkim.conf.j2`.
   #  - a local resolver, for SPF checking performance.
   #    - See policyd-spf(1)#PERFORMANCE_CONSIDERATIONS.
   #    - SPF, like most DNS related things, does also benefit from DNSSEC.
