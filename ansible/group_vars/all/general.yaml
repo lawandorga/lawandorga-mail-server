@@ -43,6 +43,10 @@ readonly_mountpoints:
 tools_aliases:
   - key: ls
     value: "'ls --color=auto'"
+  - key: grep
+    value: "'grep --color=auto'"
+  - key: zgrep
+    value: "'zgrep --color=auto'"
   - key: ed
     value: "'ed -p:'"
 ...
