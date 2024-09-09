@@ -1,5 +1,5 @@
 ---
-mail_static_domains: '{{ mail_static_domains_standard + mail_static_domains_extra | unique }}'
+mail_static_domains: '{{ mail_static_domains_standard + mail_static_domains_extra | unique | list }}'
 
 # This must contain {{ mail_default_domain }}.
 #  - See `/ansible/roles/mail/postfix/templates/main.cf.j2#myorigin`.
@@ -13,7 +13,7 @@ mail_admin_address_localpart: admin
 mail_admin_address:
   '{{ mail_admin_address_localpart }}@{{ mail_default_domain }}'
 
-mail_admin_alias_localparts: '{{ mail_admin_alias_localparts_standard + mail_admin_alias_localparts_extra | unique }}'
+mail_admin_alias_localparts: '{{ mail_admin_alias_localparts_standard + mail_admin_alias_localparts_extra | unique | list }}'
 
 # We should not include `postmaster` here.
 #  - `postmaster` is handled explicitly (and for all domains).

@@ -1,5 +1,5 @@
 ---
-pkgs_tools: '{{ pkgs_tools_standard + pkgs_tools_extra | unique }}'
+pkgs_tools: '{{ pkgs_tools_standard + pkgs_tools_extra | unique | list }}'
 
 pkgs_tools_standard:
 

@@ -10,5 +10,5 @@ fstab_file: ../conf/fstab
 tls_acme_contacts:
   - 'mailto:acme@{{ mail_default_domain }}'
 
-tls_acme_domain_names: '{{ [ fqdn, webmail_domain ] | unique }}'
+tls_acme_domain_names: '{{ [ fqdn, webmail_domain ] | unique | list }}'
 ...
