@@ -233,7 +233,7 @@ inet_protocols = ipv4
 
 inet_interfaces = all
 
-# Allow unauthorized outbound mail only from this host.
+# Allow unauthenticated outbound mail only from this host.
 #  - The first sets ${mynetworks} to local IP addresses.
 #  - See also `reject_unauth_destination'.
 #  - Note that there is no `relay` service configured in `master.cf`, unlike
@@ -271,7 +271,7 @@ biff = no
 maximal_queue_lifetime = {{ privacy_mail_postfix_queue_max_lifetime_days }}d
 bounce_queue_lifetime = {{ privacy_mail_postfix_queue_max_lifetime_days }}d
 
-# How soon to get a warning on a not yet delivered email.
+# How soon to get a warning on a not yet delivered email message.
 delay_warning_time = 1h
 
 # Inform senders that were told about a delay of a now successful delivery.
