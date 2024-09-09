@@ -2,6 +2,11 @@
 # HTTPS server (nginx).
 
 
+# Ensure TLS certificates are set up.
+- name: Flush handlers
+  ansible.builtin.meta: flush_handlers
+
+
 - name: Configure TLS settings
   ansible.builtin.template:
     src: tls.conf.j2
