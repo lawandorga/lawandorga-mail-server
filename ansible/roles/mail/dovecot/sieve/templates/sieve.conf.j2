@@ -29,23 +29,19 @@ plugin {
   sieve_user_log = ~/{{ mail_dovecot_sieve_log_file_relpath }}
 
 
-  # Disable redirects.
+  # `redirect` command.
   # Notes:
-  #  * Reasons:
-  #    - Avoid privacy issues.
-  #      - Senders generally do not expect their mail to be forwarded to a
-  #        third party mail server.
-  #      - Users may be tempted to forward mail to a mail server with weak
-  #        privacy protections and/or security.
-  #    - Avoid SPF issues.
-  #      - Otherwise, one could use:
-  #        - Sender Rewriting Scheme, or
-  #        - `sieve_redirect_envelope_from`
-  #    - See also `../vars/main.yaml#mail_dovecot_sieve_extensions` (automated
-  #      mail sending).
-  #  * Prior to Pigeonhole v0.3.0, this would make the number or redirects
-  #    unlimited instead.
+  #  * See `/doc/mail/dovecot/sieve/redirect.md`.
+  #  * Prior to Pigeonhole v0.3.0, a value of 0 would make the number of
+  #    redirects unlimited (instead of disabling them).
+{% if mail_dovecot_sieve_allow_redirect %}
+  sieve_max_redirects = {{ mail_dovecot_sieve_max_redirects }}
+{% else %}
   sieve_max_redirects = 0
+{% endif %}
+  sieve_redirect_envelope_from = {{
+    mail_dovecot_sieve_redirect_envelope_from
+  }}
 
 
   # Notes:

@@ -1,0 +1,10 @@
+---
+# Sieve redirects.
+#  - See `/doc/mail/dovecot/sieve/redirect.md`.
+#
+mail_dovecot_sieve_allow_redirect: false
+#
+# Default.
+mail_dovecot_sieve_max_redirects: 4
+#
+mail_dovecot_sieve_redirect_envelope_from: recipient

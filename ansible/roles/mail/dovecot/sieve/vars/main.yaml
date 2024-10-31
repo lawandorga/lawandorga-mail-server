@@ -34,7 +34,7 @@ mail_dovecot_sieve_log_logrotate_olddir: active.log.old.d
 #        * auto-reply (`vacation`)
 #          * Risk of equivalent to backscatter.
 #        * mail to third party (`enotify`, redirect)
-#          * See also `../templates/sieve.conf.j2#sieve_max_redirects`.
+#          * See also `/doc/mail/dovecot/sieve/redirect.md`.
 #          * This is generally less of a problem.
 #            * Generally, only the volume may become a problem here.
 #              * I.e., if we get lots of spam.

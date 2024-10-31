@@ -24,4 +24,8 @@ mail_opendkim_key_selector: 2022-12.law-orga
 # See `./general.yaml#tls_acme_contacts`.
 mail_admin_alias_localparts_extra:
   - acme
+
+
+# See `/doc/mail/dovecot/sieve/redirect.md`.
+mail_dovecot_sieve_allow_redirect: true
 ...
